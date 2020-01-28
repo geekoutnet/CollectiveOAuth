@@ -87,11 +87,13 @@
 - 调用api
 ```C#
 // 创建授权request
-AuthRequest authRequest = new GiteeAuthRequest(ClientConfig.builder()
-        .clientId("clientId")
-        .clientSecret("clientSecret")
-        .redirectUri("redirectUri")
-        .build());
+var clientConfig = new ClientConfig();
+clientConfig.clientId = AppSettingUtils.GetStrValue($"CollectiveOAuth_XXXXXX_ClientId");
+clientConfig.clientSecret = AppSettingUtils.GetStrValue($"CollectiveOAuth_XXXXXX_ClientSecret");
+clientConfig.redirectUri = AppSettingUtils.GetStrValue($"CollectiveOAuth_XXXXXX_RedirectUri");
+clientConfig.scope = AppSettingUtils.GetStrValue($"CollectiveOAuth_XXXXXX_Scope");
+
+AuthRequest authRequest = new GiteeAuthRequest(clientConfig);
 // 生成授权页面
 authRequest.authorize("state");
 // 授权登录后会返回code（auth_code（仅限支付宝））、state，可以用AuthCallback类作为回调接口的参数

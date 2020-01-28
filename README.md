@@ -82,7 +82,7 @@
 ## 快速开始
 
 - 引入依赖
-<img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/depend-on.jpg" width="200"></img>
+<img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/depend-on.jpg" width="600"></img>
 
 - 配置授权信息(默认配置在webconfig中, 可以改造存储数据库或者其它任意地方)
 ```C#

@@ -1,0 +1,63 @@
+﻿@{
+    ViewBag.Title = "CollectiveOAuth授权演示";
+}
+
+<style>
+    .btn-lg, .btn-group-lg > .btn {
+        margin-bottom: 13px;
+    }
+</style>
+<div class="jumbotron">
+    <p>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "WECHAT_MP"})" class="btn btn-primary btn-lg">
+            微信公众号
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "WECHAT_ENTERPRISE"})" class="btn btn-primary btn-lg">
+            企业微信静默
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "WECHAT_ENTERPRISE_SCAN"})" class="btn btn-primary btn-lg">
+            企业微信扫码
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "ALIPAY_MP"})" class="btn btn-primary btn-lg">
+            支付宝服务窗
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "GITEE"})" class="btn btn-primary btn-lg">
+            Gitee
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "GITHUB"})" class="btn btn-primary btn-lg">
+            Github
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "BAIDU"})" class="btn btn-primary btn-lg">
+            百度开放平台
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "XIAOMI"})" class="btn btn-primary btn-lg">
+            小米开放平台
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "DINGTALK_SCAN"})" class="btn btn-primary btn-lg">
+            钉钉扫码
+        </a>
+
+    </p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>Getting started</h2>
+        <p>
+            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
+            enables a clean separation of concerns and gives you full control over markup
+            for enjoyable, agile development.
+        </p>
+        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>Get more libraries</h2>
+        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
+        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>Web Hosting</h2>
+        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
+        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+    </div>
+</div>

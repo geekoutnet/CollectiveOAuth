@@ -201,7 +201,7 @@ namespace Come.CollectiveOAuth.Request
                 .queryParam("response_type", "code")
                 .queryParam("client_id", config.clientId)
                 .queryParam("redirect_uri", config.redirectUri)
-                .queryParam("scope", "r_liteprofile%20r_emailaddress%20w_member_social")
+                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "r_liteprofile%20r_emailaddress%20w_member_social": config.scope)
                 .queryParam("state", getRealState(state))
                 .build();
         }

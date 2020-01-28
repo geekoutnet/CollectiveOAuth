@@ -142,6 +142,9 @@ namespace Come.Web.Sample
                 case DefaultAuthSourceEnum.DINGTALK_SCAN:
                     return new DingTalkScanAuthRequest(clientConfig, authStateCache);
 
+                case DefaultAuthSourceEnum.OSCHINA:
+                    return new OschinaAuthRequest(clientConfig, authStateCache);
+
                 default:
                     return null;
             }

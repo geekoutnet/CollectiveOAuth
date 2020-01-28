@@ -30,6 +30,9 @@ namespace Come.CollectiveOAuth.Enums
 
         [Description("钉钉扫码")]
         DINGTALK_SCAN,
+
+        [Description("OSChina开源中国")]
+        OSCHINA,
         
     }
 }

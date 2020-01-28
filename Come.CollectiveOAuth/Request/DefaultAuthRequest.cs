@@ -120,7 +120,7 @@ namespace Come.CollectiveOAuth.Request
          * @param refreshToken refreshToken
          * @return 返回获取accessToken的url
          */
-        protected virtual string refreshTokenUrl(String refreshToken)
+        protected virtual string refreshTokenUrl(string refreshToken)
         {
             return UrlBuilder.fromBaseUrl(source.refresh())
                 .queryParam("client_id", config.clientId)

@@ -29,7 +29,7 @@ namespace Come.CollectiveOAuth.Request
             authToken.accessToken = accessTokenObject.GetParamString("access_token");
             authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
             authToken.uid = accessTokenObject.GetParamString("uid");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in").Value;
+            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
             authToken.code = authCallback.code;
             return authToken;
         }

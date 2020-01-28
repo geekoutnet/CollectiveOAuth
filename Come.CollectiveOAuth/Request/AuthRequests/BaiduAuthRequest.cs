@@ -28,7 +28,7 @@ namespace Come.CollectiveOAuth.Request
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject.GetParamString("access_token");
             authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in").Value;
+            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
             authToken.scope = accessTokenObject.GetParamString("scope");
 
             return authToken;
@@ -83,7 +83,7 @@ namespace Come.CollectiveOAuth.Request
             var newAuthToken = new AuthToken();
             newAuthToken.accessToken = accessTokenObject.GetParamString("access_token");
             newAuthToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
-            newAuthToken.expireIn = accessTokenObject.GetParamInt32("expires_in").Value;
+            newAuthToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
             newAuthToken.scope = accessTokenObject.GetParamString("scope");
 
             return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), AuthResponseStatus.SUCCESS.GetDesc(), newAuthToken);

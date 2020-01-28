@@ -63,6 +63,7 @@
     <Compile Include="Config\AuthSources\GiteeAuthSource.cs" />
     <Compile Include="Config\AuthSources\DingTalkScanAuthSource.cs" />
     <Compile Include="Config\AuthSources\CodingAuthSource.cs" />
+    <Compile Include="Config\AuthSources\LinkedInAuthSource.cs" />
     <Compile Include="Config\AuthSources\OschinaAuthSource.cs" />
     <Compile Include="Config\AuthSources\XiaoMiAuthSource.cs" />
     <Compile Include="Config\AuthSources\WechatEnterpriseScanAuthSource.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Request\AuthRequests\BaiduAuthRequest.cs" />
     <Compile Include="Request\AuthRequests\DingTalkScanAuthRequest.cs" />
     <Compile Include="Request\AuthRequests\CodingAuthRequest.cs" />
+    <Compile Include="Request\AuthRequests\LinkedInAuthRequest.cs" />
     <Compile Include="Request\AuthRequests\OschinaAuthRequest.cs" />
     <Compile Include="Request\AuthRequests\XiaoMiAuthRequest.cs" />
     <Compile Include="Request\AuthRequests\GiteeAuthRequest.cs" />

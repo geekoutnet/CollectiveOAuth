@@ -97,7 +97,7 @@ namespace Come.CollectiveOAuth.Request
 
             authToken.accessToken = accessTokenObject.GetParamString("access_token");
             authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in").Value;
+            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
             authToken.openId = accessTokenObject.GetParamString("openid");
             authToken.scope = accessTokenObject.GetParamString("scope");
 

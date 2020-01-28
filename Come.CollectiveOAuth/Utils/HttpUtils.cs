@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Net;
 using System.Text;
+using Aop.Api.Domain;
 
 namespace Come.CollectiveOAuth.Utils
 {
@@ -14,7 +16,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="postUrl">The postUrl.</param>
         /// <param name="postData">The post data.</param>
         /// <returns>System.String.</returns>
-        public static string RequestPost(string postUrl, string postData = null, string charset = null)
+        public static string RequestPost(string postUrl, string postData = null, Dictionary<string, object> header = null, string charset = null)
         {
             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12; //加上这一句
             if (string.IsNullOrWhiteSpace(charset))
@@ -46,6 +48,9 @@ namespace Come.CollectiveOAuth.Utils
                 request.Method = "POST";
                 request.ContentType = "application/json;charset=" + charset.ToLower();
                 request.ContentLength = data.Length;
+
+                ComeSetRequestHeader(request, header);
+
                 outstream = request.GetRequestStream();
                 outstream.Write(data, 0, data.Length);
                 outstream.Close();
@@ -72,7 +77,7 @@ namespace Come.CollectiveOAuth.Utils
         /// </summary>
         /// <param name="url">地址</param>
         /// <param name="dic">请求参数定义</param>
-        public static string RequestGet(string url, Dictionary<string, string> dicParams)
+        /*public static string RequestGet(string url, Dictionary<string, string> dicParams)
         {
             string result = "";
             StringBuilder builder = new StringBuilder();
@@ -111,7 +116,7 @@ namespace Come.CollectiveOAuth.Utils
                 stream.Close();
             }
             return result;
-        }
+        }*/
 
 
         /// <summary>
@@ -119,13 +124,14 @@ namespace Come.CollectiveOAuth.Utils
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static string RequestJsonGet(string url)
+        public static string RequestJsonGet(string url, Dictionary<string, object> header = null)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(url);
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(builder.ToString());
             request.UserAgent = "Foo";
             request.Accept = "application/json";
+            ComeSetRequestHeader(request, header);
             return ComeRequestGet(request);
         }
 
@@ -134,14 +140,64 @@ namespace Come.CollectiveOAuth.Utils
         /// </summary>
         /// <param name="url">地址</param>
         /// <param name="dic">请求参数定义</param>
-        public static string RequestGet(string url)
+        public static string RequestGet(string url, Dictionary<string, object> header = null)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(url);
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(builder.ToString());
             request.ContentType = "application/json;charset=utf-8;";
+            ComeSetRequestHeader(request, header);
             return ComeRequestGet(request);
         }
+
+
+        /// <summary>
+        /// 通用的设置RequestHeader方法
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="header"></param>
+        public static void ComeSetRequestHeader(HttpWebRequest request, Dictionary<string, object> header = null)
+        {
+            if (header != null && header.Count > 0)
+            {
+                foreach (var item in header)
+                {
+                    switch (item.Key.ToUpper())
+                    {
+                        case "HOST":
+                            request.Host = Convert.ToString(item.Value);
+                            break;
+                        case "CONTENT-TYPE":
+                            request.ContentType = Convert.ToString(item.Value);
+                            break;
+                        case "CONNECTION":
+                            SetSpecialHeaderValue(request.Headers, item.Key, Convert.ToString(item.Value));
+                            break;
+                        default:
+                            request.Headers.Add(item.Key, Convert.ToString(item.Value));
+                            break;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 设置特殊的header
+        /// </summary>
+        /// <param name="header"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public static void SetSpecialHeaderValue(WebHeaderCollection header, string name, string value)
+        {
+            var property = typeof(WebHeaderCollection).GetProperty("InnerCollection",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (property != null)
+            {
+                var collection = property.GetValue(header, null) as NameValueCollection;
+                collection[name] = value;
+            }
+        }
+
 
         /// <summary>
         /// 通用的get请求

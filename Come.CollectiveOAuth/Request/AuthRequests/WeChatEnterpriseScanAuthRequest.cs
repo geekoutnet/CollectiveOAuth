@@ -34,7 +34,7 @@ namespace Come.CollectiveOAuth.Request
 
             var authToken = new AuthToken();
             authToken.accessToken = jsonObj.GetParamString("access_token");
-            authToken.expireIn = jsonObj.GetParamInt32("expires_in").Value;
+            authToken.expireIn = jsonObj.GetParamInt32("expires_in");
             authToken.code = authCallback.code;
 
             return authToken;

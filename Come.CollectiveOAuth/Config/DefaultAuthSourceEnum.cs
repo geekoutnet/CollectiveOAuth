@@ -37,5 +37,8 @@ namespace Come.CollectiveOAuth.Enums
         [Description("Coding扣钉")]
         CODING,
 
+        [Description("LinkedIn领英")]
+        LINKEDIN,
+
     }
 }

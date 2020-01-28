@@ -183,6 +183,22 @@ namespace Come.CollectiveOAuth.Utils
             }
         }
 
+        //json字符串转换为字典集合
+        public static List<Dictionary<string, object>> parseListObject(this string jsonStr)
+        {
+            var retDic = new List<Dictionary<string, object>>();
+            if (!string.IsNullOrWhiteSpace(jsonStr))
+            {
+                try
+                {
+                    retDic = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(jsonStr);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
+            return retDic;
+        }
 
 
         //json字符串转换为字典集合
@@ -263,7 +279,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
-        public static int? GetParamInt32(this Dictionary<string, object> request, string paramName)
+        public static int GetParamInt32(this Dictionary<string, object> request, string paramName)
         {
             var paramValue = request.GetDicValue(paramName);
             if (!string.IsNullOrWhiteSpace(paramValue))
@@ -274,10 +290,10 @@ namespace Come.CollectiveOAuth.Utils
                 }
                 catch (Exception ex)
                 {
-                    return null;
+                    return -1;
                 }
             }
-            return null;
+            return -1;
         }
 
         /// <summary>

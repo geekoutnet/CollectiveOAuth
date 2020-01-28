@@ -28,7 +28,7 @@ namespace Come.CollectiveOAuth.Request
 
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in").Value;
+            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
             authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
             return authToken;
         }

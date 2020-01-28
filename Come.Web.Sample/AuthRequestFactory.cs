@@ -148,6 +148,9 @@ namespace Come.Web.Sample
                 case DefaultAuthSourceEnum.CODING:
                     return new CodingAuthRequest(clientConfig, authStateCache);
 
+                case DefaultAuthSourceEnum.LINKEDIN:
+                    return new LinkedInAuthRequest(clientConfig, authStateCache);
+
                 default:
                     return null;
             }

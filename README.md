@@ -84,6 +84,15 @@
 - 引入依赖
 <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/depend-on.jpg" width="200"></img>
 
+- 配置授权信息(默认配置在webconfig中, 可以改造存储数据库或者其它任意地方)
+```C#
+<!--微信服务号自动授权-->
+<add key="CollectiveOAuth_WECHAT_MP_ClientId" value="wxcafc085dcf4b9636" />
+<add key="CollectiveOAuth_WECHAT_MP_ClientSecret" value="867901e9800cc3b6ba4079a41ecddcc4" />
+<add key="CollectiveOAuth_WECHAT_MP_Scope" value="snsapi_userinfo" />
+<add key="CollectiveOAuth_WECHAT_MP_RedirectUri" value="https://public.rthinkingsoft.cn/oauth2/callback?authSource=WECHAT_MP" />
+```
+
 - 调用api
 ```C#
 // 创建授权request

@@ -159,7 +159,7 @@ _请知悉：经咨询CSDN官方客服得知，CSDN的授权开放平台已经�
 - [YurunOAuthLogin](https://gitee.com/yurunsoft/YurunOAuthLogin): PHP 第三方登录授权 SDK
 - [阿里妈妈MUX倾力打造的矢量图标库-iconfont](https://www.iconfont.cn/search/index): 本文档中的图标大部分取自该平台
 - 感谢 JetBrains 提供的免费开源 License：
-<img src="https://github.com/lets-mica/mica/raw/c251e176b81518a6a570bf4eb21f525c4f582a81/docs/img/jetbrains.png" alt="图片引用自lets-mica" style="float:left;">
+<img src="https://images.gitee.com/uploads/images/2020/0128/143027_d7ce1ac2_696459.png" alt="图片引用自lets-mica" style="float:left;">
 
 
 ## 关于OAuth
@@ -182,3 +182,5 @@ _请知悉：经咨询CSDN官方客服得知，CSDN的授权开放平台已经�
 | 支付宝  | 微信  |
 | :------------: | :------------: |
 | <img src="https://gitee.com/rthinking/auth_files/raw/master/qrcode/zfb_code.png" width="200"/> | <img src="https://gitee.com/rthinking/auth_files/raw/master/qrcode/wx_code.png" width="200" /> |
+
+开源不求盈利，多少都是心意，生活不易，随缘随缘……

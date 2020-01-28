@@ -33,6 +33,9 @@ namespace Come.CollectiveOAuth.Enums
 
         [Description("OSChina开源中国")]
         OSCHINA,
-        
+
+        [Description("Coding扣钉")]
+        CODING,
+
     }
 }

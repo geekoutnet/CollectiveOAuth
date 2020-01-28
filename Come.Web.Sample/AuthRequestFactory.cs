@@ -145,6 +145,9 @@ namespace Come.Web.Sample
                 case DefaultAuthSourceEnum.OSCHINA:
                     return new OschinaAuthRequest(clientConfig, authStateCache);
 
+                case DefaultAuthSourceEnum.CODING:
+                    return new CodingAuthRequest(clientConfig, authStateCache);
+
                 default:
                     return null;
             }

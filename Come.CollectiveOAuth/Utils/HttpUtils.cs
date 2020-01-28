@@ -115,11 +115,11 @@ namespace Come.CollectiveOAuth.Utils
 
 
         /// <summary>
-        /// github专用
+        /// 有一些请求比较特殊，需要标记Accept为application/json
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        public static string GithubRequestGet(string url)
+        public static string RequestJsonGet(string url)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(url);

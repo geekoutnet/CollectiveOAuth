@@ -86,11 +86,11 @@
 
 - 配置授权信息(默认配置在webconfig中, 可以改造存储数据库或者其它任意地方)
 ```C#
-<!--微信服务号自动授权-->
-<add key="CollectiveOAuth_WECHAT_MP_ClientId" value="wxcafc085dcf4b9636" />
-<add key="CollectiveOAuth_WECHAT_MP_ClientSecret" value="867901e9800cc3b6ba4079a41ecddcc4" />
+<!--Demo: 微信服务号授权配置-->
+<add key="CollectiveOAuth_WECHAT_MP_ClientId" value="wxer6785660834656" />
+<add key="CollectiveOAuth_WECHAT_MP_ClientSecret" value="98967867678678678546434345344" />
 <add key="CollectiveOAuth_WECHAT_MP_Scope" value="snsapi_userinfo" />
-<add key="CollectiveOAuth_WECHAT_MP_RedirectUri" value="https://public.rthinkingsoft.cn/oauth2/callback?authSource=WECHAT_MP" />
+<add key="CollectiveOAuth_WECHAT_MP_RedirectUri" value="https://yours.domain.com/oauth2/callback?authSource=WECHAT_MP" />
 ```
 
 - 调用api

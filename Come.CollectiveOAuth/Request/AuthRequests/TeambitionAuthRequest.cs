@@ -41,8 +41,8 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.refreshToken = accessTokenObject.getString("refresh_token");
 
             return authToken;
         }
@@ -59,16 +59,16 @@ namespace Come.CollectiveOAuth.Request
             var userObj = response.parseObject();
 
             this.checkResponse(userObj);
-            authToken.uid = userObj.GetParamString("_id");
+            authToken.uid = userObj.getString("_id");
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("_id");
-            authUser.username = userObj.GetParamString("name");
-            authUser.nickname = userObj.GetParamString("name");
-            authUser.avatar = userObj.GetParamString("avatarUrl");
-            authUser.blog = userObj.GetParamString("website");
-            authUser.location = userObj.GetParamString("location");
-            authUser.email = userObj.GetParamString("email");
+            authUser.uuid = userObj.getString("_id");
+            authUser.username = userObj.getString("name");
+            authUser.nickname = userObj.getString("name");
+            authUser.avatar = userObj.getString("avatarUrl");
+            authUser.blog = userObj.getString("website");
+            authUser.location = userObj.getString("location");
+            authUser.email = userObj.getString("email");
             authUser.gender = AuthUserGender.UNKNOWN;
             authUser.token = authToken;
             authUser.source = source.getName();
@@ -99,8 +99,8 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(refreshTokenObject);
 
             var authToken = new AuthToken();
-            authToken.accessToken = refreshTokenObject.GetParamString("access_token");
-            authToken.refreshToken = refreshTokenObject.GetParamString("refresh_token");
+            authToken.accessToken = refreshTokenObject.getString("access_token");
+            authToken.refreshToken = refreshTokenObject.getString("refresh_token");
 
             return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), AuthResponseStatus.SUCCESS.GetDesc(), authToken);
         }
@@ -116,7 +116,7 @@ namespace Come.CollectiveOAuth.Request
         {
             if (dic.ContainsKey("message") && dic.ContainsKey("name"))
             {
-                throw new Exception($"{dic.GetDicValue("GetParamString")}, {dic.GetParamString("name")}");
+                throw new Exception($"{dic.getString("getString")}, {dic.getString("name")}");
             }
         }
     }

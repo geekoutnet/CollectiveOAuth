@@ -45,11 +45,11 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.tokenType = accessTokenObject.GetParamString("token_type");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
-            authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
-            authToken.scope = accessTokenObject.GetParamString("scope");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.tokenType = accessTokenObject.getString("token_type");
+            authToken.expireIn = accessTokenObject.getInt32("expires_in");
+            authToken.refreshToken = accessTokenObject.getString("refresh_token");
+            authToken.scope = accessTokenObject.getString("scope");
 
             return authToken;
         }
@@ -70,11 +70,11 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(userObj);
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("id");
-            authUser.username = userObj.GetParamString("userPrincipalName");
-            authUser.nickname = userObj.GetParamString("displayName");
-            authUser.location = userObj.GetParamString("officeLocation");
-            authUser.email = userObj.GetParamString("mail");
+            authUser.uuid = userObj.getString("id");
+            authUser.username = userObj.getString("userPrincipalName");
+            authUser.nickname = userObj.getString("displayName");
+            authUser.location = userObj.getString("officeLocation");
+            authUser.email = userObj.getString("mail");
             authUser.gender = AuthUserGender.UNKNOWN;
 
             authUser.token = authToken;
@@ -172,7 +172,7 @@ namespace Come.CollectiveOAuth.Request
         {
             if (dic.ContainsKey("error"))
             {
-                throw new Exception(dic.GetParamString("error_description"));
+                throw new Exception(dic.getString("error_description"));
             }
         }
     }

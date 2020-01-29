@@ -27,8 +27,8 @@ namespace Come.CollectiveOAuth.Request
 
             var authToken = new AuthToken
             {
-                accessToken = accessTokenObject.GetParamString("access_token"),
-                tokenType = accessTokenObject.GetParamString("token_type"),
+                accessToken = accessTokenObject.getString("access_token"),
+                tokenType = accessTokenObject.getString("token_type"),
                 code = authCallback.code
             };
 
@@ -43,14 +43,14 @@ namespace Come.CollectiveOAuth.Request
             var responseObj = response.parseObject();
             this.checkResponse(responseObj);
 
-            var userObj = responseObj.GetParamString("data").parseObject();
+            var userObj = responseObj.getString("data").parseObject();
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("id");
-            authUser.username = userObj.GetParamString("username");
-            authUser.nickname = userObj.GetParamString("first_name") + userObj.GetParamString("last_name");
+            authUser.uuid = userObj.getString("id");
+            authUser.username = userObj.getString("username");
+            authUser.nickname = userObj.getString("first_name") + userObj.getString("last_name");
             authUser.avatar = getAvatarUrl(userObj);
-            authUser.remark = userObj.GetParamString("bio");
+            authUser.remark = userObj.getString("bio");
             authUser.gender = AuthUserGender.UNKNOWN;
             authUser.token = authToken;
             authUser.source = source.getName();
@@ -63,12 +63,12 @@ namespace Come.CollectiveOAuth.Request
         private string getAvatarUrl(Dictionary<string, object> userObj)
         {
             // image is a map data structure
-            var jsonObject = userObj.GetParamString("image").parseObject();
+            var jsonObject = userObj.getString("image").parseObject();
             if (jsonObject.Count == 0)
             {
                 return null;
             }
-            return jsonObject.GetParamString("60x60").parseObject().GetParamString("url");
+            return jsonObject.getString("60x60").parseObject().getString("url");
         }
 
         /**
@@ -111,9 +111,9 @@ namespace Come.CollectiveOAuth.Request
          */
         private void checkResponse(Dictionary<string, object> dic)
         {
-            if (dic.ContainsKey("status") && "failure".Equals(dic.GetParamString("status")))
+            if (dic.ContainsKey("status") && "failure".Equals(dic.getString("status")))
             {
-                throw new Exception($"{dic.GetParamString("message")}");
+                throw new Exception($"{dic.getString("message")}");
             }
         }
     }

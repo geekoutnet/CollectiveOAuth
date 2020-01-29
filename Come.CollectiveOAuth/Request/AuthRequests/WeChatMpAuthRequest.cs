@@ -39,20 +39,20 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(jsonObj);
 
             //string location = String.format("%s-%s-%s", object.getString("country"), object.getString("province"), object.getString("city"));
-            string location = $"{jsonObj.GetDicValue("country")}-{jsonObj.GetDicValue("province")}-{jsonObj.GetDicValue("city")}";
+            string location = $"{jsonObj.getString("country")}-{jsonObj.getString("province")}-{jsonObj.getString("city")}";
             if (jsonObj.ContainsKey("unionid"))
             {
-                authToken.unionId = jsonObj.GetDicValue("unionid");
+                authToken.unionId = jsonObj.getString("unionid");
             }
 
             var authUser = new AuthUser();
 
-            authUser.username = jsonObj.GetParamString("nickname");
-            authUser.nickname = jsonObj.GetParamString("nickname");
-            authUser.avatar = jsonObj.GetParamString("headimgurl");
+            authUser.username = jsonObj.getString("nickname");
+            authUser.nickname = jsonObj.getString("nickname");
+            authUser.avatar = jsonObj.getString("headimgurl");
             authUser.location = location;
             authUser.uuid = openId;
-            authUser.gender = GlobalAuthUtil.getWechatRealGender(jsonObj.GetParamString("sex"));
+            authUser.gender = GlobalAuthUtil.getWechatRealGender(jsonObj.getString("sex"));
             authUser.token = authToken;
             authUser.source = source.getName();
 
@@ -76,7 +76,7 @@ namespace Come.CollectiveOAuth.Request
         {
             if (dic.ContainsKey("errcode"))
             {
-                throw new Exception($"errcode: {dic.GetDicValue("errcode")}, errmsg: {dic.GetDicValue("errmsg")}");
+                throw new Exception($"errcode: {dic.getString("errcode")}, errmsg: {dic.getString("errmsg")}");
             }
         }
 
@@ -95,11 +95,11 @@ namespace Come.CollectiveOAuth.Request
 
             var authToken = new AuthToken();
 
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
-            authToken.openId = accessTokenObject.GetParamString("openid");
-            authToken.scope = accessTokenObject.GetParamString("scope");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.refreshToken = accessTokenObject.getString("refresh_token");
+            authToken.expireIn = accessTokenObject.getInt32("expires_in");
+            authToken.openId = accessTokenObject.getString("openid");
+            authToken.scope = accessTokenObject.getString("scope");
 
             return authToken;
         }

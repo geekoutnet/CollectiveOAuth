@@ -29,17 +29,17 @@ namespace Come.CollectiveOAuth.Request
             string response = doGetUserInfo(authToken);
             var userInfoObject = response.parseObject();
             this.checkResponse(userInfoObject);
-            var userObj = userInfoObject.GetParamString("data").parseObject();
+            var userObj = userInfoObject.getString("data").parseObject();
 
-            var location = $"{userObj.GetParamString("country")}-{userObj.GetParamString("province")}-{userObj.GetParamString("city")}";
+            var location = $"{userObj.getString("country")}-{userObj.getString("province")}-{userObj.getString("city")}";
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("union_id");
-            authUser.username = userObj.GetParamString("nickname");
-            authUser.nickname = userObj.GetParamString("nickname");
-            authUser.avatar = userObj.GetParamString("avatar");
+            authUser.uuid = userObj.getString("union_id");
+            authUser.username = userObj.getString("nickname");
+            authUser.nickname = userObj.getString("nickname");
+            authUser.avatar = userObj.getString("avatar");
             authUser.location = location;
-            authUser.remark = userObj.GetParamString("description");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.GetParamString("gender"));
+            authUser.remark = userObj.getString("description");
+            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("gender"));
 
             authUser.token = authToken;
             authUser.source = source.getName();
@@ -67,15 +67,15 @@ namespace Come.CollectiveOAuth.Request
             string accessTokenStr = response;
             var tokenObj = accessTokenStr.parseObject();
             this.checkResponse(tokenObj);
-            var accessTokenObject = tokenObj.GetParamString("data").parseObject();
+            var accessTokenObject = tokenObj.getString("data").parseObject();
 
             var authToken = new AuthToken
             {
-                accessToken = accessTokenObject.GetParamString("access_token"),
-                openId = accessTokenObject.GetParamString("open_id"),
-                expireIn = accessTokenObject.GetParamInt32("token_type"),
-                refreshToken = accessTokenObject.GetParamString("refresh_token"),
-                scope = accessTokenObject.GetParamString("scope")
+                accessToken = accessTokenObject.getString("access_token"),
+                openId = accessTokenObject.getString("open_id"),
+                expireIn = accessTokenObject.getInt32("token_type"),
+                refreshToken = accessTokenObject.getString("refresh_token"),
+                scope = accessTokenObject.getString("scope")
             };
 
             return authToken;
@@ -151,12 +151,12 @@ namespace Come.CollectiveOAuth.Request
        */
         private void checkResponse(Dictionary<string, object> dic)
         {
-            string message = dic.GetParamString("message");
-            var data = dic.GetParamString("data").parseObject();
-            int errorCode = data.GetParamInt32("error_code");
+            string message = dic.getString("message");
+            var data = dic.getString("data").parseObject();
+            int errorCode = data.getInt32("error_code");
             if ("error".Equals(message) || errorCode != 0)
             {
-                throw new Exception(data.GetParamString("description"));
+                throw new Exception(data.getString("description"));
             }
         }
     }

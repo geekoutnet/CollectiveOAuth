@@ -108,6 +108,11 @@
     <Compile Include="Request\AuthRequests\DingTalkScanAuthRequest.cs" />
     <Compile Include="Request\AuthRequests\CodingAuthRequest.cs" />
     <Compile Include="Request\AuthRequests\DouyinAuthRequest.cs" />
+    <Compile Include="Request\AuthRequests\ElemeAuthRequest.cs" />
+    <Compile Include="Request\AuthRequests\TwitteAuthRequest.cs" />
+    <Compile Include="Request\AuthRequests\MeituanAuthRequest.cs" />
+    <Compile Include="Request\AuthRequests\GitlabAuthRequest.cs" />
+    <Compile Include="Request\AuthRequests\KujialeAuthRequest.cs" />
     <Compile Include="Request\AuthRequests\HuaweiAuthRequest.cs" />
     <Compile Include="Request\AuthRequests\StackOverflowAuthRequest.cs" />
     <Compile Include="Request\AuthRequests\PinterestAuthRequest.cs" />
@@ -136,6 +141,8 @@
     <Compile Include="Utils\AuthStateUtils.cs" />
     <Compile Include="Utils\GlobalAuthUtil.cs" />
     <Compile Include="Utils\HttpUtils.cs" />
+    <Compile Include="Utils\TwitterBase.cs" />
+    <Compile Include="Utils\TwitterOAuthClient.cs" />
     <Compile Include="Utils\StringExtensions.cs" />
     <Compile Include="Utils\UrlBuilder.cs" />
   </ItemGroup>

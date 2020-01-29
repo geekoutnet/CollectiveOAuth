@@ -28,9 +28,9 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
-            authToken.openId = accessTokenObject.GetParamString("open_id");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.expireIn = accessTokenObject.getInt32("expires_in");
+            authToken.openId = accessTokenObject.getString("open_id");
             authToken.code = authCallback.code;
             return authToken;
         }
@@ -41,18 +41,18 @@ namespace Come.CollectiveOAuth.Request
             var userProfile = userResponse.parseObject();
             this.checkResponse(userProfile);
 
-            var userObj = userProfile.GetParamString("data").parseObject();
+            var userObj = userProfile.getString("data").parseObject();
 
-            bool isAnonymousUser = userObj.GetParamInt32("uid_type") == 14;
+            bool isAnonymousUser = userObj.getInt32("uid_type") == 14;
             string anonymousUserName = "匿名用户";
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("uid");
-            authUser.username = isAnonymousUser ? anonymousUserName : userObj.GetParamString("screen_name");
-            authUser.nickname = isAnonymousUser ? anonymousUserName : userObj.GetParamString("screen_name");
-            authUser.avatar = userObj.GetParamString("avatar_url");
-            authUser.remark = userObj.GetParamString("description");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.GetParamString("gender"));
+            authUser.uuid = userObj.getString("uid");
+            authUser.username = isAnonymousUser ? anonymousUserName : userObj.getString("screen_name");
+            authUser.nickname = isAnonymousUser ? anonymousUserName : userObj.getString("screen_name");
+            authUser.avatar = userObj.getString("avatar_url");
+            authUser.remark = userObj.getString("description");
+            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("gender"));
             authUser.token = authToken;
             authUser.source = source.getName();
             authUser.originalUser = userProfile;
@@ -119,7 +119,7 @@ namespace Come.CollectiveOAuth.Request
         {
             if (dic.ContainsKey("error_code"))
             {
-                throw new Exception(getToutiaoErrorCode(dic.GetParamInt32("error_code")).GetDesc());
+                throw new Exception(getToutiaoErrorCode(dic.getInt32("error_code")).GetDesc());
             }
         }
 

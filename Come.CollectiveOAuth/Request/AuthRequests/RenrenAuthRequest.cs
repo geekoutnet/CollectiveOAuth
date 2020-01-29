@@ -27,12 +27,12 @@ namespace Come.CollectiveOAuth.Request
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
             var response = doGetUserInfo(authToken);
-            var userObj = response.parseObject().GetParamString("response").parseObject();
+            var userObj = response.parseObject().getJSONObject("response");
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("id");
-            authUser.username = userObj.GetParamString("name");
-            authUser.nickname = userObj.GetParamString("name");
+            authUser.uuid = userObj.getString("id");
+            authUser.username = userObj.getString("name");
+            authUser.nickname = userObj.getString("name");
             authUser.avatar = getAvatarUrl(userObj);
             authUser.company = getCompany(userObj);
             authUser.gender = getGender(userObj);
@@ -60,43 +60,43 @@ namespace Come.CollectiveOAuth.Request
             }
 
             var authToken = new AuthToken();
-            authToken.accessToken = jsonObject.GetParamString("access_token");
-            authToken.tokenType = jsonObject.GetParamString("token_type");
-            authToken.expireIn = jsonObject.GetParamInt32("expires_in");
-            authToken.refreshToken = jsonObject.GetParamString("refresh_token");
-            authToken.openId = jsonObject.GetParamString("user").parseObject().GetParamString("id");
+            authToken.accessToken = jsonObject.getString("access_token");
+            authToken.tokenType = jsonObject.getString("token_type");
+            authToken.expireIn = jsonObject.getInt32("expires_in");
+            authToken.refreshToken = jsonObject.getString("refresh_token");
+            authToken.openId = jsonObject.getJSONObject("user").getString("id");
 
             return authToken;
         }
 
         private string getAvatarUrl(Dictionary<string, object> userObj)
         {
-            var jsonArray = userObj.GetParamString("avatar").parseListObject();
+            var jsonArray = userObj.getJSONArray("avatar");
             if (jsonArray.Count == 0)
             {
                 return null;
             }
-            return jsonArray[0].GetParamString("url");
+            return jsonArray[0].getString("url");
         }
 
         private AuthUserGender getGender(Dictionary<string, object> userObj)
         {
-            var basicInformation = userObj.GetParamString("basicInformation").parseObject();
+            var basicInformation = userObj.getJSONObject("basicInformation");
             if (basicInformation.Count == 0)
             {
                 return AuthUserGender.UNKNOWN;
             }
-            return GlobalAuthUtil.getRealGender(basicInformation.GetParamString("sex"));
+            return GlobalAuthUtil.getRealGender(basicInformation.getString("sex"));
         }
 
         private string getCompany(Dictionary<string, object> userObj)
         {
-            var jsonArray = userObj.GetParamString("work").parseListObject();
+            var jsonArray = userObj.getJSONArray("work");
             if (jsonArray.Count == 0)
             {
                 return null;
             }
-            return jsonArray[0].GetParamString("name");
+            return jsonArray[0].getString("name");
         }
 
         /**

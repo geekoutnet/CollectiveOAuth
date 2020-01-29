@@ -33,8 +33,8 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(jsonObj);
 
             var authToken = new AuthToken();
-            authToken.accessToken = jsonObj.GetParamString("access_token");
-            authToken.expireIn = jsonObj.GetParamInt32("expires_in");
+            authToken.accessToken = jsonObj.getString("access_token");
+            authToken.expireIn = jsonObj.getInt32("expires_in");
             authToken.code = authCallback.code;
 
             return authToken;
@@ -51,21 +51,21 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new Exception(AuthResponseStatus.UNIDENTIFIED_PLATFORM.GetDesc());
             }
-            string userId = jsonObj.GetParamString("UserId");
+            string userId = jsonObj.getString("UserId");
             string userDetailResponse = getUserDetail(authToken.accessToken, userId);
             var userDetailObj = userDetailResponse.parseObject();
             this.checkResponse(userDetailObj);
 
             var authUser = new AuthUser();
-            authUser.username = userDetailObj.GetParamString("name");
-            authUser.nickname = userDetailObj.GetParamString("alias");
-            authUser.avatar = userDetailObj.GetParamString("avatar");
-            authUser.location = userDetailObj.GetParamString("address");
-            authUser.email = userDetailObj.GetParamString("email");
-            authUser.uuid = userDetailObj.GetParamString("userId");
+            authUser.username = userDetailObj.getString("name");
+            authUser.nickname = userDetailObj.getString("alias");
+            authUser.avatar = userDetailObj.getString("avatar");
+            authUser.location = userDetailObj.getString("address");
+            authUser.email = userDetailObj.getString("email");
+            authUser.uuid = userDetailObj.getString("userId");
             authUser.token = authToken;
             authUser.source = source.getName();
-            authUser.gender = GlobalAuthUtil.getWechatRealGender(userDetailObj.GetParamString("gender"));
+            authUser.gender = GlobalAuthUtil.getWechatRealGender(userDetailObj.getString("gender"));
 
             authUser.originalUser = userDetailObj;
             authUser.originalUserStr = response;
@@ -80,9 +80,9 @@ namespace Come.CollectiveOAuth.Request
          */
         private void checkResponse(Dictionary<string, object> dic)
         {
-            if (dic.ContainsKey("errcode") && dic.GetParamInt32("errcode") != 0)
+            if (dic.ContainsKey("errcode") && dic.getInt32("errcode") != 0)
             {
-                throw new Exception($"errcode: {dic.GetDicValue("errcode")}, errmsg: {dic.GetDicValue("errmsg")}");
+                throw new Exception($"errcode: {dic.getString("errcode")}, errmsg: {dic.getString("errmsg")}");
             }
         }
 

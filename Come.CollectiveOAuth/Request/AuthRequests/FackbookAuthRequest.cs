@@ -27,9 +27,9 @@ namespace Come.CollectiveOAuth.Request
 
             var authToken = new AuthToken
             {
-                accessToken = accessTokenObject.GetParamString("access_token"),
-                expireIn = accessTokenObject.GetParamInt32("expires_in"),
-                tokenType = accessTokenObject.GetParamString("token_type"),
+                accessToken = accessTokenObject.getString("access_token"),
+                expireIn = accessTokenObject.getInt32("expires_in"),
+                tokenType = accessTokenObject.getString("token_type"),
                 code = authCallback.code
             };
             return authToken;
@@ -43,13 +43,13 @@ namespace Come.CollectiveOAuth.Request
 
             var authUser = new AuthUser
             {
-                uuid = userObj.GetParamString("id"),
-                username = userObj.GetParamString("name"),
-                nickname = userObj.GetParamString("name"),
+                uuid = userObj.getString("id"),
+                username = userObj.getString("name"),
+                nickname = userObj.getString("name"),
                 avatar = getUserPicture(userObj),
-                location = userObj.GetParamString("locale"),
-                email = userObj.GetParamString("email"),
-                gender = GlobalAuthUtil.getRealGender(userObj.GetParamString("gender")),
+                location = userObj.getString("locale"),
+                email = userObj.getString("email"),
+                gender = GlobalAuthUtil.getRealGender(userObj.getString("gender")),
                 token = authToken,
                 source = source.getName(),
                 originalUser = userObj,
@@ -63,11 +63,11 @@ namespace Come.CollectiveOAuth.Request
             string picture = null;
             if (userObj.ContainsKey("picture"))
             {
-                var pictureObj = userObj.GetParamString("picture").parseObject();
-                pictureObj = pictureObj.GetParamString("data").parseObject();
+                var pictureObj = userObj.getString("picture").parseObject();
+                pictureObj = pictureObj.getString("data").parseObject();
                 if (null != pictureObj)
                 {
-                    picture = pictureObj.GetParamString("url");
+                    picture = pictureObj.getString("url");
                 }
             }
             return picture;
@@ -97,7 +97,7 @@ namespace Come.CollectiveOAuth.Request
         {
             if (dic.ContainsKey("error"))
             {
-                throw new Exception($"{dic.GetParamString("error").parseObject().GetParamString("message")}");
+                throw new Exception($"{dic.getString("error").parseObject().getString("message")}");
             }
         }
     }

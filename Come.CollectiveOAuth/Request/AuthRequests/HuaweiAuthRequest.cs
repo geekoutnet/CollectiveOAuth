@@ -29,10 +29,6 @@ namespace Come.CollectiveOAuth.Request
         */
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
-            var reqHeaders = new Dictionary<string, object>
-            {
-                { "Content-Type", "application/x-www-form-urlencoded" },
-            };
             var reqParams = new Dictionary<string, object>
             {
                 { "grant_type", "authorization_code" },
@@ -42,7 +38,7 @@ namespace Come.CollectiveOAuth.Request
                 { "redirect_uri", config.redirectUri },
             };
 
-            var response = HttpUtils.RequestPost(source.accessToken(), reqParams.spellParams(), reqHeaders);
+            var response = HttpUtils.RequestFormPost(source.accessToken(), reqParams.spellParams());
 
             return getAuthToken(response);
         }
@@ -56,10 +52,6 @@ namespace Come.CollectiveOAuth.Request
          */
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
-            var reqHeaders = new Dictionary<string, object>
-            {
-                { "Content-Type", "application/x-www-form-urlencoded" },
-            };
             var reqParams = new Dictionary<string, object>
             {
                 { "nsp_ts", DateTime.Now.Ticks },
@@ -68,7 +60,7 @@ namespace Come.CollectiveOAuth.Request
                 { "nsp_svc", "OpenUP.User.getInfo" },
             };
 
-            var response = HttpUtils.RequestPost(source.userInfo(), reqParams.spellParams(), reqHeaders);
+            var response = HttpUtils.RequestFormPost(source.userInfo(), reqParams.spellParams());
             var userObj = response.parseObject();
 
             this.checkResponse(userObj);
@@ -76,11 +68,11 @@ namespace Come.CollectiveOAuth.Request
             AuthUserGender gender = getRealGender(userObj);
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("userID");
-            authUser.username = userObj.GetParamString("userName");
-            authUser.nickname = userObj.GetParamString("userName");
+            authUser.uuid = userObj.getString("userID");
+            authUser.username = userObj.getString("userName");
+            authUser.nickname = userObj.getString("userName");
             authUser.gender = gender;
-            authUser.avatar = userObj.GetParamString("headPictureURL");
+            authUser.avatar = userObj.getString("headPictureURL");
           
             authUser.token = authToken;
             authUser.source = source.getName();
@@ -97,10 +89,6 @@ namespace Come.CollectiveOAuth.Request
          */
         public override AuthResponse refresh(AuthToken authToken)
         {
-            var reqHeaders = new Dictionary<string, object>
-            {
-                { "Content-Type", "application/x-www-form-urlencoded" },
-            };
             var reqParams = new Dictionary<string, object>
             {
                 { "client_id", config.clientId },
@@ -108,7 +96,7 @@ namespace Come.CollectiveOAuth.Request
                 { "refresh_token", authToken.refreshToken },
                 { "grant_type", "refresh_token" },
             };
-            var response = HttpUtils.RequestPost(source.refresh(), reqParams.spellParams(), reqHeaders);
+            var response = HttpUtils.RequestFormPost(source.refresh(), reqParams.spellParams());
 
             return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), AuthResponseStatus.SUCCESS.GetDesc(), getAuthToken(response));
         }
@@ -120,9 +108,9 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(authTokenObj);
 
             var authToken = new AuthToken();
-            authToken.accessToken = authTokenObj.GetParamString("access_token");
-            authToken.refreshToken = authTokenObj.GetParamString("refresh_token");
-            authToken.expireIn = authTokenObj.GetParamInt32("expires_in");
+            authToken.accessToken = authTokenObj.getString("access_token");
+            authToken.refreshToken = authTokenObj.getString("refresh_token");
+            authToken.expireIn = authTokenObj.getInt32("expires_in");
             return authToken;
         }
 
@@ -186,7 +174,7 @@ namespace Come.CollectiveOAuth.Request
          */
         private AuthUserGender getRealGender(Dictionary<string, object> userObj)
         {
-            int genderCodeInt = userObj.GetParamInt32("gender");
+            int genderCodeInt = userObj.getInt32("gender");
             string genderCode = genderCodeInt == 1 ? "0" : (genderCodeInt == 0) ? "1" : genderCodeInt + "";
             return GlobalAuthUtil.getRealGender(genderCode);
         }
@@ -200,11 +188,11 @@ namespace Come.CollectiveOAuth.Request
         {
             if (dic.ContainsKey("NSP_STATUS"))
             {
-                throw new Exception(dic.GetParamString("error"));
+                throw new Exception(dic.getString("error"));
             }
             if (dic.ContainsKey("error"))
             {
-                throw new Exception(dic.GetParamString("sub_error") + ":" + dic.GetParamString("error_description"));
+                throw new Exception(dic.getString("sub_error") + ":" + dic.getString("error_description"));
             }
         }
     }

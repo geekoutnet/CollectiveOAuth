@@ -26,9 +26,9 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.tokenType = accessTokenObject.GetParamString("token_type");
-            authToken.scope = accessTokenObject.GetParamString("scope");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.tokenType = accessTokenObject.getString("token_type");
+            authToken.scope = accessTokenObject.getString("scope");
             authToken.code = authCallback.code;
 
             return authToken;
@@ -41,15 +41,15 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(userObj);
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("id");
-            authUser.username = userObj.GetParamString("login");
-            authUser.nickname = userObj.GetParamString("name");
-            authUser.avatar = userObj.GetParamString("avatar_url");
-            authUser.blog = userObj.GetParamString("blog");
-            authUser.company = userObj.GetParamString("company");
-            authUser.location = userObj.GetParamString("location");
-            authUser.email = userObj.GetParamString("email");
-            authUser.remark = userObj.GetParamString("bio");
+            authUser.uuid = userObj.getString("id");
+            authUser.username = userObj.getString("login");
+            authUser.nickname = userObj.getString("name");
+            authUser.avatar = userObj.getString("avatar_url");
+            authUser.blog = userObj.getString("blog");
+            authUser.company = userObj.getString("company");
+            authUser.location = userObj.getString("location");
+            authUser.email = userObj.getString("email");
+            authUser.remark = userObj.getString("bio");
             authUser.gender = AuthUserGender.UNKNOWN;
             authUser.token = authToken;
             authUser.source = source.getName();
@@ -96,7 +96,7 @@ namespace Come.CollectiveOAuth.Request
         {
             if (dic.ContainsKey("error"))
             {
-                throw new Exception($"{dic.GetDicValue("error_description")}");
+                throw new Exception($"{dic.getString("error_description")}");
             }
         }
     }

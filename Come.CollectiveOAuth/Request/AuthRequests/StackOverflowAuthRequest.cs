@@ -35,8 +35,8 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.expireIn = accessTokenObject.getInt32("expires");
             return authToken;
         }
 
@@ -52,14 +52,14 @@ namespace Come.CollectiveOAuth.Request
             var response = HttpUtils.RequestGet(userInfoUrl);
             var responseObj = response.parseObject();
             this.checkResponse(responseObj);
-            var userObj = responseObj.GetParamString("items").parseListObject()[0];
+            var userObj = responseObj.getString("items").parseListObject()[0];
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("user_id");
-            authUser.username = userObj.GetParamString("username");
-            authUser.nickname = userObj.GetParamString("display_name");
-            authUser.avatar = userObj.GetParamString("profile_image");
-            authUser.location = userObj.GetParamString("location");
+            authUser.uuid = userObj.getString("user_id");
+            authUser.username = userObj.getString("username");
+            authUser.nickname = userObj.getString("display_name");
+            authUser.avatar = userObj.getString("profile_image");
+            authUser.location = userObj.getString("location");
            
             authUser.gender = AuthUserGender.UNKNOWN;
             authUser.token = authToken;
@@ -98,7 +98,7 @@ namespace Come.CollectiveOAuth.Request
         {
             if (dic.ContainsKey("error"))
             {
-                throw new Exception($"{dic.GetParamString("error_description")}");
+                throw new Exception($"{dic.getString("error_description")}");
             }
         }
     }

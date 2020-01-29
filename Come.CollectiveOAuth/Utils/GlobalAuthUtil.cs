@@ -297,21 +297,7 @@ namespace Come.CollectiveOAuth.Utils
         }
 
         //object的字典集合
-        public static string GetDicValue(this Dictionary<string, object> dic, string key)
-        {
-            if (dic == null)
-                return "";
-            if (dic.ContainsKey(key))
-            {
-                return Convert.ToString(dic[key]);
-            }
-            else
-            {
-                return "";
-            }
-        }
-        //string的字典集合
-        public static string GetDicValue(this Dictionary<string, string> dic, string key)
+        public static string getString(this Dictionary<string, object> dic, string key)
         {
             if (dic == null)
                 return "";
@@ -332,9 +318,9 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
-        public static int GetParamInt32(this Dictionary<string, object> request, string paramName)
+        public static int getInt32(this Dictionary<string, object> request, string paramName)
         {
-            var paramValue = request.GetDicValue(paramName);
+            var paramValue = request.getString(paramName);
             if (!string.IsNullOrWhiteSpace(paramValue))
             {
                 try
@@ -355,9 +341,9 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
-        public static long? GetParamLong(this Dictionary<string, object> request, string paramName)
+        public static long getLong(this Dictionary<string, object> request, string paramName)
         {
-            var paramValue = request.GetDicValue(paramName);
+            var paramValue = request.getString(paramName);
             if (!string.IsNullOrWhiteSpace(paramValue))
             {
                 try
@@ -366,10 +352,10 @@ namespace Come.CollectiveOAuth.Utils
                 }
                 catch (Exception ex)
                 {
-                    return null;
+                    return -1;
                 }
             }
-            return null;
+            return -1;
         }
 
 
@@ -379,9 +365,9 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
-        public static bool GetParamBool(this Dictionary<string, object> request, string paramName)
+        public static bool getBool(this Dictionary<string, object> request, string paramName)
         {
-            var paramValue = request.GetDicValue(paramName);
+            var paramValue = request.getString(paramName);
             if (!string.IsNullOrWhiteSpace(paramValue))
             {
                 try
@@ -397,14 +383,60 @@ namespace Come.CollectiveOAuth.Utils
         }
 
         /// <summary>
+        /// 获取参数字符串并且转换为字典集合
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="paramName"></param>
+        /// <returns></returns>
+        public static Dictionary<string, object> getJSONObject(this Dictionary<string, object> request, string paramName)
+        {
+            var paramValue = request.getString(paramName);
+            if (!string.IsNullOrWhiteSpace(paramValue))
+            {
+                try
+                {
+                    return paramValue.parseObject();
+                }
+                catch (Exception ex)
+                {
+                    return new Dictionary<string, object>();
+                }
+            }
+            return new Dictionary<string, object>();
+        }
+
+        /// <summary>
+        /// 获取参数字符串并且转换为字典集合
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="paramName"></param>
+        /// <returns></returns>
+        public static List<Dictionary<string, object>> getJSONArray(this Dictionary<string, object> request, string paramName)
+        {
+            var paramValue = request.getString(paramName);
+            if (!string.IsNullOrWhiteSpace(paramValue))
+            {
+                try
+                {
+                    return paramValue.parseListObject();
+                }
+                catch (Exception ex)
+                {
+                    return new List<Dictionary<string, object>>();
+                }
+            }
+            return new List<Dictionary<string, object>>();
+        }
+
+        /// <summary>
         /// 获取参数字符串类型
         /// </summary>
         /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
-        public static string GetParamString(this Dictionary<string, object> request, string paramName)
+        /*public static string getString(this Dictionary<string, object> request, string paramName)
         {
-            var paramValue = request.GetDicValue(paramName);
+            var paramValue = request.getString(paramName);
             if (!string.IsNullOrWhiteSpace(paramValue))
             {
                 try
@@ -417,7 +449,7 @@ namespace Come.CollectiveOAuth.Utils
                 }
             }
             return null;
-        }
+        }*/
 
         /// <summary>
         /// 获取参数日期类型
@@ -427,7 +459,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <returns></returns>
         public static DateTime? GetParamDateTime(this Dictionary<string, object> request, string paramName)
         {
-            var paramValue = request.GetDicValue(paramName);
+            var paramValue = request.getString(paramName);
             if (!string.IsNullOrWhiteSpace(paramValue))
             {
                 try
@@ -451,7 +483,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <returns></returns>
         public static double? GetParamDouble(this Dictionary<string, object> request, string paramName)
         {
-            var paramValue = request.GetDicValue(paramName);
+            var paramValue = request.getString(paramName);
             if (!string.IsNullOrWhiteSpace(paramValue))
             {
                 try
@@ -474,7 +506,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <returns></returns>
         public static Decimal? GetParamDecimal(this Dictionary<string, object> request, string paramName)
         {
-            var paramValue = request.GetDicValue(paramName);
+            var paramValue = request.getString(paramName);
             if (!string.IsNullOrWhiteSpace(paramValue))
             {
                 try
@@ -487,6 +519,36 @@ namespace Come.CollectiveOAuth.Utils
                 }
             }
             return null;
+        }
+
+
+        /// <summary>
+        /// 字典排序,asc排序
+        /// </summary>
+        /// <param name="dic">需排序的字典对象</param>
+        /// <param name="isAsc">true=正序，反之倒序</param>
+        public static Dictionary<string, object> Sort(this Dictionary<string, object> dic, bool isAsc = true)
+        {
+            Dictionary<string, object> rdic = new Dictionary<string, object>();
+            if (dic.Count > 0)
+            {
+                List<KeyValuePair<string, object>> lst = new List<KeyValuePair<string, object>>(dic);
+                lst.Sort(delegate (KeyValuePair<string, object> s1, KeyValuePair<string, object> s2)
+                {
+                    if (isAsc)
+                    {
+                        return String.CompareOrdinal(s1.Key, s2.Key);
+                    }
+                    else
+                    {
+                        return String.CompareOrdinal(s2.Key, s1.Key);
+                    }
+                });
+
+                foreach (KeyValuePair<string, object> kvp in lst)
+                    rdic.Add(kvp.Key, kvp.Value);
+            }
+            return rdic;
         }
     }
 }

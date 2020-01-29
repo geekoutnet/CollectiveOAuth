@@ -25,11 +25,11 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
-            authToken.idToken = accessTokenObject.GetParamString("id_token");
-            authToken.tokenType = accessTokenObject.GetParamString("token_type");
-            authToken.scope = accessTokenObject.GetParamString("scope");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.expireIn = accessTokenObject.getInt32("expires_in");
+            authToken.idToken = accessTokenObject.getString("id_token");
+            authToken.tokenType = accessTokenObject.getString("token_type");
+            authToken.scope = accessTokenObject.getString("scope");
 
             return authToken;
         }
@@ -46,12 +46,12 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(userObj);
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("sub");
-            authUser.username = userObj.GetParamString("email");
-            authUser.nickname = userObj.GetParamString("name");
-            authUser.avatar = userObj.GetParamString("picture");
-            authUser.location = userObj.GetParamString("locale");
-            authUser.email = userObj.GetParamString("email");
+            authUser.uuid = userObj.getString("sub");
+            authUser.username = userObj.getString("email");
+            authUser.nickname = userObj.getString("name");
+            authUser.avatar = userObj.getString("picture");
+            authUser.location = userObj.getString("locale");
+            authUser.email = userObj.getString("email");
             authUser.gender = AuthUserGender.UNKNOWN;
 
             authUser.token = authToken;
@@ -102,7 +102,7 @@ namespace Come.CollectiveOAuth.Request
         {
             if (dic.ContainsKey("error") || dic.ContainsKey("error_description"))
             {
-                throw new Exception($"{dic.GetParamString("error")}: {dic.GetParamString("error_description")}");
+                throw new Exception($"{dic.getString("error")}: {dic.getString("error_description")}");
             }
         }
     }

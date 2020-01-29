@@ -36,27 +36,27 @@ namespace Come.CollectiveOAuth.Request
             string openId = this.getOpenId(authToken);
             string response = doGetUserInfo(authToken);
             var userObj = response.parseObject();
-            if (userObj.GetParamInt32("ret") != 0)
+            if (userObj.getInt32("ret") != 0)
             {
-                throw new Exception(userObj.GetParamString("msg"));
+                throw new Exception(userObj.getString("msg"));
             }
-            string avatar = userObj.GetParamString("figureurl_qq_2");
+            string avatar = userObj.getString("figureurl_qq_2");
             if (avatar.IsNullOrWhiteSpace())
             {
-                avatar = userObj.GetParamString("figureurl_qq_1");
+                avatar = userObj.getString("figureurl_qq_1");
             }
 
-            string location = $"{userObj.GetParamString("province")}-{userObj.GetParamString("city")}";
+            string location = $"{userObj.getString("province")}-{userObj.getString("city")}";
 
             var authUser = new AuthUser();
             authUser.uuid = openId;
-            authUser.username = userObj.GetParamString("nickname");
-            authUser.nickname = userObj.GetParamString("nickname");
+            authUser.username = userObj.getString("nickname");
+            authUser.nickname = userObj.getString("nickname");
             authUser.avatar = avatar;
             authUser.location = location;
-            authUser.email = userObj.GetParamString("email");
-            authUser.remark = userObj.GetParamString("bio");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.GetParamString("gender"));
+            authUser.email = userObj.getString("email");
+            authUser.remark = userObj.getString("bio");
+            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("gender"));
             authUser.token = authToken;
             authUser.source = source.getName();
 
@@ -88,12 +88,12 @@ namespace Come.CollectiveOAuth.Request
                 var openIdObj = openId.parseObject();
                 if (openIdObj.ContainsKey("error"))
                 {
-                    throw new Exception(openIdObj.GetParamString("error") + ":" + openIdObj.GetParamString("error_description"));
+                    throw new Exception(openIdObj.getString("error") + ":" + openIdObj.getString("error_description"));
                 }
-                authToken.openId = openIdObj.GetParamString("openid");
+                authToken.openId = openIdObj.getString("openid");
                 if (openIdObj.ContainsKey("unionid"))
                 {
-                    authToken.unionId = openIdObj.GetParamString("unionid");
+                    authToken.unionId = openIdObj.getString("unionid");
                 }
 
                 return authToken.unionId.IsNullOrWhiteSpace() ? authToken.openId : authToken.unionId;
@@ -122,12 +122,12 @@ namespace Come.CollectiveOAuth.Request
             var accessTokenObject = response.parseStringObject();
             if (!accessTokenObject.ContainsKey("access_token") || accessTokenObject.ContainsKey("code"))
             {
-                throw new Exception(accessTokenObject.GetParamString("msg"));
+                throw new Exception(accessTokenObject.getString("msg"));
             }
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
-            authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.expireIn = accessTokenObject.getInt32("expires_in");
+            authToken.refreshToken = accessTokenObject.getString("refresh_token");
 
             return authToken;
         }

@@ -50,7 +50,7 @@ namespace Come.CollectiveOAuth.Request
 
             var authUser = new AuthUser
             {
-                uuid = userObj.GetParamString("id"),
+                uuid = userObj.getString("id"),
                 username = userName,
                 nickname = userName,
                 avatar = avatar,
@@ -76,7 +76,7 @@ namespace Come.CollectiveOAuth.Request
             // 获取firstName
             if (userInfoObject.ContainsKey("localizedFirstName"))
             {
-                firstName = userInfoObject.GetParamString("localizedFirstName");
+                firstName = userInfoObject.getString("localizedFirstName");
             }
             else
             {
@@ -85,7 +85,7 @@ namespace Come.CollectiveOAuth.Request
             // 获取lastName
             if (userInfoObject.ContainsKey("localizedLastName"))
             {
-                lastName = userInfoObject.GetParamString("localizedLastName");
+                lastName = userInfoObject.getString("localizedLastName");
             }
             else
             {
@@ -103,15 +103,15 @@ namespace Come.CollectiveOAuth.Request
         private string getAvatar(Dictionary<string, object> userInfoObject)
         {
             string avatar = null;
-            var profilePictureObject = userInfoObject.GetParamString("profilePicture").parseObject();
+            var profilePictureObject = userInfoObject.getJSONObject("profilePicture");
             if (profilePictureObject.ContainsKey("displayImage~"))
             {
-                var displayImageElements = profilePictureObject.GetParamString("displayImage~").parseObject()
-                    .GetParamString("elements").parseListObject();
+                var displayImageElements = profilePictureObject.getJSONObject("displayImage~")
+                    .getJSONArray("elements");
                 if (null != displayImageElements && displayImageElements.Count > 0)
                 {
                     var largestImageObj = displayImageElements[displayImageElements.Count - 1];
-                    avatar = largestImageObj.GetParamString("identifiers").parseListObject()[0].GetParamString("identifier");
+                    avatar = largestImageObj.getJSONArray("identifiers")[0].getString("identifier");
                 }
             }
             return avatar;
@@ -134,10 +134,10 @@ namespace Come.CollectiveOAuth.Request
                 
             var emailObj = emailResponse.parseObject();
             this.checkResponse(emailObj);
-            var listObject = emailObj.GetParamString("elements").parseListObject();
+            var listObject = emailObj.getJSONArray("elements");
             if (listObject != null && listObject.Count > 0)
             {
-                email = listObject[listObject.Count - 1].GetParamString("handle~").parseObject().GetParamString("emailAddress");
+                email = listObject[listObject.Count - 1].getJSONObject("handle~").getString("emailAddress");
             }
 
             return email;
@@ -146,10 +146,10 @@ namespace Come.CollectiveOAuth.Request
         private string getUserName(Dictionary<string, object> userInfoObject, string nameKey)
         {
             string firstName;
-            var firstNameObj = userInfoObject.GetParamString(nameKey).parseObject();
-            var localizedObj = firstNameObj.GetParamString("localized").parseObject();
-            var preferredLocaleObj = firstNameObj.GetParamString("preferredLocale").parseObject();
-            firstName = localizedObj.GetParamString(preferredLocaleObj.GetParamString("language") + "_" + preferredLocaleObj.GetParamString("country"));
+            var firstNameObj = userInfoObject.getJSONObject(nameKey);
+            var localizedObj = firstNameObj.getJSONObject("localized");
+            var preferredLocaleObj = firstNameObj.getJSONObject("preferredLocale");
+            firstName = localizedObj.getString(preferredLocaleObj.getString("language") + "_" + preferredLocaleObj.getString("country"));
             return firstName;
         }
 
@@ -184,9 +184,9 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expire_in");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.refreshToken = accessTokenObject.getString("refresh_token");
+            authToken.expireIn = accessTokenObject.getInt32("expire_in");
 
             return authToken;
         }
@@ -231,7 +231,7 @@ namespace Come.CollectiveOAuth.Request
         {
             if (dic.ContainsKey("error"))
             {
-                throw new Exception($"{dic.GetDicValue("error_description")}");
+                throw new Exception($"{dic.getString("error_description")}");
             }
         }
     }

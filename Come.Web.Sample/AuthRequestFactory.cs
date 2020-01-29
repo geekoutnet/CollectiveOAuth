@@ -190,6 +190,18 @@ namespace Come.Web.Sample
                 case DefaultAuthSourceEnum.HUAWEI:
                     return new HuaweiAuthRequest(clientConfig, authStateCache);
 
+                case DefaultAuthSourceEnum.KUJIALE:
+                    return new KujialeAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.GITLAB:
+                    return new GitlabAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.MEITUAN:
+                    return new MeituanAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.ELEME:
+                    return new ElemeAuthRequest(clientConfig, authStateCache);
+
                 default:
                     return null;
             }

@@ -25,14 +25,14 @@ namespace Come.CollectiveOAuth.Request
             var accessTokenObject = response.parseObject();
             if (accessTokenObject.ContainsKey("error"))
             {
-                throw new Exception(accessTokenObject.GetParamString("error_description"));
+                throw new Exception(accessTokenObject.getString("error_description"));
             }
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.uid = accessTokenObject.GetParamString("uid");
-            authToken.openId = accessTokenObject.GetParamString("uid");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.uid = accessTokenObject.getString("uid");
+            authToken.openId = accessTokenObject.getString("uid");
+            authToken.expireIn = accessTokenObject.getInt32("expires_in");
             authToken.code = authCallback.code;
 
             return authToken;
@@ -52,18 +52,18 @@ namespace Come.CollectiveOAuth.Request
             var userObj = response.parseObject();
             if (userObj.ContainsKey("error"))
             {
-                throw new Exception(userObj.GetParamString("error"));
+                throw new Exception(userObj.getString("error"));
             }
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("id");
-            authUser.username = userObj.GetParamString("name");
-            authUser.nickname = userObj.GetParamString("screen_name");
-            authUser.avatar = userObj.GetParamString("profile_image_url");
-            authUser.blog = userObj.GetParamString("url").IsNullOrWhiteSpace() ? $"{"https://weibo.com/"}{userObj.GetParamString("profile_url")}" : userObj.GetParamString("url");
-            authUser.location = userObj.GetParamString("location");
-            authUser.remark = userObj.GetParamString("description");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.GetParamString("gender"));
+            authUser.uuid = userObj.getString("id");
+            authUser.username = userObj.getString("name");
+            authUser.nickname = userObj.getString("screen_name");
+            authUser.avatar = userObj.getString("profile_image_url");
+            authUser.blog = userObj.getString("url").IsNullOrWhiteSpace() ? $"{"https://weibo.com/"}{userObj.getString("profile_url")}" : userObj.getString("url");
+            authUser.location = userObj.getString("location");
+            authUser.remark = userObj.getString("description");
+            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("gender"));
 
             authUser.token = authToken;
             authUser.source = source.getName();
@@ -92,10 +92,10 @@ namespace Come.CollectiveOAuth.Request
             var retObj = response.parseObject();
             if (retObj.ContainsKey("error"))
             {
-                return new AuthResponse(AuthResponseStatus.FAILURE.GetCode(), retObj.GetParamString("error"));
+                return new AuthResponse(AuthResponseStatus.FAILURE.GetCode(), retObj.getString("error"));
             }
             // 返回 result = true 表示取消授权成功，否则失败
-            AuthResponseStatus status = retObj.GetParamBool("result") ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
+            AuthResponseStatus status = retObj.getBool("result") ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
             return new AuthResponse(status.GetCode(), status.GetDesc());
         }
     }

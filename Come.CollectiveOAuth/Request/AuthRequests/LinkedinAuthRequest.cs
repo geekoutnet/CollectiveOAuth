@@ -27,10 +27,12 @@ namespace Come.CollectiveOAuth.Request
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
             var accessToken = authToken.accessToken;
-            var reqParams = new Dictionary<string, object>();
-            reqParams.Add("Host", "api.linkedin.com");
-            reqParams.Add("Connection", "Keep-Alive");
-            reqParams.Add("Authorization", "Bearer " + accessToken);
+            var reqParams = new Dictionary<string, object>
+            {
+                { "Host", "api.linkedin.com" },
+                { "Connection", "Keep-Alive" },
+                { "Authorization", "Bearer " + accessToken }
+            };
             var response = HttpUtils.RequestGet(userInfoUrl(authToken), reqParams);
              
             var userObj = response.parseObject();
@@ -46,18 +48,19 @@ namespace Come.CollectiveOAuth.Request
             string email = this.getUserEmail(accessToken);
 
 
-            var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("id");
-            authUser.username = userName;
-            authUser.nickname = userName;
-            authUser.avatar = avatar;
-            authUser.email = email;
-            authUser.gender = AuthUserGender.UNKNOWN;
-
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = userObj;
-            authUser.originalUserStr = response;
+            var authUser = new AuthUser
+            {
+                uuid = userObj.GetParamString("id"),
+                username = userName,
+                nickname = userName,
+                avatar = avatar,
+                email = email,
+                gender = AuthUserGender.UNKNOWN,
+                token = authToken,
+                source = source.getName(),
+                originalUser = userObj,
+                originalUserStr = response
+            };
             return authUser;
         }
 

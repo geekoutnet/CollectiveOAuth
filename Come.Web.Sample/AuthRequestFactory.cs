@@ -118,6 +118,9 @@ namespace Come.Web.Sample
                 case DefaultAuthSourceEnum.WECHAT_MP:
                     return new WeChatMpAuthRequest(clientConfig, authStateCache);
 
+                case DefaultAuthSourceEnum.WECHAT_OPEN:
+                    return new WeChatOpenAuthRequest(clientConfig, authStateCache);
+
                 case DefaultAuthSourceEnum.WECHAT_ENTERPRISE:
                     return new WeChatEnterpriseAuthRequest(clientConfig, authStateCache);
 
@@ -150,6 +153,42 @@ namespace Come.Web.Sample
 
                 case DefaultAuthSourceEnum.LINKEDIN:
                     return new LinkedInAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.WEIBO:
+                    return new WeiboAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.QQ:
+                    return new QQAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.DOUYIN:
+                    return new DouyinAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.GOOGLE:
+                    return new GoogleAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.FACEBOOK:
+                    return new FackbookAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.MICROSOFT:
+                    return new MicrosoftAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.TOUTIAO:
+                    return new ToutiaoAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.TEAMBITION:
+                    return new TeambitionAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.RENREN:
+                    return new RenrenAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.PINTEREST:
+                    return new PinterestAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.STACK_OVERFLOW:
+                    return new StackOverflowAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.HUAWEI:
+                    return new HuaweiAuthRequest(clientConfig, authStateCache);
 
                 default:
                     return null;

@@ -218,6 +218,37 @@ namespace Come.CollectiveOAuth.Utils
             return retDic;
         }
 
+        /**
+	     * 将URL参数解析为Map（也可以解析Post中的键值对参数）
+	     *
+	     * @param paramsStr 参数字符串（或者带参数的Path）
+	     * @param charset   字符集
+	     * @return 参数Map
+	     */
+
+        public static Dictionary<string, object> parseUrlObject(this string paramsStr)
+        {
+            Dictionary<string, object> res = new Dictionary<string, object>();
+            try
+            {
+                if (paramsStr.IsNullOrWhiteSpace())
+                {
+                    return res;
+                }
+                // 去掉Path部分
+                int pathEndPos = paramsStr.IndexOf('?');
+                if (pathEndPos > -1)
+                {
+                    paramsStr = paramsStr.Substring(pathEndPos + 1);
+                }
+
+                return parseStringObject(paramsStr);
+            }
+            catch (Exception e)
+            {
+                return res;
+            }
+        }
 
         /**
         * string字符串转map，str格式为 {@code xxx=xxx&xxx=xxx}
@@ -241,6 +272,28 @@ namespace Come.CollectiveOAuth.Utils
                 }
             }
             return res;
+        }
+
+        /// 把字典集合拼接成&符号链接的字符串
+        /// </summary>
+        /// <param name="dic"></param>
+        /// <returns></returns>
+        public static string spellParams(this Dictionary<string, object> dicParams)
+        {
+            StringBuilder builder = new StringBuilder();
+            if (dicParams.Count > 0)
+            {
+                builder.Append("");
+                int i = 0;
+                foreach (KeyValuePair<string, object> item in dicParams)
+                {
+                    if (i > 0)
+                        builder.Append("&");
+                    builder.AppendFormat("{0}={1}", item.Key, Convert.ToString(item.Value));
+                    i++;
+                }
+            }
+            return builder.ToString();
         }
 
         //object的字典集合
@@ -326,7 +379,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
-        public static Boolean? GetParamBoolean(this Dictionary<string, object> request, string paramName)
+        public static bool GetParamBool(this Dictionary<string, object> request, string paramName)
         {
             var paramValue = request.GetDicValue(paramName);
             if (!string.IsNullOrWhiteSpace(paramValue))
@@ -337,10 +390,10 @@ namespace Come.CollectiveOAuth.Utils
                 }
                 catch (Exception ex)
                 {
-                    return null;
+                    return false;
                 }
             }
-            return null;
+            return false;
         }
 
         /// <summary>

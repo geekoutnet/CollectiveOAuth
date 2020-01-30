@@ -112,6 +112,16 @@ namespace Come.CollectiveOAuth.Request
                 .queryParam("userId", authToken.openId)
                 .build();
         }
-      
+
+        public override string authorize(string state)
+        {
+            return UrlBuilder.fromBaseUrl(source.authorize())
+                .queryParam("response_type", "code")
+                .queryParam("client_id", config.clientId)
+                .queryParam("redirect_uri", config.redirectUri)
+                .queryParam("state", getRealState(state))
+                .queryParam("display", "page")
+                .build();
+        }
     }
 }

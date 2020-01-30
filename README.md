@@ -70,8 +70,8 @@
 
 .Net平台下 **CollectiveOAuth**，它仅仅是一个 **第三方授权登录**的**工具类库**，它可以让我们脱离繁琐的第三方登录SDK，让登录变得**So easy!**
 
-- 项目开源地址：[gitee](https://gitee.com/rthinking/CollectiveOAuth) 
-- 项目文档：[参考文档(暂未开放)]
+- 项目开源地址：[Gitee(https://gitee.com/rthinking/CollectiveOAuth)](https://gitee.com/rthinking/CollectiveOAuth) 
+- 项目文档：[参考文档(https://codoc.rthinkingsoft.cn)](https://codoc.rthinkingsoft.cn)
 
 ## 特点
 

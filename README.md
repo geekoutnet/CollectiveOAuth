@@ -74,7 +74,7 @@
 
 
 ## 特别感谢
-**JustAuth**：这里特别感谢JustAuth开源项目作者提供架构思路(特别是Readme大部分来自于JustAuth，本人比较懒)
+**JustAuth**：这里特别感谢JustAuth开源项目作者提供架构思路
 
 .Net平台下 **CollectiveOAuth**，它仅仅是一个 **第三方授权登录**的**工具类库**，它可以让我们脱离繁琐的第三方登录SDK，让登录变得**So easy!**
 

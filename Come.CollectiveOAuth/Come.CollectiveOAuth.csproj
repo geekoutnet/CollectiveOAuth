@@ -1,154 +1,61 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6D482ED4-236A-484B-9810-DFEE702A5541}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Come.CollectiveOAuth</RootNamespace>
-    <AssemblyName>Come.CollectiveOAuth</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
+    <TargetFrameworks>netcoreapp3.1;netstandard2.0;net45</TargetFrameworks>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="AlipaySDKNet, Version=1.0.7311.38268, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\AlipaySDKNet.4.2.13\lib\net35\AlipaySDKNet.dll</HintPath>
-    </Reference>
-    <Reference Include="BouncyCastle, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942, processorArchitecture=MSIL">
-      <HintPath>..\packages\BouncyCastle.NetFramework.1.8.5.2\lib\net20\BouncyCastle.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\ConsoleApp2\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="TopSdk">
       <HintPath>Libraries\TopSdk.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Cache\HttpRuntimeCache.cs" />
-    <Compile Include="Cache\DefaultAuthStateCache.cs" />
-    <Compile Include="Cache\IAuthStateCache.cs" />
-    <Compile Include="Config\AuthSources\AlipayMPAuthSource.cs" />
-    <Compile Include="Config\AuthSources\BaiduAuthSource.cs" />
-    <Compile Include="Config\AuthSources\GiteeAuthSource.cs" />
-    <Compile Include="Config\AuthSources\DingTalkScanAuthSource.cs" />
-    <Compile Include="Config\AuthSources\CodingAuthSource.cs" />
-    <Compile Include="Config\AuthSources\DouyinAuthSource.cs" />
-    <Compile Include="Config\AuthSources\FackbookAuthSource.cs" />
-    <Compile Include="Config\AuthSources\TaobaoAuthSource.cs" />
-    <Compile Include="Config\AuthSources\MeituanAuthSource.cs" />
-    <Compile Include="Config\AuthSources\ElemeAuthSource.cs" />
-    <Compile Include="Config\AuthSources\TwitterAuthSource.cs" />
-    <Compile Include="Config\AuthSources\GitlabAuthSource.cs" />
-    <Compile Include="Config\AuthSources\KujialeAuthSource.cs" />
-    <Compile Include="Config\AuthSources\HuaweiAuthSource.cs" />
-    <Compile Include="Config\AuthSources\StackOverflowAuthSource.cs" />
-    <Compile Include="Config\AuthSources\PinterestAuthSource.cs" />
-    <Compile Include="Config\AuthSources\TeambitionAuthSource.cs" />
-    <Compile Include="Config\AuthSources\RenrenAuthSource.cs" />
-    <Compile Include="Config\AuthSources\ToutiaoAuthSource.cs" />
-    <Compile Include="Config\AuthSources\MicrosoftAuthSource.cs" />
-    <Compile Include="Config\AuthSources\GoogleAuthSource.cs" />
-    <Compile Include="Config\AuthSources\QQAuthSource.cs" />
-    <Compile Include="Config\AuthSources\WechatOpenAuthSource.cs" />
-    <Compile Include="Config\AuthSources\WeiboAuthSource.cs" />
-    <Compile Include="Config\AuthSources\LinkedInAuthSource.cs" />
-    <Compile Include="Config\AuthSources\OschinaAuthSource.cs" />
-    <Compile Include="Config\AuthSources\XiaoMiAuthSource.cs" />
-    <Compile Include="Config\AuthSources\WechatEnterpriseScanAuthSource.cs" />
-    <Compile Include="Config\AuthSources\WechatEnterpriseAuthSource.cs" />
-    <Compile Include="Config\ClientConfig.cs" />
-    <Compile Include="Config\AuthSources\GithubAuthSource.cs" />
-    <Compile Include="Config\IAuthSource.cs" />
-    <Compile Include="Config\AuthSources\WechatMPAuthSource.cs" />
-    <Compile Include="Config\DefaultAuthSourceEnum.cs" />
-    <Compile Include="Enums\AuthToutiaoErrorCode.cs" />
-    <Compile Include="Enums\EnumHelper\ArrayExtensions.cs" />
-    <Compile Include="Enums\AuthResponseStatus.cs" />
-    <Compile Include="Enums\AuthUserGender.cs" />
-    <Compile Include="Enums\EnumHelper\EnumExtensions.cs" />
-    <Compile Include="Enums\EnumHelper\EnumModel.cs" />
-    <Compile Include="Enums\EnumHelper\EnumObject.cs" />
-    <Compile Include="Models\AuthCallback.cs" />
-    <Compile Include="Models\AuthResponse.cs" />
-    <Compile Include="Models\AuthToken.cs" />
-    <Compile Include="Models\AuthUser.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Request\AuthRequests\BaiduAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\DingTalkScanAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\CodingAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\DouyinAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\ElemeAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\TwitteAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\MeituanAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\GitlabAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\KujialeAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\HuaweiAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\StackOverflowAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\PinterestAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\RenrenAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\TeambitionAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\ToutiaoAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\MicrosoftAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\FackbookAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\GoogleAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\QQAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\WeChatOpenAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\WeiboAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\LinkedInAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\OschinaAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\XiaoMiAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\GiteeAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\GithubAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\WeChatEnterpriseScanAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\WeChatEnterpriseAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\AlipayMpAuthRequest.cs" />
-    <Compile Include="Request\DefaultAuthRequest.cs" />
-    <Compile Include="Request\IAuthRequest.cs" />
-    <Compile Include="Request\AuthRequests\WeChatMpAuthRequest.cs" />
-    <Compile Include="Utils\AppSettingUtils.cs" />
-    <Compile Include="Utils\AuthChecker.cs" />
-    <Compile Include="Utils\AuthStateUtils.cs" />
-    <Compile Include="Utils\GlobalAuthUtil.cs" />
-    <Compile Include="Utils\HttpUtils.cs" />
-    <Compile Include="Utils\TwitterBase.cs" />
-    <Compile Include="Utils\TwitterOAuthClient.cs" />
-    <Compile Include="Utils\StringExtensions.cs" />
-    <Compile Include="Utils\UrlBuilder.cs" />
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="AlipaySDKNet.Standard">
+      <Version>4.2.13</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions">
+      <Version>3.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Configuration.ConfigurationManager">
+      <Version>4.7.0</Version>
+    </PackageReference>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
+    <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="AlipaySDKNet">
+      <Version>4.2.13</Version>
+    </PackageReference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="AlipaySDKNet.Standard">
+      <Version>4.2.13</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions">
+      <Version>3.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
+    <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.0" />
+  </ItemGroup>
 </Project>

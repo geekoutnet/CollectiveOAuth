@@ -21,7 +21,6 @@ namespace Come.Web.Sample
                 if (_clientConfigs == null)
                 {
                     var _defaultPrefix = "CollectiveOAuth_";
-                    var _extendPrefix = "Extend_CollectiveOAuth_";
                     _clientConfigs = new Dictionary<string, ClientConfig>();
 
                     #region 或者默认授权列表数据
@@ -37,23 +36,6 @@ namespace Come.Web.Sample
                         clientConfig.stackOverflowKey = AppSettingUtils.GetStrValue($"{_defaultPrefix}{authSource}_StackOverflowKey");
                         clientConfig.agentId = AppSettingUtils.GetStrValue($"{_defaultPrefix}{authSource}_AgentId");
                         clientConfig.scope = AppSettingUtils.GetStrValue($"{_defaultPrefix}{authSource}_Scope");
-                        _clientConfigs.Add(authSource, clientConfig);
-                    }
-                    #endregion
-
-                    #region 或者扩展授权列表数据
-                    var extendAuthList = typeof(ExtendAuthSourceEnum).ToList().Select(a => a.Name.ToUpper()).ToList();
-                    foreach (var authSource in extendAuthList)
-                    {
-                        var clientConfig = new ClientConfig();
-                        clientConfig.clientId = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_ClientId");
-                        clientConfig.clientSecret = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_ClientSecret");
-                        clientConfig.redirectUri = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_RedirectUri");
-                        clientConfig.alipayPublicKey = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_AlipayPublicKey");
-                        clientConfig.unionId = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_UnionId");
-                        clientConfig.stackOverflowKey = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_StackOverflowKey");
-                        clientConfig.agentId = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_AgentId");
-                        clientConfig.scope = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_Scope");
                         _clientConfigs.Add(authSource, clientConfig);
                     }
                     #endregion
@@ -90,12 +72,6 @@ namespace Come.Web.Sample
         {
             // 获取 CollectiveOAuth 中已存在的
             IAuthRequest authRequest = getDefaultRequest(authSource);
-
-            if (authRequest == null)
-            {
-                authRequest = getExtendRequest(authSource);
-            }
-
             return authRequest;
         }
 
@@ -202,26 +178,6 @@ namespace Come.Web.Sample
                 case DefaultAuthSourceEnum.ELEME:
                     return new ElemeAuthRequest(clientConfig, authStateCache);
 
-                default:
-                    return null;
-            }
-        }
-
-        /// <summary>
-        /// 获取扩展的 Request
-        /// </summary>
-        /// <param name="authSource"></param>
-        /// <returns>{@link AuthRequest}</returns>
-        private IAuthRequest getExtendRequest(string authSource)
-        {
-            ClientConfig clientConfig = GetClientConfig(authSource);
-
-            ExtendAuthSourceEnum authSourceEnum = GlobalAuthUtil.enumFromString<ExtendAuthSourceEnum>(authSource);
-
-            switch (authSourceEnum)
-            {
-                case ExtendAuthSourceEnum.TEST:
-                    return new WeChatMpAuthRequest(clientConfig);
                 default:
                     return null;
             }

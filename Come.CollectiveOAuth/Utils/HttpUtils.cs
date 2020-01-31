@@ -4,13 +4,11 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Net;
 using System.Text;
-using Aop.Api.Domain;
 
 namespace Come.CollectiveOAuth.Utils
 {
     public class HttpUtils
     {
-
         /// <summary>
         /// 模拟Form表单post请求
         /// </summary>

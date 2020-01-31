@@ -128,7 +128,7 @@ namespace Come.CollectiveOAuth.Utils
             try
             {
                
-                return HttpUtility.UrlEncode(value);
+                return System.Web.HttpUtility.UrlEncode(value);
             }
             catch (Exception e)
             {

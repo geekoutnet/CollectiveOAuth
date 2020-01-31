@@ -1,0 +1,123 @@
+﻿@{
+    ViewBag.Title = "CollectiveOAuth授权演示";
+}
+
+<style>
+    .btn-lg, .btn-group-lg > .btn {
+        margin-bottom: 13px;
+    }
+</style>
+<div class="jumbotron">
+    <p>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "WECHAT_MP"})" class="btn btn-primary btn-lg">
+            微信公众号
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "WECHAT_OPEN"})" class="btn btn-primary btn-lg">
+            微信开放平台
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "WECHAT_ENTERPRISE"})" class="btn btn-primary btn-lg">
+            企业微信静默
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "WECHAT_ENTERPRISE_SCAN"})" class="btn btn-primary btn-lg">
+            企业微信扫码
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "ALIPAY_MP"})" class="btn btn-primary btn-lg">
+            支付宝服务窗
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "GITEE"})" class="btn btn-primary btn-lg">
+            Gitee
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "GITHUB"})" class="btn btn-primary btn-lg">
+            Github
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "BAIDU"})" class="btn btn-primary btn-lg">
+            百度开放平台
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "XIAOMI"})" class="btn btn-primary btn-lg">
+            小米开放平台
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "DINGTALK_SCAN"})" class="btn btn-primary btn-lg">
+            钉钉扫码
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "OSCHINA"})" class="btn btn-primary btn-lg">
+            Oschina开源中国
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "CODING"})" class="btn btn-primary btn-lg">
+            Coding(扣钉)
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "LINKEDIN"})" class="btn btn-primary btn-lg">
+            Linkin(领英)
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "WEIBO"})" class="btn btn-primary btn-lg">
+            微博
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "QQ"})" class="btn btn-primary btn-lg">
+            QQ
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "DOUYIN"})" class="btn btn-primary btn-lg">
+            抖音
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "GOOGLE"})" class="btn btn-primary btn-lg">
+            Google谷歌
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "FACEBOOK"})" class="btn btn-primary btn-lg">
+            Facebook
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "MICROSOFT"})" class="btn btn-primary btn-lg">
+            微软
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "TOUTIAO"})" class="btn btn-primary btn-lg">
+            今日头条
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "TEAMBITION"})" class="btn btn-primary btn-lg">
+            Teambition
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "RENREN"})" class="btn btn-primary btn-lg">
+            人人网
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "PINTEREST"})" class="btn btn-primary btn-lg">
+            Pinterest
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "STACK_OVERFLOW"})" class="btn btn-primary btn-lg">
+            Stack Overflow
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "HUAWEI"})" class="btn btn-primary btn-lg">
+            华为
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "KUJIALE"})" class="btn btn-primary btn-lg">
+            酷家乐
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "GITLAB"})" class="btn btn-primary btn-lg">
+            Gitlab
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "MEITUAN"})" class="btn btn-primary btn-lg">
+            美团
+        </a>
+        <a href="@Url.Action("Authorization", "OAuth2", new {authSource = "ELEME"})" class="btn btn-primary btn-lg">
+            饿了么
+        </a>
+
+    </p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>Getting started</h2>
+        <p>
+            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
+            enables a clean separation of concerns and gives you full control over markup
+            for enjoyable, agile development.
+        </p>
+        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>Get more libraries</h2>
+        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
+        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>Web Hosting</h2>
+        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
+        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+    </div>
+</div>

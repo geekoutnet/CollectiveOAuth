@@ -70,6 +70,7 @@
 ## 开发计划
 - 添加 推特、淘宝 三方授权
 - 重构.NetCore 3.1环境下缓存使用方式
+- ...
 
 
 ## 特别感谢
@@ -121,7 +122,7 @@ authRequest.login(callback);
 #### API列表
 |  :computer: 平台  |  :coffee: API类  |  :page_facing_up: SDK  |
 |:------:|:-------:|:-------:|
-|  <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/gitee.png" width="20">  |  [GiteeAuthSource](https://gitee.com/rthinking/CollectiveOAuth/blob/master/Come.CollectiveOAuth/Request/AuthRequests/GiteeAuthRequest.cs)  | <a href="https://gitee.com/api/v5/oauth_doc#list_1" target="_blank">参考文档</a> |
+|  <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/gitee.png" width="20">  |  [GiteeAuthRequest](https://gitee.com/rthinking/CollectiveOAuth/blob/master/Come.CollectiveOAuth/Request/AuthRequests/GiteeAuthRequest.cs)  | <a href="https://gitee.com/api/v5/oauth_doc#list_1" target="_blank">参考文档</a> |
 |  <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/github.png" width="20">  |  [GithubAuthRequest](https://gitee.com/rthinking/CollectiveOAuth/blob/master/Come.CollectiveOAuth/Request/AuthRequests/GithubAuthRequest.cs)  |  <a href="https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/" target="_blank">参考文档</a> |
 |  <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/weibo.png" width="20">  |  [WeiboAuthRequest](https://gitee.com/rthinking/CollectiveOAuth/blob/master/Come.CollectiveOAuth/Request/AuthRequests/WeiboAuthRequest.cs) |  <a href="https://open.weibo.com/wiki/%E6%8E%88%E6%9D%83%E6%9C%BA%E5%88%B6%E8%AF%B4%E6%98%8E" target="_blank">参考文档</a>  |
 |  <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/dingtalk.png" width="20">  |  [DingTalkScanAuthRequest](https://gitee.com/rthinking/CollectiveOAuth/blob/master/Come.CollectiveOAuth/Request/AuthRequests/DingTalkScanAuthRequest.cs)  |  <a href="https://open-doc.dingtalk.com/microapp/serverapi2/kymkv6" target="_blank">参考文档</a>  |

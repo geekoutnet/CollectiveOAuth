@@ -26,10 +26,10 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
-            authToken.scope = accessTokenObject.GetParamString("scope");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.refreshToken = accessTokenObject.getString("refresh_token");
+            authToken.expireIn = accessTokenObject.getInt32("expires_in");
+            authToken.scope = accessTokenObject.getString("scope");
 
             return authToken;
         }
@@ -41,15 +41,15 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(userObj);
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("userid");
-            authUser.username = userObj.GetParamString("username");
-            authUser.nickname = userObj.GetParamString("username");
+            authUser.uuid = userObj.getString("userid");
+            authUser.username = userObj.getString("username");
+            authUser.nickname = userObj.getString("username");
 
-            string protrait = userObj.GetParamString("portrait");
+            string protrait = userObj.getString("portrait");
             authUser.avatar = protrait.IsNullOrWhiteSpace() ? null : string.Format("http://himg.bdimg.com/sys/portrait/item/{0}.jpg", protrait);
 
-            authUser.remark = userObj.GetParamString("userdetail");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.GetParamString("sex"));
+            authUser.remark = userObj.getString("userdetail");
+            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("sex"));
 
             authUser.token = authToken;
             authUser.source = source.getName();
@@ -64,7 +64,7 @@ namespace Come.CollectiveOAuth.Request
             var revokeObj = response.parseObject();
             this.checkResponse(revokeObj);
             // 返回1表示取消授权成功，否则失败
-            AuthResponseStatus status = revokeObj.GetParamInt32("result") == 1 ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
+            AuthResponseStatus status = revokeObj.getInt32("result") == 1 ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
             return new AuthResponse(status.GetCode(), status.GetDesc());
         }
 
@@ -81,10 +81,10 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(accessTokenObject);
 
             var newAuthToken = new AuthToken();
-            newAuthToken.accessToken = accessTokenObject.GetParamString("access_token");
-            newAuthToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
-            newAuthToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
-            newAuthToken.scope = accessTokenObject.GetParamString("scope");
+            newAuthToken.accessToken = accessTokenObject.getString("access_token");
+            newAuthToken.refreshToken = accessTokenObject.getString("refresh_token");
+            newAuthToken.expireIn = accessTokenObject.getInt32("expires_in");
+            newAuthToken.scope = accessTokenObject.getString("scope");
 
             return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), AuthResponseStatus.SUCCESS.GetDesc(), newAuthToken);
         }
@@ -118,9 +118,9 @@ namespace Come.CollectiveOAuth.Request
         {
             if (dic.ContainsKey("error") || dic.ContainsKey("error_code"))
             {
-                throw new Exception($@"error_code: {dic.GetDicValue("error_code")}," +
-                    $" error_description: {dic.GetDicValue("error_description")}," +
-                    $" error_msg: {dic.GetDicValue("error_msg")}");
+                throw new Exception($@"error_code: {dic.getString("error_code")}," +
+                    $" error_description: {dic.getString("error_description")}," +
+                    $" error_msg: {dic.getString("error_msg")}");
             }
         }
     }

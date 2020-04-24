@@ -12,13 +12,13 @@ namespace Come.Web.Sample.Controllers
     public class OAuth2Controller : Controller
     {
 
+        /// <summary>
+        /// 构建授权Url方法
+        /// </summary>
+        /// <param name="authSource"></param>
+        /// <returns>RedirectUrl</returns>
         public ActionResult Authorization(string authSource)
         {
-            if (authSource.IsNullOrEmpty())
-            {
-                authSource = "WECHAT_MP";
-            }
-
             AuthRequestFactory authRequest = new AuthRequestFactory();
             var request = authRequest.getRequest(authSource);
             var authorize = request.authorize(AuthStateUtils.createState());
@@ -27,7 +27,7 @@ namespace Come.Web.Sample.Controllers
         }
 
         /// <summary>
-        /// 通用的callback
+        /// 授权回调方法
         /// </summary>
         /// <param name="authSource"></param>
         /// <param name="authCallback"></param>

@@ -27,9 +27,9 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
-            authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.expireIn = accessTokenObject.getInt32("expires_in");
+            authToken.refreshToken = accessTokenObject.getString("refresh_token");
             return authToken;
         }
 
@@ -39,19 +39,19 @@ namespace Come.CollectiveOAuth.Request
             var resData = response.parseObject();
             this.checkResponse(resData);
 
-            var userObj = resData.GetParamString("data").parseObject();
+            var userObj = resData.getString("data").parseObject();
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("id");
-            authUser.username = userObj.GetParamString("name");
-            authUser.nickname = userObj.GetParamString("name");
-            authUser.avatar = $"{"https://coding.net/"}{userObj.GetParamString("avatar")}";
-            authUser.blog = $"{"https://coding.net/"}{userObj.GetParamString("path")}";
-            authUser.company = userObj.GetParamString("company");
-            authUser.location = userObj.GetParamString("location");
-            authUser.email = userObj.GetParamString("email");
-            authUser.remark = userObj.GetParamString("slogan");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.GetParamString("sex"));
+            authUser.uuid = userObj.getString("id");
+            authUser.username = userObj.getString("name");
+            authUser.nickname = userObj.getString("name");
+            authUser.avatar = $"{"https://coding.net/"}{userObj.getString("avatar")}";
+            authUser.blog = $"{"https://coding.net/"}{userObj.getString("path")}";
+            authUser.company = userObj.getString("company");
+            authUser.location = userObj.getString("location");
+            authUser.email = userObj.getString("email");
+            authUser.remark = userObj.getString("slogan");
+            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("sex"));
 
             authUser.token = authToken;
             authUser.source = source.getName();
@@ -97,9 +97,9 @@ namespace Come.CollectiveOAuth.Request
         */
         private void checkResponse(Dictionary<string, object> dic)
         {
-            if (dic.ContainsKey("code") && dic.GetParamInt32("code") != 0)
+            if (dic.ContainsKey("code") && dic.getInt32("code") != 0)
             {
-                throw new Exception($"{dic.GetDicValue("msg")}");
+                throw new Exception($"{dic.getString("msg")}");
             }
         }
     }

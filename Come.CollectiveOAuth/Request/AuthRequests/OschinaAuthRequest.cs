@@ -26,10 +26,10 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
-            authToken.uid = accessTokenObject.GetParamString("uid");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.refreshToken = accessTokenObject.getString("refresh_token");
+            authToken.uid = accessTokenObject.getString("uid");
+            authToken.expireIn = accessTokenObject.getInt32("expires_in");
             authToken.code = authCallback.code;
             return authToken;
         }
@@ -42,14 +42,14 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(userObj);
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("id");
-            authUser.username = userObj.GetParamString("name");
-            authUser.nickname = userObj.GetParamString("name");
-            authUser.avatar = userObj.GetParamString("avatar");
-            authUser.blog = userObj.GetParamString("url");
-            authUser.location = userObj.GetParamString("location");
-            authUser.email = userObj.GetParamString("email");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.GetParamString("gender"));
+            authUser.uuid = userObj.getString("id");
+            authUser.username = userObj.getString("name");
+            authUser.nickname = userObj.getString("name");
+            authUser.avatar = userObj.getString("avatar");
+            authUser.blog = userObj.getString("url");
+            authUser.location = userObj.getString("location");
+            authUser.email = userObj.getString("email");
+            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("gender"));
 
             authUser.token = authToken;
             authUser.source = source.getName();
@@ -101,7 +101,7 @@ namespace Come.CollectiveOAuth.Request
         {
             if (dic.ContainsKey("error"))
             {
-                throw new Exception($"{dic.GetDicValue("error_description")}");
+                throw new Exception($"{dic.getString("error_description")}");
             }
         }
     }

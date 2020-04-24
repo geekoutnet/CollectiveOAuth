@@ -21,7 +21,6 @@ namespace Come.Web.Sample
                 if (_clientConfigs == null)
                 {
                     var _defaultPrefix = "CollectiveOAuth_";
-                    var _extendPrefix = "Extend_CollectiveOAuth_";
                     _clientConfigs = new Dictionary<string, ClientConfig>();
 
                     #region 或者默认授权列表数据
@@ -37,23 +36,6 @@ namespace Come.Web.Sample
                         clientConfig.stackOverflowKey = AppSettingUtils.GetStrValue($"{_defaultPrefix}{authSource}_StackOverflowKey");
                         clientConfig.agentId = AppSettingUtils.GetStrValue($"{_defaultPrefix}{authSource}_AgentId");
                         clientConfig.scope = AppSettingUtils.GetStrValue($"{_defaultPrefix}{authSource}_Scope");
-                        _clientConfigs.Add(authSource, clientConfig);
-                    }
-                    #endregion
-
-                    #region 或者扩展授权列表数据
-                    var extendAuthList = typeof(ExtendAuthSourceEnum).ToList().Select(a => a.Name.ToUpper()).ToList();
-                    foreach (var authSource in extendAuthList)
-                    {
-                        var clientConfig = new ClientConfig();
-                        clientConfig.clientId = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_ClientId");
-                        clientConfig.clientSecret = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_ClientSecret");
-                        clientConfig.redirectUri = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_RedirectUri");
-                        clientConfig.alipayPublicKey = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_AlipayPublicKey");
-                        clientConfig.unionId = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_UnionId");
-                        clientConfig.stackOverflowKey = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_StackOverflowKey");
-                        clientConfig.agentId = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_AgentId");
-                        clientConfig.scope = AppSettingUtils.GetStrValue($"{_extendPrefix}{authSource}_Scope");
                         _clientConfigs.Add(authSource, clientConfig);
                     }
                     #endregion
@@ -90,12 +72,6 @@ namespace Come.Web.Sample
         {
             // 获取 CollectiveOAuth 中已存在的
             IAuthRequest authRequest = getDefaultRequest(authSource);
-
-            if (authRequest == null)
-            {
-                authRequest = getExtendRequest(authSource);
-            }
-
             return authRequest;
         }
 
@@ -117,6 +93,9 @@ namespace Come.Web.Sample
 
                 case DefaultAuthSourceEnum.WECHAT_MP:
                     return new WeChatMpAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.WECHAT_OPEN:
+                    return new WeChatOpenAuthRequest(clientConfig, authStateCache);
 
                 case DefaultAuthSourceEnum.WECHAT_ENTERPRISE:
                     return new WeChatEnterpriseAuthRequest(clientConfig, authStateCache);
@@ -151,26 +130,54 @@ namespace Come.Web.Sample
                 case DefaultAuthSourceEnum.LINKEDIN:
                     return new LinkedInAuthRequest(clientConfig, authStateCache);
 
-                default:
-                    return null;
-            }
-        }
+                case DefaultAuthSourceEnum.WEIBO:
+                    return new WeiboAuthRequest(clientConfig, authStateCache);
 
-        /// <summary>
-        /// 获取扩展的 Request
-        /// </summary>
-        /// <param name="authSource"></param>
-        /// <returns>{@link AuthRequest}</returns>
-        private IAuthRequest getExtendRequest(string authSource)
-        {
-            ClientConfig clientConfig = GetClientConfig(authSource);
+                case DefaultAuthSourceEnum.QQ:
+                    return new QQAuthRequest(clientConfig, authStateCache);
 
-            ExtendAuthSourceEnum authSourceEnum = GlobalAuthUtil.enumFromString<ExtendAuthSourceEnum>(authSource);
+                case DefaultAuthSourceEnum.DOUYIN:
+                    return new DouyinAuthRequest(clientConfig, authStateCache);
 
-            switch (authSourceEnum)
-            {
-                case ExtendAuthSourceEnum.TEST:
-                    return new WeChatMpAuthRequest(clientConfig);
+                case DefaultAuthSourceEnum.GOOGLE:
+                    return new GoogleAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.FACEBOOK:
+                    return new FackbookAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.MICROSOFT:
+                    return new MicrosoftAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.TOUTIAO:
+                    return new ToutiaoAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.TEAMBITION:
+                    return new TeambitionAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.RENREN:
+                    return new RenrenAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.PINTEREST:
+                    return new PinterestAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.STACK_OVERFLOW:
+                    return new StackOverflowAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.HUAWEI:
+                    return new HuaweiAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.KUJIALE:
+                    return new KujialeAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.GITLAB:
+                    return new GitlabAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.MEITUAN:
+                    return new MeituanAuthRequest(clientConfig, authStateCache);
+
+                case DefaultAuthSourceEnum.ELEME:
+                    return new ElemeAuthRequest(clientConfig, authStateCache);
+
                 default:
                     return null;
             }

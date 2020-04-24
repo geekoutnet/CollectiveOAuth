@@ -33,19 +33,19 @@ namespace Come.CollectiveOAuth.Request
 
             if (accessTokenObject.ContainsKey("error"))
             {
-                throw new Exception(accessTokenObject.GetParamString("error_description"));
+                throw new Exception(accessTokenObject.getString("error_description"));
             }
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.GetParamString("access_token");
-            authToken.refreshToken = accessTokenObject.GetParamString("refresh_token");
-            authToken.tokenType = accessTokenObject.GetParamString("token_type");
-            authToken.expireIn = accessTokenObject.GetParamInt32("expires_in");
-            authToken.scope = accessTokenObject.GetParamString("scope");
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.refreshToken = accessTokenObject.getString("refresh_token");
+            authToken.tokenType = accessTokenObject.getString("token_type");
+            authToken.expireIn = accessTokenObject.getInt32("expires_in");
+            authToken.scope = accessTokenObject.getString("scope");
 
-            authToken.openId = accessTokenObject.GetParamString("openId");
-            authToken.macAlgorithm = accessTokenObject.GetParamString("mac_algorithm");
-            authToken.macKey = accessTokenObject.GetParamString("mac_key");
+            authToken.openId = accessTokenObject.getString("openId");
+            authToken.macAlgorithm = accessTokenObject.getString("mac_algorithm");
+            authToken.macKey = accessTokenObject.getString("mac_key");
 
             return authToken;
         }
@@ -56,19 +56,19 @@ namespace Come.CollectiveOAuth.Request
             string userResponse = doGetUserInfo(authToken);
 
             var userProfile = userResponse.parseObject();
-            if ("error".Equals(userProfile.GetParamString("result"), StringComparison.OrdinalIgnoreCase))
+            if ("error".Equals(userProfile.getString("result"), StringComparison.OrdinalIgnoreCase))
             {
-                throw new Exception(userProfile.GetParamString("description"));
+                throw new Exception(userProfile.getString("description"));
             }
 
-            var userObj = userProfile.GetParamString("data").parseObject();
+            var userObj = userProfile.getString("data").parseObject();
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.GetParamString("id");
-            authUser.username = userObj.GetParamString("miliaoNick");
-            authUser.nickname = userObj.GetParamString("miliaoNick");
-            authUser.avatar = userObj.GetParamString("miliaoIcon");
-            authUser.email = userObj.GetParamString("mail");
+            authUser.uuid = userObj.getString("id");
+            authUser.username = userObj.getString("miliaoNick");
+            authUser.nickname = userObj.getString("miliaoNick");
+            authUser.avatar = userObj.getString("miliaoIcon");
+            authUser.email = userObj.getString("mail");
             authUser.gender = AuthUserGender.UNKNOWN;
 
             authUser.token = authToken;
@@ -82,10 +82,10 @@ namespace Come.CollectiveOAuth.Request
 
             string emailResponse = HttpUtils.RequestGet(emailPhoneUrl);
             var userEmailPhone = emailResponse.parseObject();
-            if (!"error".Equals(userEmailPhone.GetParamString("result"), StringComparison.OrdinalIgnoreCase))
+            if (!"error".Equals(userEmailPhone.getString("result"), StringComparison.OrdinalIgnoreCase))
             {
-                var emailPhone = userEmailPhone.GetParamString("data").parseObject();
-                authUser.email = emailPhone.GetParamString("email");
+                var emailPhone = userEmailPhone.getString("data").parseObject();
+                authUser.email = emailPhone.getString("email");
             }
             else
             {

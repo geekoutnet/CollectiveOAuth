@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Come.Web.Sample", "Come.Web
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Come.CollectiveOAuth", "Come.CollectiveOAuth\Come.CollectiveOAuth.csproj", "{6D482ED4-236A-484B-9810-DFEE702A5541}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Come.AspNetCore.Sample", "Come.AspNetCore.Sample\Come.AspNetCore.Sample.csproj", "{ED0A91E3-47C4-44D8-8F88-643B1E0C225D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{6D482ED4-236A-484B-9810-DFEE702A5541}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D482ED4-236A-484B-9810-DFEE702A5541}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D482ED4-236A-484B-9810-DFEE702A5541}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED0A91E3-47C4-44D8-8F88-643B1E0C225D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED0A91E3-47C4-44D8-8F88-643B1E0C225D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED0A91E3-47C4-44D8-8F88-643B1E0C225D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED0A91E3-47C4-44D8-8F88-643B1E0C225D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

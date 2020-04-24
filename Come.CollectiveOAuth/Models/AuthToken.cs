@@ -45,5 +45,6 @@
         public string userId { get; set; }
         public string screenName { get; set; }
         public bool oauthCallbackConfirmed { get; set; }
+
     }
 }

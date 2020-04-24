@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-
+﻿
 namespace Come.CollectiveOAuth.Utils
 {
     public class AppSettingUtils
@@ -10,7 +9,12 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="key"></param>
         public static string GetStrValue(string key)
         {
-            var value = ConfigurationManager.AppSettings[key];
+            var value = "";
+#if NET45
+            value = System.Configuration.ConfigurationManager.AppSettings[key];
+#else
+            value = Come.CollectiveOAuth.Utils.ConfigurationManager.AppSettings[key];
+#endif
             if (!string.IsNullOrWhiteSpace(value))
             {
                 return value.ToString().Trim();

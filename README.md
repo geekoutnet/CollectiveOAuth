@@ -203,12 +203,5 @@ _请知悉：经咨询CSDN官方客服得知，CSDN的授权开放平台已经�
 
  **QQ群** 
 
-- CollectiveOAuth交流群 （836803890）：专业交流该项目
+- CollectiveOAuth交流群 （836803890）
 
-## 请喝咖啡
-
-| 支付宝  | 微信  |
-| :------------: | :------------: |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/qrcode/zfb_code.png" width="200"/> | <img src="https://gitee.com/rthinking/auth_files/raw/master/qrcode/wx_code.png" width="200" /> |
-
-开源不求盈利，多少都是心意，生活不易，随缘随缘……

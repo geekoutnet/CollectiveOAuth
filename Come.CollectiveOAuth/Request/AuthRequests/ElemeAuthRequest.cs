@@ -1,18 +1,26 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
-using System.Text;
 using System.Security.Cryptography;
-using Newtonsoft.Json;
+using System.Text;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * 饿了么登录，对齐 JustAuth AuthElemeRequest
+     */
     public class ElemeAuthRequest : DefaultAuthRequest
     {
+        private const string CONTENT_TYPE_FORM = "application/x-www-form-urlencoded;charset=UTF-8";
+        private const string CONTENT_TYPE_JSON = "application/json; charset=utf-8";
+
         public ElemeAuthRequest(ClientConfig config) : base(config, new ElemeAuthSource())
         {
         }
@@ -24,45 +32,43 @@ namespace Come.CollectiveOAuth.Request
 
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
-            var reqParams = new Dictionary<string, object>
+            var form = new Dictionary<string, string>
             {
                 { "client_id", config.clientId },
-                { "redirect_uri", config.clientSecret },
+                { "redirect_uri", config.redirectUri },
                 { "code", authCallback.code },
-                { "grant_type", "authorization_code" },
+                { "grant_type", "authorization_code" }
             };
 
-            var reqHeaders = this.getSpecialHeader(this.getRequestId());
+            var httpHeader = this.buildHeader(CONTENT_TYPE_FORM, this.getRequestId(), true);
+            string response = HttpUtils.RequestFormPost(source.accessToken(), GlobalAuthUtil.parseMapToString(form, true), httpHeader, null, config.httpConfig);
+            var obj = JsonExtensions.parseObject(response);
 
-            var response = HttpUtils.RequestFormPost(source.accessToken(), reqParams.spellParams(true), reqHeaders);
-            var accessTokenObject = response.parseObject();
+            this.checkResponse(obj);
 
-            this.checkResponse(accessTokenObject);
-
-            var authToken = new AuthToken
-            {
-                accessToken = accessTokenObject.getString("access_token"),
-                expireIn = accessTokenObject.getInt32("expires_in"),
-                refreshToken = accessTokenObject.getString("refresh_token"),
-                tokenType = accessTokenObject.getString("token_type"),
-                code = authCallback.code
-            };
-
+            var authToken = new AuthToken();
+            authToken.accessToken = obj.getString("access_token");
+            authToken.refreshToken = obj.getString("refresh_token");
+            authToken.tokenType = obj.getString("token_type");
+            authToken.expireIn = obj.getIntValue("expires_in");
             return authToken;
         }
 
-
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
+            var parameters = new Dictionary<string, object>();
             // 获取商户账号信息的API接口名称
-            String action = "eleme.user.getUser";
-            // 时间戳，单位秒。API服务端允许客户端请求最大时间误差为正负5分钟。
-            long timestamp = DateTime.Now.Ticks;
+            string action = "eleme.user.getUser";
+            // 时间戳（与 Java 一致使用毫秒）
+            long timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             // 公共参数
-            var metasHashMap = new Dictionary<string, object>();
-            metasHashMap.Add("app_key", config.clientId);
-            metasHashMap.Add("timestamp", timestamp);
-            string signature = this.generateElemeSignature(timestamp, action, authToken.accessToken);
+            var metasHashMap = new Dictionary<string, object>
+            {
+                { "app_key", config.clientId },
+                { "timestamp", timestamp }
+            };
+            string signature = GlobalAuthUtil.generateElemeSignature(config.clientId, config.clientSecret, timestamp, action, authToken.accessToken, parameters);
+
             string requestId = this.getRequestId();
 
             var paramsMap = new Dictionary<string, object>
@@ -71,125 +77,106 @@ namespace Come.CollectiveOAuth.Request
                 { "id", requestId },
                 { "action", action },
                 { "token", authToken.accessToken },
-                { "metas", JsonConvert.SerializeObject(metasHashMap) },
-                { "params", "{}" },
+                { "metas", metasHashMap },
+                { "params", parameters },
                 { "signature", signature }
             };
 
-            var reqHeaders = new Dictionary<string, object>
-            {
-                { "Content-Type", "application/json; charset=utf-8" },
-                { "Accept", "text/xml,text/javascript,text/html" },
-                { "Accept-Encoding", "gzip" },
-                { "User-Agent", "eleme-openapi-java-sdk"},
-                { "x-eleme-requestid", requestId},
-                { "Authorization", this.spliceBasicAuthStr()}
-            };
-            var response = HttpUtils.RequestPost(source.userInfo(), JsonConvert.SerializeObject(paramsMap), reqHeaders);
+            var httpHeader = this.buildHeader(CONTENT_TYPE_JSON, requestId, false);
+            string response = HttpUtils.RequestPost(source.userInfo(), JsonConvert.SerializeObject(paramsMap), httpHeader, null, config.httpConfig);
 
-            var resObj = response.parseObject();
+            var obj = JsonExtensions.parseObject(response);
 
             // 校验请求
-            if (resObj.ContainsKey("name"))
+            if (obj.containsKey("name"))
             {
-                throw new Exception(resObj.getString("message"));
+                throw new AuthException(obj.getString("message"));
             }
-            if (resObj.ContainsKey("error") && !resObj.getString("error").IsNullOrWhiteSpace())
+            if (obj.containsKey("error") && obj["error"].Type != JTokenType.Null)
             {
-                throw new Exception(resObj.getJSONObject("error").getString("message"));
+                throw new AuthException(obj.getJSONObject("error").getString("message"));
             }
 
-            var userObj = resObj.getJSONObject("result");
+            var result = obj.getJSONObject("result");
 
-            var authUser = new AuthUser
-            {
-                uuid = userObj.getString("userId"),
-                username = userObj.getString("userName"),
-                nickname = userObj.getString("userName"),
-                gender = AuthUserGender.UNKNOWN,
-                token = authToken,
-                source = source.getName(),
-                originalUser = resObj,
-                originalUserStr = response
-            };
+            var authUser = new AuthUser();
+            authUser.rawUserInfo = result;
+            authUser.uuid = result.getString("userId");
+            authUser.username = result.getString("userName");
+            authUser.nickname = result.getString("userName");
+            authUser.gender = AuthUserGender.UNKNOWN;
+            authUser.token = authToken;
+            authUser.source = source.getName();
+            authUser.originalUser = result;
+            authUser.originalUserStr = response;
             return authUser;
         }
 
         public override AuthResponse refresh(AuthToken oldToken)
         {
-            var reqParams = new Dictionary<string, object>
+            var form = new Dictionary<string, string>
             {
                 { "refresh_token", oldToken.refreshToken },
-                { "grant_type", "refresh_token" },
+                { "grant_type", "refresh_token" }
             };
 
-            var reqHeaders = this.getSpecialHeader(this.getRequestId());
+            var httpHeader = this.buildHeader(CONTENT_TYPE_FORM, this.getRequestId(), true);
+            string response = HttpUtils.RequestFormPost(source.refresh(), GlobalAuthUtil.parseMapToString(form, true), httpHeader, null, config.httpConfig);
 
-            var response = HttpUtils.RequestFormPost(source.accessToken(), reqParams.spellParams(true), reqHeaders);
-            var accessTokenObject = response.parseObject();
+            var obj = JsonExtensions.parseObject(response);
 
-            this.checkResponse(accessTokenObject);
+            this.checkResponse(obj);
 
-            var authToken = new AuthToken
-            {
-                accessToken = accessTokenObject.getString("access_token"),
-                refreshToken = accessTokenObject.getString("refresh_token"),
-                expireIn = accessTokenObject.getInt32("expires_in"),
-                tokenType = accessTokenObject.getString("token_type")
-            };
-
-            return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), AuthResponseStatus.SUCCESS.GetDesc(), authToken);
+            var authToken = new AuthToken();
+            authToken.accessToken = obj.getString("access_token");
+            authToken.refreshToken = obj.getString("refresh_token");
+            authToken.tokenType = obj.getString("token_type");
+            authToken.expireIn = obj.getIntValue("expires_in");
+            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, authToken);
         }
 
         public override string authorize(string state)
         {
-            return UrlBuilder.fromBaseUrl(base.authorize(state))
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "all" : config.scope)
-                .build();
+            return UrlBuilder.fromBaseUrl(base.authorize(state)).queryParam("scope", "all").build();
         }
 
-        private string spliceBasicAuthStr()
+        private string getBasic(string appKey, string appSecret)
         {
-            string encodeToString = encodeBase64($"{config.clientId}:{config.clientSecret}");
-            return $"Basic {encodeToString}";
+            string encodeToString = Base64Utils.encode(Encoding.UTF8.GetBytes(appKey + ":" + appSecret));
+            return "Basic" + " " + encodeToString;
         }
 
-        private Dictionary<string, object> getSpecialHeader(string requestId)
+        private Dictionary<string, object> buildHeader(string contentType, string requestId, bool auth)
         {
-            var headers = new Dictionary<string, object>
+            var httpHeader = new Dictionary<string, object>
             {
-                { "Content-Type", "application/x-www-form-urlencoded;charset=UTF-8" },
                 { "Accept", "text/xml,text/javascript,text/html" },
+                { "Content-Type", contentType },
                 { "Accept-Encoding", "gzip" },
-                { "User-Agent", "eleme-openapi-java-sdk"},
-                { "x-eleme-requestid", requestId},
-                { "Authorization", this.spliceBasicAuthStr()}
+                { "User-Agent", "eleme-openapi-java-sdk" },
+                { "x-eleme-requestid", requestId }
             };
-            return headers;
+            if (auth)
+            {
+                httpHeader.Add("Authorization", this.getBasic(config.clientId, config.clientSecret));
+            }
+            return httpHeader;
         }
-
 
         private string getRequestId()
         {
-            return (Guid.NewGuid().ToString() + "|" + DateTime.Now.Ticks.ToString()).ToUpper();
+            return (UuidUtils.getUUID() + "|" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()).ToUpper();
         }
 
-
-        /**
-        * 校验请求结果
-        *
-        * @param response 请求结果
-        * @return 如果请求结果正常，则返回Exception
-        */
-        private void checkResponse(Dictionary<string, object> dic)
+        private void checkResponse(JObject obj)
         {
-            if (dic.ContainsKey("error"))
+            if (obj.containsKey("error"))
             {
-                throw new Exception($"{dic.getString("error_description")}");
+                throw new AuthException(obj.getString("error_description"));
             }
         }
 
-        ///编码
+        ///编码（保留的公开方法）
         public string encodeBase64(string contentStr, string encodeType = "utf-8")
         {
             string encode = "";
@@ -204,7 +191,8 @@ namespace Come.CollectiveOAuth.Request
             }
             return encode;
         }
-        ///解码
+
+        ///解码（保留的公开方法）
         public string decodeBase64(string contentStr, string encodeType = "utf-8")
         {
             string decode = "";
@@ -220,64 +208,29 @@ namespace Come.CollectiveOAuth.Request
             return decode;
         }
 
-
         /**
-         * 生成饿了么请求的Signature
-         * <p>
-         * 代码copy并修改自：https://coding.net/u/napos_openapi/p/eleme-openapi-java-sdk/git/blob/master/src/main/java/eleme/openapi/sdk/utils/SignatureUtil.java
-         *
-         * @param appKey     平台应用的授权key
-         * @param secret     平台应用的授权密钥
-         * @param timestamp  时间戳，单位秒。API服务端允许客户端请求最大时间误差为正负5分钟。
-         * @param action     饿了么请求的api方法
-         * @param token      用户授权的token
-         * @param parameters 加密参数
-         * @return Signature
+         * 生成饿了么请求的Signature（保留的公开方法，改为与 JustAuth 相同的算法）
          */
         public string generateElemeSignature(long timestamp, string action, string token)
         {
-            Dictionary<string, object> dicList = new Dictionary<string, object>();
-            dicList.Add("app_key", config.clientId);
-            dicList.Add("timestamp", timestamp);
-
-            var signStr = dicList.Sort().spellParams();
-            string splice = $"{action}{token}{signStr}{config.clientSecret}";
-            string calculatedSignature = hashMd5String(splice);
-            return calculatedSignature;
+            return GlobalAuthUtil.generateElemeSignature(config.clientId, config.clientSecret, timestamp, action, token, new Dictionary<string, object>());
         }
 
         /// <summary>
-        /// 对字符串进行Md5加密，isUpper为True时返回大写，反之小写
+        /// 对字符串进行Md5加密，isUpper为True时返回大写，反之小写（保留的公开方法）
         /// </summary>
-        /// <param name="willMd5Str"></param>
-        /// <param name="isUpper"></param>
         public static string hashMd5String(string willMd5Str, bool isUpper = true)
         {
-            //就是比string往后一直加要好的优化容器
             StringBuilder sb = new StringBuilder();
-            using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
+            using (var md5 = MD5.Create())
             {
-                //将输入字符串转换为字节数组并计算哈希。
                 byte[] data = md5.ComputeHash(Encoding.UTF8.GetBytes(willMd5Str));
-
-                //X为     十六进制 X都是大写 x都为小写
-                //2为 每次都是两位数
-                //假设有两个数10和26，正常情况十六进制显示0xA、0x1A，这样看起来不整齐，为了好看，可以指定"X2"，这样显示出来就是：0x0A、0x1A。 
-                //遍历哈希数据的每个字节
-                //并将每个字符串格式化为十六进制字符串。
-                int length = data.Length;
-                for (int i = 0; i < length; i++)
+                for (int i = 0; i < data.Length; i++)
+                {
                     sb.Append(data[i].ToString("X2"));
-
+                }
             }
-            if (isUpper)
-            {
-                return sb.ToString().ToUpper();
-            }
-            else
-            {
-                return sb.ToString().ToLower();
-            }
+            return isUpper ? sb.ToString().ToUpper() : sb.ToString().ToLower();
         }
     }
 }

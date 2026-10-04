@@ -18,7 +18,7 @@ namespace Come.CollectiveOAuth.Utils
         {
             // 在原有协议基础上追加 TLS1.2（.NET Framework 默认不开启），只设置一次，不覆盖全局配置
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-#if NETCOREAPP3_1
+#if NETCOREAPP
             // 定期重建连接，使 DNS 变更能够生效
             var handler = new SocketsHttpHandler
             {

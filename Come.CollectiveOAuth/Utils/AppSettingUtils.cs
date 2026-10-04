@@ -3,7 +3,7 @@ namespace Come.CollectiveOAuth.Utils
 {
     public class AppSettingUtils
     {
-#if !NET45
+#if !NETFRAMEWORK
         private static Microsoft.Extensions.Configuration.IConfiguration _configuration;
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Come.CollectiveOAuth.Utils
         public static string GetStrValue(string key)
         {
             var value = "";
-#if NET45
+#if NETFRAMEWORK
             value = System.Configuration.ConfigurationManager.AppSettings[key];
 #else
             value = _configuration != null

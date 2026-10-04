@@ -1,4 +1,5 @@
-﻿using Come.CollectiveOAuth.Enums;
+﻿using Newtonsoft.Json.Linq;
+using Come.CollectiveOAuth.Enums;
 
 namespace Come.CollectiveOAuth.Models
 {
@@ -61,5 +62,15 @@ namespace Come.CollectiveOAuth.Models
         public object originalUser { get; set; }
 
         public string originalUserStr { get; set; }
+
+        /**
+         * 第三方平台返回的原始用户信息（与 JustAuth rawUserInfo 一致）
+         */
+        public JObject rawUserInfo { get; set; }
+
+        /**
+         * 微信公众号 - 网页授权的登录时可用，是否为快照页模式虚拟账号
+         */
+        public bool snapshotUser { get; set; }
     }
 }

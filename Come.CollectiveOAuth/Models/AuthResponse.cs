@@ -36,5 +36,9 @@ namespace Come.CollectiveOAuth.Models
             this.msg = msg;
             this.data = data;
         }
+
+        public AuthResponse()
+        {
+        }
     }
 }

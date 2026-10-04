@@ -44,7 +44,23 @@
         public string oauthTokenSecret { get; set; }
         public string userId { get; set; }
         public string screenName { get; set; }
-        public bool oauthCallbackConfirmed { get; set; }
+        public bool? oauthCallbackConfirmed { get; set; }
 
+        public int refreshTokenExpireIn { get; set; }
+
+        /**
+         * 微信公众号 - 网页授权的登录时可用，是否为快照页模式虚拟账号
+         */
+        public bool snapshotUser { get; set; }
+
+        /**
+         * 钉钉账号登录
+         */
+        public string username { get; set; }
+
+        /**
+         * 企业微信第三方应用：授权方企业 ID
+         */
+        public string corpId { get; set; }
     }
 }

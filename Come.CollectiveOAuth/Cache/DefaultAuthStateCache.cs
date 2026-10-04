@@ -1,52 +1,35 @@
-﻿using System;
-
 namespace Come.CollectiveOAuth.Cache
 {
+    /// <summary>
+    /// 默认的 state 缓存，对应 JustAuth AuthDefaultStateCache（默认 3 分钟过期）
+    /// </summary>
     public class DefaultAuthStateCache : IAuthStateCache
     {
-        /// <summary>
-        /// 默认缓存前缀
-        /// </summary>
-        private static string Default_Cache_Prefix = "CollectiveOAuth_Status_";
+        private static readonly IAuthCache authCache = new AuthDefaultCache();
 
         public void cache(string key, string value)
         {
-            HttpRuntimeCache.Set($"{Default_Cache_Prefix}{key}", value);
+            authCache.set(key, value);
         }
 
         public void cache(string key, string value, long timeout)
         {
-            // 接口约定 timeout 为毫秒，HttpRuntimeCache 以秒为单位
-            HttpRuntimeCache.Set($"{Default_Cache_Prefix}{key}", value, timeout / 1000);
-        }
-
-        public void remove(string key)
-        {
-            HttpRuntimeCache.Remove($"{Default_Cache_Prefix}{key}");
-        }
-
-        public bool containsKey(string key)
-        {
-            var cacheObj = HttpRuntimeCache.Get($"{Default_Cache_Prefix}{key}");
-            if (cacheObj != null)
-            {
-                return true;
-            }
-
-            return false;
+            authCache.set(key, value, timeout);
         }
 
         public string get(string key)
         {
-            var cacheObj = HttpRuntimeCache.Get($"{Default_Cache_Prefix}{key}");
-            if (cacheObj != null)
-            {
-                return Convert.ToString(cacheObj);
-            }
-            else
-            {
-                return null;
-            }
+            return authCache.get(key);
+        }
+
+        public bool containsKey(string key)
+        {
+            return authCache.containsKey(key);
+        }
+
+        public void remove(string key)
+        {
+            authCache.remove(key);
         }
     }
 }

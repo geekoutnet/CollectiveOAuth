@@ -31,6 +31,7 @@ namespace Come.CollectiveOAuth.Tests.Support
                 { "FACEBOOK", (c, s) => new FackbookAuthRequest(c, s) },
                 { "MICROSOFT", (c, s) => new MicrosoftAuthRequest(c, s) },
                 { "PINTEREST", (c, s) => new PinterestAuthRequest(c, s) },
+                { "STACK_OVERFLOW", (c, s) => new StackOverflowAuthRequest(c, s) },
 
 
                 // ===== 批次 E =====

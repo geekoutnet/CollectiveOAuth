@@ -1,0 +1,33 @@
+{
+  "source": "STACK_OVERFLOW",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/stackoverflow", "stackOverflowKey": "sokey((" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"so_token((\",\"expires\":86400}",
+        "{\"items\":[{\"user_id\":1264804,\"display_name\":\"so user\",\"profile_image\":\"https://i.sstatic.net/abc.png\",\"location\":\"Earth\",\"website_url\":\"https://example.com\",\"reputation\":1234,\"link\":\"https://stackoverflow.com/users/1264804/so-user\"}],\"has_more\":false,\"quota_max\":10000,\"quota_remaining\":9999}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":\"invalid_request\",\"error_description\":\"code expired\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"so_token((\",\"expires\":86400}",
+        "{\"error\":\"invalid_token\",\"error_description\":\"access_token is invalid\"}"
+      ]
+    }
+  ]
+}

@@ -25,5 +25,12 @@ namespace Come.CollectiveOAuth.Tests
             Assert.Null(user.token.oauthCallbackConfirmed);
             Assert.True(new AuthResponse(2000, null).ok());
         }
+
+        [Fact]
+        public void gender_defaults_to_null_like_java()
+        {
+            // Java AuthUser.gender 未设置时为 null，不能默认成 FEMALE(0)
+            Assert.Null(new AuthUser().gender);
+        }
     }
 }

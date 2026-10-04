@@ -1,0 +1,60 @@
+{
+  "source": "KUJIALE",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/kujiale" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"c\":\"0\",\"m\":\"\",\"d\":{\"accessToken\":\"kjl_at\",\"refreshToken\":\"kjl_rt\",\"expiresIn\":2592000}}",
+        "{\"c\":\"0\",\"m\":\"\",\"d\":\"3FO4K4VY9XP6\"}",
+        "{\"c\":\"0\",\"m\":\"\",\"d\":{\"userName\":\"酷家乐用户\",\"openId\":\"3FO4K4VY9XP6\",\"avatar\":\"https://qhstaticssl.kujiale.com/a.png\"}}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"c\":\"100002\",\"m\":\"code 无效\",\"d\":null}"
+      ]
+    },
+    {
+      "name": "login_openid_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"c\":\"0\",\"m\":\"\",\"d\":{\"accessToken\":\"kjl_at\",\"refreshToken\":\"kjl_rt\",\"expiresIn\":2592000}}",
+        "{\"c\":\"100004\",\"m\":\"access_token 过期\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"c\":\"0\",\"m\":\"\",\"d\":{\"accessToken\":\"kjl_at\",\"refreshToken\":\"kjl_rt\",\"expiresIn\":2592000}}",
+        "{\"c\":\"0\",\"m\":\"\",\"d\":\"3FO4K4VY9XP6\"}",
+        "{\"c\":\"100005\",\"m\":\"用户不存在\"}"
+      ]
+    },
+    {
+      "name": "refresh_success",
+      "action": "refresh",
+      "token": { "refreshToken": "kjl_rt" },
+      "responses": [
+        "{\"c\":\"0\",\"m\":\"\",\"d\":{\"accessToken\":\"kjl_at2\",\"refreshToken\":\"kjl_rt2\",\"expiresIn\":2592000}}"
+      ]
+    },
+    {
+      "name": "refresh_error",
+      "action": "refresh",
+      "token": { "refreshToken": "bad" },
+      "responses": [
+        "{\"c\":\"100003\",\"m\":\"refresh_token 无效\"}"
+      ]
+    }
+  ]
+}

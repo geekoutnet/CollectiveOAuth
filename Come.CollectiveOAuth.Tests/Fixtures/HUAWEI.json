@@ -1,0 +1,50 @@
+{
+  "source": "HUAWEI",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/huawei" },
+  "state": "fixedstate000000000000000000000",
+  "ignore": { "params": ["nsp_ts"] },
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "authorization_code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"hw_at\",\"expires_in\":3600,\"refresh_token\":\"hw_rt\",\"scope\":\"openid profile\",\"token_type\":\"Bearer\",\"id_token\":\"idt\"}",
+        "{\"userID\":\"hwuid123\",\"userName\":\"华为用户\",\"headPictureURL\":\"https://upfile.hicloud.com/a.jpg\",\"gender\":0,\"userValidStatus\":1,\"languageCode\":\"zh-CN\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "authorization_code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"sub_error\":20156,\"error_description\":\"code used twice\",\"error\":1101}"
+      ]
+    },
+    {
+      "name": "login_userinfo_nsp_error",
+      "action": "login",
+      "callback": { "authorization_code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"hw_at\",\"expires_in\":3600,\"refresh_token\":\"hw_rt\",\"scope\":\"openid profile\",\"token_type\":\"Bearer\",\"id_token\":\"idt\"}",
+        "{\"NSP_STATUS\":6,\"error\":\"session timeout\"}"
+      ]
+    },
+    {
+      "name": "refresh_success",
+      "action": "refresh",
+      "token": { "refreshToken": "hw_rt" },
+      "responses": [
+        "{\"access_token\":\"hw_at2\",\"expires_in\":3600,\"token_type\":\"Bearer\"}"
+      ]
+    },
+    {
+      "name": "refresh_error",
+      "action": "refresh",
+      "token": { "refreshToken": "bad_rt" },
+      "responses": [
+        "{\"error\":1101,\"error_description\":\"invalid refresh token\"}"
+      ]
+    }
+  ]
+}

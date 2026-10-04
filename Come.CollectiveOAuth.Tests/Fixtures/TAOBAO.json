@@ -1,0 +1,37 @@
+{
+  "source": "TAOBAO",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/taobao" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"w1_expires_in\":1800,\"refresh_token_valid_time\":1580000000000,\"taobao_user_nick\":\"%E6%B7%98%E5%AE%9D%E7%94%A8%E6%88%B7\",\"re_expires_in\":0,\"expire_time\":1580000000000,\"token_type\":\"Bearer\",\"access_token\":\"tb_at\",\"taobao_open_uid\":\"AAGxyz\",\"w1_valid\":1580000000000,\"refresh_token\":\"tb_rt\",\"w2_expires_in\":0,\"w2_valid\":1580000000000,\"r1_expires_in\":1800,\"r2_expires_in\":0,\"r2_valid\":1580000000000,\"r1_valid\":1580000000000,\"taobao_user_id\":\"2200000001\",\"expires_in\":86400}"
+      ]
+    },
+    {
+      "name": "login_success_open_uid_only",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"taobao_user_nick\":\"tbuser\",\"token_type\":\"Bearer\",\"access_token\":\"tb_at\",\"taobao_open_uid\":\"AAGxyz\",\"refresh_token\":\"tb_rt\",\"id_token\":\"idt\",\"expires_in\":86400}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":\"invalid_client\",\"error_description\":\"code is invalid\"}"
+      ]
+    },
+    {
+      "name": "refresh_unsupported",
+      "action": "refresh",
+      "token": { "refreshToken": "tb_rt" },
+      "responses": []
+    }
+  ]
+}

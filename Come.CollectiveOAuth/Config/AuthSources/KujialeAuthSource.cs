@@ -1,4 +1,5 @@
 ﻿using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Exceptions;
 
 namespace Come.CollectiveOAuth.Config
 {
@@ -24,12 +25,12 @@ namespace Come.CollectiveOAuth.Config
 
         public string revoke()
         {
-            throw new System.NotImplementedException();
+            throw new AuthException(AuthResponseStatus.UNSUPPORTED);
         }
 
         public string refresh()
         {
-            return "https://oauth-login.cloud.huawei.com/oauth2/v2/token";
+            return "https://oauth.kujiale.com/oauth2/auth/token/refresh";
         }
 
         public string getName()

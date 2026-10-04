@@ -1,14 +1,17 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Come.CollectiveOAuth.Enums;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * 今日头条登录，对齐 JustAuth AuthToutiaoRequest
+     */
     public class ToutiaoAuthRequest : DefaultAuthRequest
     {
         public ToutiaoAuthRequest(ClientConfig config) : base(config, new ToutiaoAuthSource())
@@ -22,51 +25,45 @@ namespace Come.CollectiveOAuth.Request
 
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
-            var response = doGetAuthorizationCode(authCallback.code);
-            var accessTokenObject = response.parseObject();
+            string response = doGetAuthorizationCode(authCallback.code);
+            var accessTokenObject = JsonExtensions.parseObject(response);
 
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject.getString("access_token");
-            authToken.expireIn = accessTokenObject.getInt32("expires_in");
+            authToken.expireIn = accessTokenObject.getIntValue("expires_in");
             authToken.openId = accessTokenObject.getString("open_id");
-            authToken.code = authCallback.code;
             return authToken;
         }
 
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
             string userResponse = doGetUserInfo(authToken);
-            var userProfile = userResponse.parseObject();
+            var userProfile = JsonExtensions.parseObject(userResponse);
+
             this.checkResponse(userProfile);
 
-            var userObj = userProfile.getString("data").parseObject();
+            var user = userProfile.getJSONObject("data");
 
-            bool isAnonymousUser = userObj.getInt32("uid_type") == 14;
+            bool isAnonymousUser = user.getIntValue("uid_type") == 14;
             string anonymousUserName = "匿名用户";
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.getString("uid");
-            authUser.username = isAnonymousUser ? anonymousUserName : userObj.getString("screen_name");
-            authUser.nickname = isAnonymousUser ? anonymousUserName : userObj.getString("screen_name");
-            authUser.avatar = userObj.getString("avatar_url");
-            authUser.remark = userObj.getString("description");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("gender"));
+            authUser.rawUserInfo = user;
+            authUser.uuid = user.getString("uid");
+            authUser.username = isAnonymousUser ? anonymousUserName : user.getString("screen_name");
+            authUser.nickname = isAnonymousUser ? anonymousUserName : user.getString("screen_name");
+            authUser.avatar = user.getString("avatar_url");
+            authUser.remark = user.getString("description");
+            authUser.gender = GlobalAuthUtil.getRealGender(user.getString("gender"));
             authUser.token = authToken;
             authUser.source = source.getName();
-            authUser.originalUser = userProfile;
+            authUser.originalUser = user;
             authUser.originalUserStr = userResponse;
             return authUser;
         }
 
-        /**
-         * 返回带{@code state}参数的授权url，授权回调时会带上这个{@code state}
-         *
-         * @param state state 验证授权流程的参数，可以防止csrf
-         * @return 返回授权地址
-         * @since 1.9.3
-         */
         public override string authorize(string state)
         {
             return UrlBuilder.fromBaseUrl(source.authorize())
@@ -79,12 +76,6 @@ namespace Come.CollectiveOAuth.Request
                 .build();
         }
 
-        /**
-         * 返回获取accessToken的url
-         *
-         * @param code 授权码
-         * @return 返回获取accessToken的url
-         */
         protected override string accessTokenUrl(string code)
         {
             return UrlBuilder.fromBaseUrl(source.accessToken())
@@ -95,12 +86,6 @@ namespace Come.CollectiveOAuth.Request
                 .build();
         }
 
-        /**
-         * 返回获取userInfo的url
-         *
-         * @param authToken 用户授权后的token
-         * @return 返回获取userInfo的url
-         */
         protected override string userInfoUrl(AuthToken authToken)
         {
             return UrlBuilder.fromBaseUrl(source.userInfo())
@@ -110,31 +95,22 @@ namespace Come.CollectiveOAuth.Request
         }
 
         /**
-       * 校验请求结果
-       *
-       * @param response 请求结果
-       * @return 如果请求结果正常，则返回Exception
-       */
-        private void checkResponse(Dictionary<string, object> dic)
+         * 检查响应内容是否正确
+         */
+        private void checkResponse(JObject obj)
         {
-            if (dic.ContainsKey("error_code"))
+            if (obj.containsKey("error_code"))
             {
-                throw new Exception(getToutiaoErrorCode(dic.getInt32("error_code")).GetDesc());
+                throw new AuthException(getErrorCode(obj.getIntValue("error_code")).GetDesc());
             }
         }
 
-        private AuthToutiaoErrorCode getToutiaoErrorCode(int errorCode)
+        /**
+         * 对应 Java AuthToutiaoErrorCode.getErrorCode，未知错误码返回 EC999
+         */
+        private static AuthToutiaoErrorCode getErrorCode(int errorCode)
         {
-            var enumObjects = typeof(AuthToutiaoErrorCode).ToList();
-            var codeEnum = enumObjects.Where(a => a.ID == errorCode).ToList();
-            if (codeEnum.Count > 0)
-            {
-                return GlobalAuthUtil.enumFromString<AuthToutiaoErrorCode>(codeEnum[0].Name);
-            }
-            else
-            {
-                return AuthToutiaoErrorCode.EC999;
-            }
+            return Enum.IsDefined(typeof(AuthToutiaoErrorCode), errorCode) ? (AuthToutiaoErrorCode)errorCode : AuthToutiaoErrorCode.EC999;
         }
     }
 }

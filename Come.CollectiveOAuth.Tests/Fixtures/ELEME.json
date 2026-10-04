@@ -1,0 +1,32 @@
+{
+  "source": "ELEME",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/eleme" },
+  "state": "fixedstate000000000000000000000",
+  "ignore": { "params": ["x-eleme-requestid"] },
+  "scenarios": [
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":\"invalid_grant\",\"error_description\":\"授权码无效\"}"
+      ]
+    },
+    {
+      "name": "refresh_success",
+      "action": "refresh",
+      "token": { "refreshToken": "elm_rt" },
+      "responses": [
+        "{\"access_token\":\"elm_at2\",\"token_type\":\"Bearer\",\"expires_in\":86400,\"refresh_token\":\"elm_rt2\"}"
+      ]
+    },
+    {
+      "name": "refresh_error",
+      "action": "refresh",
+      "token": { "refreshToken": "bad" },
+      "responses": [
+        "{\"error\":\"invalid_grant\",\"error_description\":\"refresh_token 无效\"}"
+      ]
+    }
+  ]
+}

@@ -34,7 +34,14 @@ namespace Come.CollectiveOAuth.Tests.Support
 
 
                 // ===== 批次 C =====
-
+                { "DINGTALK", (c, s) => new DingTalkScanAuthRequest(c, s) },
+                { "DOUYIN", (c, s) => new DouyinAuthRequest(c, s) },
+                { "TOUTIAO", (c, s) => new ToutiaoAuthRequest(c, s) },
+                { "HUAWEI", (c, s) => new HuaweiAuthRequest(c, s) },
+                { "KUJIALE", (c, s) => new KujialeAuthRequest(c, s) },
+                { "MEITUAN", (c, s) => new MeituanAuthRequest(c, s) },
+                { "ELEME", (c, s) => new ElemeAuthRequest(c, s) },
+                { "TAOBAO", (c, s) => new TaobaoAuthRequest(c, s) },
 
                 // ===== 批次 D =====
 

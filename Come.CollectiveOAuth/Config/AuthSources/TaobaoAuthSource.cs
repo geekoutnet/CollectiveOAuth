@@ -1,4 +1,5 @@
 ﻿using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Exceptions;
 
 namespace Come.CollectiveOAuth.Config
 {
@@ -19,17 +20,17 @@ namespace Come.CollectiveOAuth.Config
 
         public string userInfo()
         {
-            throw new System.NotImplementedException();
+            throw new AuthException(AuthResponseStatus.UNSUPPORTED);
         }
 
         public string revoke()
         {
-            throw new System.NotImplementedException();
+            throw new AuthException(AuthResponseStatus.UNSUPPORTED);
         }
 
         public string refresh()
         {
-            throw new System.NotImplementedException();
+            throw new AuthException(AuthResponseStatus.UNSUPPORTED);
         }
 
         public string getName()

@@ -34,7 +34,7 @@ namespace Come.CollectiveOAuth.Request
 
             var reqHeaders = this.getSpecialHeader(this.getRequestId());
 
-            var response = HttpUtils.RequestFormPost(source.accessToken(), reqParams.spellParams(), reqHeaders);
+            var response = HttpUtils.RequestFormPost(source.accessToken(), reqParams.spellParams(true), reqHeaders);
             var accessTokenObject = response.parseObject();
 
             this.checkResponse(accessTokenObject);
@@ -125,7 +125,7 @@ namespace Come.CollectiveOAuth.Request
 
             var reqHeaders = this.getSpecialHeader(this.getRequestId());
 
-            var response = HttpUtils.RequestFormPost(source.accessToken(), reqParams.spellParams(), reqHeaders);
+            var response = HttpUtils.RequestFormPost(source.accessToken(), reqParams.spellParams(true), reqHeaders);
             var accessTokenObject = response.parseObject();
 
             this.checkResponse(accessTokenObject);

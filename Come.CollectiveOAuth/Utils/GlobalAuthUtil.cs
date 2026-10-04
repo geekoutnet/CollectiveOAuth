@@ -278,7 +278,8 @@ namespace Come.CollectiveOAuth.Utils
         /// </summary>
         /// <param name="dic"></param>
         /// <returns></returns>
-        public static string spellParams(this Dictionary<string, object> dicParams)
+        /// <param name="encode">是否对参数做URL编码，作为表单请求体时需要编码，用于签名时不编码</param>
+        public static string spellParams(this Dictionary<string, object> dicParams, bool encode = false)
         {
             StringBuilder builder = new StringBuilder();
             if (dicParams.Count > 0)
@@ -289,7 +290,8 @@ namespace Come.CollectiveOAuth.Utils
                 {
                     if (i > 0)
                         builder.Append("&");
-                    builder.AppendFormat("{0}={1}", item.Key, Convert.ToString(item.Value));
+                    var value = Convert.ToString(item.Value);
+                    builder.AppendFormat("{0}={1}", encode ? Uri.EscapeDataString(item.Key) : item.Key, encode ? Uri.EscapeDataString(value) : value);
                     i++;
                 }
             }

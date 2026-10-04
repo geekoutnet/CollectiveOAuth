@@ -22,7 +22,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <summary>
         /// 默认路径
         /// </summary>
-        private static string _defaultPath = Directory.GetCurrentDirectory() + "\\appsettings.json";
+        private static string _defaultPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
 
         /// <summary>
         /// 最终配置文件路径

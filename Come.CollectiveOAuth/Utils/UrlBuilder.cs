@@ -50,7 +50,7 @@ namespace Come.CollectiveOAuth.Utils
          */
         public string build()
         {
-            return this.build(false);
+            return this.build(true);
         }
 
         /**
@@ -66,7 +66,16 @@ namespace Come.CollectiveOAuth.Utils
                 return this.baseUrl;
             }
             string baseUrl = this.appendIfNotContain(this.baseUrl, "?", "&");
-            string paramString = GlobalAuthUtil.parseMapToString(this.paramDic);
+            var paramDic = this.paramDic;
+            if (encode)
+            {
+                paramDic = new Dictionary<string, object>();
+                foreach (var item in this.paramDic)
+                {
+                    paramDic.Add(Uri.EscapeDataString(item.Key), item.Value == null ? null : Uri.EscapeDataString(Convert.ToString(item.Value)));
+                }
+            }
+            string paramString = GlobalAuthUtil.parseMapToString(paramDic);
             return baseUrl + paramString;
         }
 

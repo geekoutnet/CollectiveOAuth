@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
@@ -10,6 +11,19 @@ namespace Come.Web.Sample
 {
     public class AuthRequestFactory
     {
+        private readonly IAuthStateCache _authStateCache;
+
+        public AuthRequestFactory() : this(new DefaultAuthStateCache())
+        {
+        }
+
+        /// <summary>
+        /// 多实例部署时传入基于分布式缓存（如 Redis）的 IAuthStateCache，保证回调落到任意实例都能校验 state
+        /// </summary>
+        public AuthRequestFactory(IAuthStateCache authStateCache)
+        {
+            _authStateCache = authStateCache;
+        }
 
         #region 从Webconfig中获取默认配置（可以改造成从数据库中读取）
         public Dictionary<string, ClientConfig> _clientConfigs;
@@ -71,6 +85,7 @@ namespace Come.Web.Sample
         public IAuthRequest getRequest(string authSource)
         {
             // 获取 CollectiveOAuth 中已存在的
+            authSource = authSource?.ToUpper();
             IAuthRequest authRequest = getDefaultRequest(authSource);
             return authRequest;
         }
@@ -84,7 +99,7 @@ namespace Come.Web.Sample
         private IAuthRequest getDefaultRequest(string authSource)
         {
             ClientConfig clientConfig = GetClientConfig(authSource);
-            IAuthStateCache authStateCache = new DefaultAuthStateCache();
+            IAuthStateCache authStateCache = _authStateCache;
 
             DefaultAuthSourceEnum authSourceEnum = GlobalAuthUtil.enumFromString<DefaultAuthSourceEnum>(authSource);
 
@@ -178,8 +193,12 @@ namespace Come.Web.Sample
                 case DefaultAuthSourceEnum.ELEME:
                     return new ElemeAuthRequest(clientConfig, authStateCache);
 
+                case DefaultAuthSourceEnum.TAOBAO:
+                    return new TaobaoAuthRequest(clientConfig, authStateCache);
+
                 default:
-                    return null;
+                    // TWITTER 暂未实现
+                    throw new NotSupportedException($"暂不支持的授权平台: {authSource}");
             }
         }
     }

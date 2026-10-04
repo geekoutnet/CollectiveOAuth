@@ -34,5 +34,12 @@
          * @return true：存在key，并且value没过期；false：key不存在或者已过期
          */
         bool containsKey(string key);
+
+        /**
+         * 删除缓存，state 校验通过后需立即删除，防止被重放
+         *
+         * @param key 缓存key
+         */
+        void remove(string key);
     }
 }

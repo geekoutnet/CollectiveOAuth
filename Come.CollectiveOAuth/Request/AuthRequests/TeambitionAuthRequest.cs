@@ -34,7 +34,7 @@ namespace Come.CollectiveOAuth.Request
                 { "grant_type", "code" },
             };
 
-            var response = HttpUtils.RequestPost(source.accessToken(), reqParams.spellParams(), reqHeaders);
+            var response = HttpUtils.RequestPost(source.accessToken(), reqParams.spellParams(true), reqHeaders);
 
             var accessTokenObject = response.parseObject();
 
@@ -92,7 +92,7 @@ namespace Come.CollectiveOAuth.Request
                 { "refresh_token", refreshToken },
             };
 
-            var response = HttpUtils.RequestPost(source.refresh(), reqParams.spellParams(), reqHeaders);
+            var response = HttpUtils.RequestPost(source.refresh(), reqParams.spellParams(true), reqHeaders);
 
             var refreshTokenObject = response.parseObject();
 

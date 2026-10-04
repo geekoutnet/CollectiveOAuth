@@ -115,7 +115,7 @@ namespace Come.CollectiveOAuth.Request
         {
             return UrlBuilder.fromBaseUrl(source.authorize())
                 .queryParam("appid", config.clientId)
-                .queryParam("redirect_uri", GlobalAuthUtil.urlEncode(config.redirectUri))
+                .queryParam("redirect_uri", config.redirectUri)
                 .queryParam("response_type", "code")
                 .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "snsapi_login" : config.scope)
                 .queryParam("state", getRealState(state))

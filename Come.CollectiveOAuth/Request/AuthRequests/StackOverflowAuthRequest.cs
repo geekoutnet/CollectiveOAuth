@@ -29,7 +29,7 @@ namespace Come.CollectiveOAuth.Request
             };
             var reqParams = accessTokenUrl.parseUrlObject();
 
-            var response = HttpUtils.RequestPost(source.accessToken(), reqParams.spellParams(), reqHeaders);
+            var response = HttpUtils.RequestPost(source.accessToken(), reqParams.spellParams(true), reqHeaders);
 
             var accessTokenObject = response.parseObject();
             this.checkResponse(accessTokenObject);

@@ -16,7 +16,13 @@ namespace Come.CollectiveOAuth.Cache
 
         public void cache(string key, string value, long timeout)
         {
-            HttpRuntimeCache.Set($"{Default_Cache_Prefix}{key}", value, timeout);
+            // 接口约定 timeout 为毫秒，HttpRuntimeCache 以秒为单位
+            HttpRuntimeCache.Set($"{Default_Cache_Prefix}{key}", value, timeout / 1000);
+        }
+
+        public void remove(string key)
+        {
+            HttpRuntimeCache.Remove($"{Default_Cache_Prefix}{key}");
         }
 
         public bool containsKey(string key)

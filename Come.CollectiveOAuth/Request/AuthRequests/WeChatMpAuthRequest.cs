@@ -115,11 +115,11 @@ namespace Come.CollectiveOAuth.Request
         {
             return UrlBuilder.fromBaseUrl(source.authorize())
                 .queryParam("appid", config.clientId)
-                .queryParam("redirect_uri", GlobalAuthUtil.urlEncode(config.redirectUri))
+                .queryParam("redirect_uri", config.redirectUri)
                 .queryParam("response_type", "code")
                 .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "snsapi_userinfo" : config.scope)
-                .queryParam("state", getRealState(state) + "#wechat_redirect")
-                .build();
+                .queryParam("state", getRealState(state))
+                .build() + "#wechat_redirect";
         }
 
         /**

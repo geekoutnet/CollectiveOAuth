@@ -29,12 +29,12 @@ namespace Come.CollectiveOAuth.Request
 
         public virtual AuthResponse refresh(AuthToken authToken)
         {
-            throw new System.NotImplementedException();
+            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.NOT_IMPLEMENTED), AuthResponseStatus.NOT_IMPLEMENTED.GetDesc());
         }
 
         public virtual AuthResponse revoke(AuthToken authToken)
         {
-            throw new System.NotImplementedException();
+            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.NOT_IMPLEMENTED), AuthResponseStatus.NOT_IMPLEMENTED.GetDesc());
         }
 
 
@@ -147,6 +147,8 @@ namespace Come.CollectiveOAuth.Request
             {
                 AuthChecker.checkCode(source, authCallback);
                 AuthChecker.checkState(authCallback.state, source, authStateCache);
+                // state 一次性使用，校验通过立即删除，防止重放
+                authStateCache.remove(authCallback.state);
 
                 AuthToken authToken = this.getAccessToken(authCallback);
                 AuthUser user = this.getUserInfo(authToken);

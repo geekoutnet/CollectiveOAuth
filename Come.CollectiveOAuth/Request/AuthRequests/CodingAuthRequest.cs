@@ -4,7 +4,6 @@ using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using Come.CollectiveOAuth.Enums;
 
 namespace Come.CollectiveOAuth.Request
@@ -62,13 +61,11 @@ namespace Come.CollectiveOAuth.Request
 
         protected override string doGetUserInfo(AuthToken authToken)
         {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             return HttpUtils.RequestJsonGet(userInfoUrl(authToken));
         }
 
         protected override string doGetAuthorizationCode(String code)
         {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             return HttpUtils.RequestJsonGet(accessTokenUrl(code));
         }
 

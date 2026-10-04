@@ -110,7 +110,7 @@ namespace Come.CollectiveOAuth.Request
                 .queryParam("client_id", config.clientId)
                 .queryParam("redirect_uri", config.redirectUri)
                 .queryParam("response_mode", "query")
-                .queryParam("scope", "offline_access%20" + (config.scope.IsNullOrWhiteSpace() ? "user.read%20mail.read" : config.scope))
+                .queryParam("scope", "offline_access " + (config.scope.IsNullOrWhiteSpace() ? "user.read mail.read" : config.scope))
                 .queryParam("state", getRealState(state))
                 .build();
         }
@@ -128,7 +128,7 @@ namespace Come.CollectiveOAuth.Request
                 .queryParam("client_id", config.clientId)
                 .queryParam("client_secret", config.clientSecret)
                 .queryParam("grant_type", "authorization_code")
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "user.read%20mail.read" : config.scope)
+                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "user.read mail.read" : config.scope)
                 .queryParam("redirect_uri", config.redirectUri)
                 .build();
         }
@@ -157,7 +157,7 @@ namespace Come.CollectiveOAuth.Request
                 .queryParam("client_secret", config.clientSecret)
                 .queryParam("refresh_token", refreshToken)
                 .queryParam("grant_type", "refresh_token")
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "user.read%20mail.read" : config.scope)
+                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "user.read mail.read" : config.scope)
                 .queryParam("redirect_uri", config.redirectUri)
                 .build();
         }

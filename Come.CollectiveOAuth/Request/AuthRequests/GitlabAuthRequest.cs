@@ -79,7 +79,7 @@ namespace Come.CollectiveOAuth.Request
                 .queryParam("client_id", config.clientId)
                 .queryParam("redirect_uri", config.redirectUri)
                 .queryParam("state", getRealState(state))
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "read_user+openid+profile+email" : config.scope)
+                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "read_user openid profile email" : config.scope)
                 .build();
         }
 

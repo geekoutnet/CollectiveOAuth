@@ -1,4 +1,5 @@
-﻿using Come.CollectiveOAuth.Models;
+﻿using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
 using Newtonsoft.Json;
 using System;
@@ -11,6 +12,19 @@ namespace Come.Web.Sample.Controllers
 {
     public class OAuth2Controller : Controller
     {
+        private AuthRequestFactory CreateFactory()
+        {
+            return new AuthRequestFactory();
+        }
+
+        /// <summary>
+        /// 授权平台不存在或暂不支持时，返回统一格式的错误信息
+        /// </summary>
+        private ActionResult UnsupportedResult(Exception e)
+        {
+            var authResponse = new AuthResponse(Convert.ToInt32(AuthResponseStatus.UNSUPPORTED), e.Message);
+            return Content(JsonConvert.SerializeObject(authResponse));
+        }
 
         /// <summary>
         /// 构建授权Url方法
@@ -19,11 +33,17 @@ namespace Come.Web.Sample.Controllers
         /// <returns>RedirectUrl</returns>
         public ActionResult Authorization(string authSource)
         {
-            AuthRequestFactory authRequest = new AuthRequestFactory();
-            var request = authRequest.getRequest(authSource);
-            var authorize = request.authorize(AuthStateUtils.createState());
-            Console.WriteLine(authorize);
-            return Redirect(authorize);
+            try
+            {
+                var request = CreateFactory().getRequest(authSource);
+                var authorize = request.authorize(AuthStateUtils.createState());
+                Console.WriteLine(authorize);
+                return Redirect(authorize);
+            }
+            catch (Exception e)
+            {
+                return UnsupportedResult(e);
+            }
         }
 
         /// <summary>
@@ -34,10 +54,16 @@ namespace Come.Web.Sample.Controllers
         /// <returns></returns>
         public ActionResult Callback(string authSource, AuthCallback authCallback)
         {
-            AuthRequestFactory authRequest = new AuthRequestFactory();
-            var request = authRequest.getRequest(authSource);
-            var authResponse = request.login(authCallback);
-            return Content(JsonConvert.SerializeObject(authResponse));
+            try
+            {
+                var request = CreateFactory().getRequest(authSource);
+                var authResponse = request.login(authCallback);
+                return Content(JsonConvert.SerializeObject(authResponse));
+            }
+            catch (Exception e)
+            {
+                return UnsupportedResult(e);
+            }
         }
 
         /// <summary>
@@ -48,8 +74,7 @@ namespace Come.Web.Sample.Controllers
         /// <returns></returns>
         public ActionResult DingTalkCallback(AuthCallback authCallback)
         {
-            AuthRequestFactory authRequest = new AuthRequestFactory();
-            var request = authRequest.getRequest("DINGTALK_SCAN");
+            var request = CreateFactory().getRequest("DINGTALK_SCAN");
             var authResponse = request.login(authCallback);
             return Content(JsonConvert.SerializeObject(authResponse));
         }

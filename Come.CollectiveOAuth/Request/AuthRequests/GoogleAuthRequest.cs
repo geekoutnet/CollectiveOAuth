@@ -73,7 +73,7 @@ namespace Come.CollectiveOAuth.Request
             return UrlBuilder.fromBaseUrl(source.authorize())
                 .queryParam("response_type", "code")
                 .queryParam("client_id", config.clientId)
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "openid%20email%20profile" : config.scope)
+                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "openid email profile" : config.scope)
                 .queryParam("redirect_uri", config.redirectUri)
                 .queryParam("state", getRealState(state))
                 .build();

@@ -82,7 +82,7 @@ namespace Come.CollectiveOAuth.Request
                 .queryParam("response_type", "code")
                 .queryParam("redirect_uri", config.redirectUri)
                 .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "user" : config.scope)
-                .queryParam("state", getRealState(state) + "#wechat_redirect")
+                .queryParam("state", getRealState(state))
                 .build();
         }
 

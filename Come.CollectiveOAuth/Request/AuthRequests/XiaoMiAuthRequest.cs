@@ -120,7 +120,7 @@ namespace Come.CollectiveOAuth.Request
                 .queryParam("response_type", "code")
                 .queryParam("client_id", config.clientId)
                 .queryParam("redirect_uri", config.redirectUri)
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "user/profile%20user/openIdV2%20user/phoneAndEmail" : config.scope)
+                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "user/profile user/openIdV2 user/phoneAndEmail" : config.scope)
                 .queryParam("skip_confirm", "false")
                 .queryParam("state", getRealState(state))
                 .build();

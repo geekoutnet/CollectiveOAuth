@@ -38,7 +38,7 @@ namespace Come.CollectiveOAuth.Request
                 { "redirect_uri", config.redirectUri },
             };
 
-            var response = HttpUtils.RequestFormPost(source.accessToken(), reqParams.spellParams());
+            var response = HttpUtils.RequestFormPost(source.accessToken(), reqParams.spellParams(true));
 
             return getAuthToken(response);
         }
@@ -60,7 +60,7 @@ namespace Come.CollectiveOAuth.Request
                 { "nsp_svc", "OpenUP.User.getInfo" },
             };
 
-            var response = HttpUtils.RequestFormPost(source.userInfo(), reqParams.spellParams());
+            var response = HttpUtils.RequestFormPost(source.userInfo(), reqParams.spellParams(true));
             var userObj = response.parseObject();
 
             this.checkResponse(userObj);
@@ -96,7 +96,7 @@ namespace Come.CollectiveOAuth.Request
                 { "refresh_token", authToken.refreshToken },
                 { "grant_type", "refresh_token" },
             };
-            var response = HttpUtils.RequestFormPost(source.refresh(), reqParams.spellParams());
+            var response = HttpUtils.RequestFormPost(source.refresh(), reqParams.spellParams(true));
 
             return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), AuthResponseStatus.SUCCESS.GetDesc(), getAuthToken(response));
         }
@@ -128,7 +128,7 @@ namespace Come.CollectiveOAuth.Request
                 .queryParam("client_id", config.clientId)
                 .queryParam("redirect_uri", config.redirectUri)
                 .queryParam("access_type", "offline")
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "https%3A%2F%2Fwww.huawei.com%2Fauth%2Faccount%2Fbase.profile" : config.scope)
+                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "https://www.huawei.com/auth/account/base.profile" : config.scope)
                 .queryParam("state", getRealState(state))
                 .build();
         }

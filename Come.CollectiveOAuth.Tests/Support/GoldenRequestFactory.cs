@@ -15,6 +15,21 @@ namespace Come.CollectiveOAuth.Tests.Support
             new Dictionary<string, Func<ClientConfig, IAuthStateCache, IAuthRequest>>
             {
                 { "GITHUB", (c, s) => new GithubAuthRequest(c, s) },
+
+                // ===== 批次 A =====
+
+
+                // ===== 批次 B =====
+
+
+                // ===== 批次 C =====
+
+
+                // ===== 批次 D =====
+
+
+                // ===== 批次 E =====
+
             };
 
         public static bool IsRegistered(string justAuthName)

@@ -32,6 +32,7 @@ namespace Come.CollectiveOAuth.Tests.Support
                 { "MICROSOFT", (c, s) => new MicrosoftAuthRequest(c, s) },
                 { "PINTEREST", (c, s) => new PinterestAuthRequest(c, s) },
                 { "STACK_OVERFLOW", (c, s) => new StackOverflowAuthRequest(c, s) },
+                { "GITLAB", (c, s) => new GitlabAuthRequest(c, s) },
 
 
                 // ===== 批次 E =====

@@ -13,6 +13,13 @@ namespace Come.CollectiveOAuth.Exceptions
 
         public string errorMsg { get; }
 
+        private readonly string message;
+
+        /// <summary>
+        /// 与 Java getMessage() 一致：构造时传入 null 则为 null（.NET 默认会返回一段默认文案）
+        /// </summary>
+        public override string Message => message;
+
         public AuthException(string errorMsg) : this(Convert.ToInt32(AuthResponseStatus.FAILURE), errorMsg)
         {
         }
@@ -23,6 +30,7 @@ namespace Come.CollectiveOAuth.Exceptions
 
         public AuthException(int errorCode, string errorMsg) : base(errorMsg)
         {
+            this.message = errorMsg;
             this.errorCode = errorCode;
             this.errorMsg = errorMsg;
         }
@@ -41,6 +49,7 @@ namespace Come.CollectiveOAuth.Exceptions
 
         public AuthException(string message, Exception cause) : base(message, cause)
         {
+            this.message = message;
         }
 
         /// <summary>
@@ -48,6 +57,7 @@ namespace Come.CollectiveOAuth.Exceptions
         /// </summary>
         public AuthException(Exception cause) : base($"{cause.GetType().FullName}: {cause.Message}", cause)
         {
+            this.message = $"{cause.GetType().FullName}: {cause.Message}";
         }
     }
 }

@@ -40,5 +40,14 @@ namespace Come.CollectiveOAuth.Tests
             Assert.Equal(5016, (int)AuthResponseStatus.ILLEGAL_WECHAT_AGENT_ID);
             Assert.Equal("Invalid token", AuthResponseStatus.ILLEGAL_TOKEN.GetDesc());
         }
+
+        [Fact]
+        public void null_message_stays_null_like_java()
+        {
+            // Java: new AuthException(code, null).getMessage() 为 null
+            var e = new AuthException(5000, null);
+            Assert.Null(e.Message);
+            Assert.Null(e.errorMsg);
+        }
     }
 }

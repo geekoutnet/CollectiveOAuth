@@ -120,5 +120,16 @@ namespace Come.CollectiveOAuth.Tests
             var url = new FakeRequest(Config(), new DefaultAuthStateCache()).authorize();
             Assert.Matches("state=[0-9a-f]{32}$", url);
         }
+
+        [Fact]
+        public void login_auth_exception_with_null_message_returns_null_msg()
+        {
+            var request = new FakeRequest(Config(), new DefaultAuthStateCache());
+            request.authorize("st-null");
+            request.toThrow = new AuthException(5000, null);
+            var response = request.login(new AuthCallback { code = "c", state = "st-null" });
+            Assert.Equal(5000, response.code);
+            Assert.Null(response.msg);
+        }
     }
 }

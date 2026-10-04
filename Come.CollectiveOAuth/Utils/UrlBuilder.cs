@@ -1,11 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Come.CollectiveOAuth.Utils
 {
     public class UrlBuilder
     {
-        private  Dictionary<string, object> paramDic = new Dictionary<string, object>();
+        private readonly Dictionary<string, string> paramDic = new Dictionary<string, string>();
         private string baseUrl;
 
         private UrlBuilder()
@@ -25,7 +26,17 @@ namespace Come.CollectiveOAuth.Utils
         }
 
         /**
-         * 添加参数
+         * 只读的参数Map
+         *
+         * @return unmodifiableMap
+         */
+        public IReadOnlyDictionary<string, string> getReadOnlyParams()
+        {
+            return new ReadOnlyDictionary<string, string>(this.paramDic);
+        }
+
+        /**
+         * 添加参数，同名参数覆盖（与 JustAuth 一致）
          *
          * @param key   参数名称
          * @param value 参数值
@@ -33,18 +44,16 @@ namespace Come.CollectiveOAuth.Utils
          */
         public UrlBuilder queryParam(string key, object value)
         {
-            if (string.IsNullOrWhiteSpace(key))
+            if (string.IsNullOrEmpty(key))
             {
                 throw new Exception("参数名不能为空");
             }
-
-            string valueAsString = (value != null ? Convert.ToString(value) : null);
-            this.paramDic.Add(key, valueAsString);
+            this.paramDic[key] = value?.ToString();
             return this;
         }
 
         /**
-         * 构造url
+         * 构造url，有意差异：默认对参数值编码（JustAuth 默认不编码）
          *
          * @return url
          */
@@ -61,22 +70,12 @@ namespace Come.CollectiveOAuth.Utils
          */
         public string build(bool encode)
         {
-            if (this.paramDic.Count == 0 || this.paramDic == null)
+            if (this.paramDic.Count == 0)
             {
                 return this.baseUrl;
             }
             string baseUrl = this.appendIfNotContain(this.baseUrl, "?", "&");
-            var paramDic = this.paramDic;
-            if (encode)
-            {
-                paramDic = new Dictionary<string, object>();
-                foreach (var item in this.paramDic)
-                {
-                    paramDic.Add(Uri.EscapeDataString(item.Key), item.Value == null ? null : Uri.EscapeDataString(Convert.ToString(item.Value)));
-                }
-            }
-            string paramString = GlobalAuthUtil.parseMapToString(paramDic);
-            return baseUrl + paramString;
+            return baseUrl + GlobalAuthUtil.parseMapToString(this.paramDic, encode);
         }
 
         /**
@@ -90,7 +89,7 @@ namespace Come.CollectiveOAuth.Utils
         */
         public string appendIfNotContain(string str, string appendStr, string otherwise)
         {
-            if (string.IsNullOrWhiteSpace(str) || string.IsNullOrWhiteSpace(appendStr))
+            if (string.IsNullOrEmpty(str) || string.IsNullOrEmpty(appendStr))
             {
                 return str;
             }

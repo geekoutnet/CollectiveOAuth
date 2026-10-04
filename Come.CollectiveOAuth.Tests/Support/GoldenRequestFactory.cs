@@ -24,6 +24,7 @@ namespace Come.CollectiveOAuth.Tests.Support
                 { "BAIDU", (c, s) => new BaiduAuthRequest(c, s) },
                 { "MI", (c, s) => new XiaoMiAuthRequest(c, s) },
                 { "OSCHINA", (c, s) => new OschinaAuthRequest(c, s) },
+                { "CODING", (c, s) => new CodingAuthRequest(c, s) },
 
 
                 // ===== 批次 C =====

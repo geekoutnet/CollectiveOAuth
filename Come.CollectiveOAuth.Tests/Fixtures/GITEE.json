@@ -1,0 +1,39 @@
+{
+  "source": "GITEE",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/gitee" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"gitee_at\",\"token_type\":\"bearer\",\"expires_in\":86400,\"refresh_token\":\"gitee_rt\",\"scope\":\"user_info\",\"created_at\":1696400000}",
+        "{\"id\":1234567,\"login\":\"yadong\",\"name\":\"Yadong\",\"avatar_url\":\"https://gitee.com/assets/no_portrait.png\",\"url\":\"https://gitee.com/api/v5/users/yadong\",\"html_url\":\"https://gitee.com/yadong\",\"blog\":\"https://www.zhyd.me\",\"weibo\":null,\"bio\":\"hello\",\"company\":\"zhyd\",\"address\":\"Beijing\",\"email\":\"yadong@example.com\",\"public_repos\":12,\"followers\":3,\"created_at\":\"2018-01-01T00:00:00+08:00\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":\"invalid_grant\",\"error_description\":\"授权方式无效，或者登录回调地址无效、过期或已被撤销\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"gitee_at\",\"token_type\":\"bearer\",\"expires_in\":86400,\"refresh_token\":\"gitee_rt\",\"scope\":\"user_info\",\"created_at\":1696400000}",
+        "{\"error\":\"invalid_token\",\"error_description\":\"The access token is invalid\"}"
+      ]
+    },
+    {
+      "name": "login_illegal_state",
+      "action": "login",
+      "callback": { "code": "code123", "state": "otherstate" },
+      "responses": []
+    }
+  ]
+}

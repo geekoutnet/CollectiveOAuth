@@ -1,13 +1,16 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Enums.Scope;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
-using System;
-using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * QQ登录，对齐 JustAuth AuthQqRequest
+     */
     public class QQAuthRequest : DefaultAuthRequest
     {
         public QQAuthRequest(ClientConfig config) : base(config, new QQAuthSource())
@@ -27,40 +30,39 @@ namespace Come.CollectiveOAuth.Request
 
         public override AuthResponse refresh(AuthToken authToken)
         {
-            string response = HttpUtils.RequestGet(refreshTokenUrl(authToken.refreshToken));
-            return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), AuthResponseStatus.SUCCESS.GetDesc(), getAuthToken(response));
+            string response = HttpUtils.RequestGet(refreshTokenUrl(authToken.refreshToken), null, config.httpConfig);
+            return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), null, getAuthToken(response));
         }
 
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
             string openId = this.getOpenId(authToken);
             string response = doGetUserInfo(authToken);
-            var userObj = response.parseObject();
-            if (userObj.getInt32("ret") != 0)
+            var obj = JsonExtensions.parseObject(response);
+            if (obj.getIntValue("ret") != 0)
             {
-                throw new Exception(userObj.getString("msg"));
+                throw new AuthException(obj.getString("msg"));
             }
-            string avatar = userObj.getString("figureurl_qq_2");
-            if (avatar.IsNullOrWhiteSpace())
+            string avatar = obj.getString("figureurl_qq_2");
+            if (string.IsNullOrEmpty(avatar))
             {
-                avatar = userObj.getString("figureurl_qq_1");
+                avatar = obj.getString("figureurl_qq_1");
             }
 
-            string location = $"{userObj.getString("province")}-{userObj.getString("city")}";
+            // 与 Java String.format("%s-%s", ...) 一致：null 输出为 "null"
+            string location = string.Format("{0}-{1}", GlobalAuthUtil.javaValueOf(obj.getString("province")), GlobalAuthUtil.javaValueOf(obj.getString("city")));
 
             var authUser = new AuthUser();
-            authUser.uuid = openId;
-            authUser.username = userObj.getString("nickname");
-            authUser.nickname = userObj.getString("nickname");
+            authUser.rawUserInfo = obj;
+            authUser.username = obj.getString("nickname");
+            authUser.nickname = obj.getString("nickname");
             authUser.avatar = avatar;
             authUser.location = location;
-            authUser.email = userObj.getString("email");
-            authUser.remark = userObj.getString("bio");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("gender"));
+            authUser.uuid = openId;
+            authUser.gender = GlobalAuthUtil.getRealGender(obj.getString("gender"));
             authUser.token = authToken;
             authUser.source = source.getName();
-
-            authUser.originalUser = userObj;
+            authUser.originalUser = obj;
             authUser.originalUserStr = response;
             return authUser;
         }
@@ -74,32 +76,24 @@ namespace Come.CollectiveOAuth.Request
          */
         private string getOpenId(AuthToken authToken)
         {
-            var getOpenIdUrl = UrlBuilder.fromBaseUrl("https://graph.qq.com/oauth2.0/me")
-                                .queryParam("access_token", authToken.accessToken)
-                                .queryParam("unionid", config.unionId)
-                                .build();
-            string response = HttpUtils.RequestGet(getOpenIdUrl);
-            if (!response.IsNullOrWhiteSpace())
+            string response = HttpUtils.RequestGet(UrlBuilder.fromBaseUrl("https://graph.qq.com/oauth2.0/me")
+                .queryParam("access_token", authToken.accessToken)
+                .queryParam("unionid", config.isUnionId() ? 1 : 0)
+                .build(), null, config.httpConfig);
+            string removePrefix = response.Replace("callback(", "");
+            string removeSuffix = removePrefix.Replace(");", "");
+            string openId = removeSuffix.Trim();
+            var obj = JsonExtensions.parseObject(openId);
+            if (obj.containsKey("error"))
             {
-                string body = response;
-                string removePrefix = body.Replace("callback(", "");
-                string removeSuffix = removePrefix.Replace(");", "");
-                string openId = removeSuffix.Trim();
-                var openIdObj = openId.parseObject();
-                if (openIdObj.ContainsKey("error"))
-                {
-                    throw new Exception(openIdObj.getString("error") + ":" + openIdObj.getString("error_description"));
-                }
-                authToken.openId = openIdObj.getString("openid");
-                if (openIdObj.ContainsKey("unionid"))
-                {
-                    authToken.unionId = openIdObj.getString("unionid");
-                }
-
-                return authToken.unionId.IsNullOrWhiteSpace() ? authToken.openId : authToken.unionId;
+                throw new AuthException(GlobalAuthUtil.javaValueOf(obj.getString("error")) + ":" + GlobalAuthUtil.javaValueOf(obj.getString("error_description")));
             }
-
-            throw new Exception("request error");
+            authToken.openId = obj.getString("openid");
+            if (obj.containsKey("unionid"))
+            {
+                authToken.unionId = obj.getString("unionid");
+            }
+            return string.IsNullOrEmpty(authToken.unionId) ? authToken.openId : authToken.unionId;
         }
 
         /**
@@ -119,17 +113,23 @@ namespace Come.CollectiveOAuth.Request
 
         private AuthToken getAuthToken(string response)
         {
-            var accessTokenObject = response.parseStringObject();
+            var accessTokenObject = GlobalAuthUtil.parseStringToMap(response);
             if (!accessTokenObject.ContainsKey("access_token") || accessTokenObject.ContainsKey("code"))
             {
-                throw new Exception(accessTokenObject.getString("msg"));
+                throw new AuthException(accessTokenObject.TryGetValue("msg", out var msg) ? msg : null);
             }
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.getString("access_token");
-            authToken.expireIn = accessTokenObject.getInt32("expires_in");
-            authToken.refreshToken = accessTokenObject.getString("refresh_token");
-
+            authToken.accessToken = accessTokenObject["access_token"];
+            authToken.expireIn = int.Parse(accessTokenObject.TryGetValue("expires_in", out var expiresIn) ? expiresIn : "0");
+            authToken.refreshToken = accessTokenObject.TryGetValue("refresh_token", out var refreshToken) ? refreshToken : null;
             return authToken;
+        }
+
+        public override string authorize(string state)
+        {
+            return UrlBuilder.fromBaseUrl(base.authorize(state))
+                .queryParam("scope", this.getScopes(",", false, AuthScopeUtils.getDefaultScopes(AuthQqScope.values())))
+                .build();
         }
     }
 }

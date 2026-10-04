@@ -1,0 +1,76 @@
+{
+  "source": "BAIDU",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/baidu" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"expires_in\":2592000,\"refresh_token\":\"22.baidu_rt\",\"access_token\":\"21.baidu_at\",\"session_secret\":\"ss\",\"session_key\":\"sk\",\"scope\":\"basic\"}",
+        "{\"userid\":\"2097322476\",\"username\":\"wl19871011\",\"realname\":\"阳光\",\"userdetail\":\"喜欢自由\",\"birthday\":\"1987-01-01\",\"marriage\":\"恋爱\",\"sex\":\"1\",\"blood\":\"3\",\"constellation\":\"射手\",\"figure\":\"小巧\",\"education\":\"大学/专科\",\"trade\":\"计算机/电子产品\",\"job\":\"未知\",\"birthday_year\":\"1987\",\"birthday_month\":\"01\",\"birthday_day\":\"11\",\"portrait\":\"e2c1776c31393837313031319605\",\"is_bind_mobile\":\"1\",\"is_realname\":\"1\"}"
+      ]
+    },
+    {
+      "name": "login_success_openid",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"expires_in\":2592000,\"refresh_token\":\"22.baidu_rt\",\"access_token\":\"21.baidu_at\",\"scope\":\"basic\"}",
+        "{\"openid\":\"oTF9ZmIx\",\"username\":\"j***y\",\"sex\":\"0\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":\"invalid_grant\",\"error_description\":\"Invalid authorization code: bad\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"expires_in\":2592000,\"refresh_token\":\"22.baidu_rt\",\"access_token\":\"21.baidu_at\",\"scope\":\"basic\"}",
+        "{\"error_code\":110,\"error_msg\":\"Access token invalid or no longer valid\"}"
+      ]
+    },
+    {
+      "name": "refresh_success",
+      "action": "refresh",
+      "token": { "accessToken": "21.baidu_at", "refreshToken": "22.baidu_rt" },
+      "responses": [
+        "{\"expires_in\":2592000,\"refresh_token\":\"22.baidu_rt2\",\"access_token\":\"21.baidu_at2\",\"scope\":\"basic\"}"
+      ]
+    },
+    {
+      "name": "refresh_error",
+      "action": "refresh",
+      "token": { "accessToken": "21.baidu_at", "refreshToken": "bad" },
+      "responses": [
+        "{\"error\":\"expired_token\",\"error_description\":\"refresh token has been used\"}"
+      ]
+    },
+    {
+      "name": "revoke_success",
+      "action": "revoke",
+      "token": { "accessToken": "21.baidu_at" },
+      "responses": [ "{\"result\":1}" ]
+    },
+    {
+      "name": "revoke_failure",
+      "action": "revoke",
+      "token": { "accessToken": "21.baidu_at" },
+      "responses": [ "{\"result\":0}" ]
+    },
+    {
+      "name": "revoke_error",
+      "action": "revoke",
+      "token": { "accessToken": "bad" },
+      "responses": [ "{\"error_code\":110,\"error_msg\":\"Access token invalid or no longer valid\"}" ]
+    }
+  ]
+}

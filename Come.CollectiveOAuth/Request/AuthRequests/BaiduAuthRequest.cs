@@ -1,13 +1,17 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
 using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Enums.Scope;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
-using System;
-using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * 百度登录，对齐 JustAuth AuthBaiduRequest
+     */
     public class BaiduAuthRequest : DefaultAuthRequest
     {
         public BaiduAuthRequest(ClientConfig config) : base(config, new BaiduAuthSource())
@@ -22,49 +26,49 @@ namespace Come.CollectiveOAuth.Request
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
             string response = doPostAuthorizationCode(authCallback.code);
-            var accessTokenObject = response.parseObject();
-            this.checkResponse(accessTokenObject);
-
-            var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.getString("access_token");
-            authToken.refreshToken = accessTokenObject.getString("refresh_token");
-            authToken.expireIn = accessTokenObject.getInt32("expires_in");
-            authToken.scope = accessTokenObject.getString("scope");
-
-            return authToken;
+            return getAuthToken(response);
         }
 
+        /**
+         * 新旧应用返回的用户信息不一致：旧应用返回 userid，新应用返回 openid
+         *
+         * @param authToken token信息
+         * @return AuthUser
+         */
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
-            string response = doGetUserInfo(authToken);
-            var userObj = response.parseObject();
-            this.checkResponse(userObj);
+            string userInfo = doGetUserInfo(authToken);
+            var obj = JsonExtensions.parseObject(userInfo);
+            this.checkResponse(obj);
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.getString("userid");
-            authUser.username = userObj.getString("username");
-            authUser.nickname = userObj.getString("username");
-
-            string protrait = userObj.getString("portrait");
-            authUser.avatar = protrait.IsNullOrWhiteSpace() ? null : string.Format("http://himg.bdimg.com/sys/portrait/item/{0}.jpg", protrait);
-
-            authUser.remark = userObj.getString("userdetail");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("sex"));
-
+            authUser.rawUserInfo = obj;
+            authUser.uuid = obj.containsKey("userid") ? obj.getString("userid") : obj.getString("openid");
+            authUser.username = obj.getString("username");
+            authUser.nickname = obj.getString("username");
+            authUser.avatar = getAvatar(obj);
+            authUser.remark = obj.getString("userdetail");
+            authUser.gender = GlobalAuthUtil.getRealGender(obj.getString("sex"));
             authUser.token = authToken;
             authUser.source = source.getName();
-            authUser.originalUser = userObj;
-            authUser.originalUserStr = response;
+            authUser.originalUser = obj;
+            authUser.originalUserStr = userInfo;
             return authUser;
+        }
+
+        private string getAvatar(JObject obj)
+        {
+            string protrait = obj.getString("portrait");
+            return string.IsNullOrEmpty(protrait) ? null : string.Format("http://himg.bdimg.com/sys/portrait/item/{0}.jpg", protrait);
         }
 
         public override AuthResponse revoke(AuthToken authToken)
         {
             string response = doGetRevoke(authToken);
-            var revokeObj = response.parseObject();
-            this.checkResponse(revokeObj);
+            var obj = JsonExtensions.parseObject(response);
+            this.checkResponse(obj);
             // 返回1表示取消授权成功，否则失败
-            AuthResponseStatus status = revokeObj.getInt32("result") == 1 ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
+            AuthResponseStatus status = obj.getIntValue("result") == 1 ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
             return new AuthResponse(status.GetCode(), status.GetDesc());
         }
 
@@ -76,17 +80,8 @@ namespace Come.CollectiveOAuth.Request
                 .queryParam("client_id", this.config.clientId)
                 .queryParam("client_secret", this.config.clientSecret)
                 .build();
-            string response = HttpUtils.RequestGet(refreshUrl);
-            var accessTokenObject = response.parseObject();
-            this.checkResponse(accessTokenObject);
-
-            var newAuthToken = new AuthToken();
-            newAuthToken.accessToken = accessTokenObject.getString("access_token");
-            newAuthToken.refreshToken = accessTokenObject.getString("refresh_token");
-            newAuthToken.expireIn = accessTokenObject.getInt32("expires_in");
-            newAuthToken.scope = accessTokenObject.getString("scope");
-
-            return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), AuthResponseStatus.SUCCESS.GetDesc(), newAuthToken);
+            string response = HttpUtils.RequestGet(refreshUrl, null, config.httpConfig);
+            return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), null, this.getAuthToken(response));
         }
 
         /**
@@ -98,30 +93,38 @@ namespace Come.CollectiveOAuth.Request
          */
         public override string authorize(string state)
         {
-            return UrlBuilder.fromBaseUrl(source.authorize())
-                .queryParam("response_type", "code")
-                .queryParam("client_id", config.clientId)
-                .queryParam("redirect_uri", config.redirectUri)
-                .queryParam("display", "page")
-                .queryParam("scope", "basic")
-                .queryParam("state", getRealState(state))
+            // Java 版传 encode=true 后交给不编码的 UrlBuilder；C# UrlBuilder 默认编码，这里传原值
+            return UrlBuilder.fromBaseUrl(base.authorize(state))
+                .queryParam("display", "popup")
+                .queryParam("scope", this.getScopes(" ", false, AuthScopeUtils.getDefaultScopes(AuthBaiduScope.values())))
                 .build();
         }
 
         /**
-         * 校验请求结果
+         * 检查响应内容是否正确
          *
-         * @param response 请求结果
-         * @return 如果请求结果正常，则返回JSONObject
+         * @param object 请求响应内容
          */
-        private void checkResponse(Dictionary<string, object> dic)
+        private void checkResponse(JObject obj)
         {
-            if (dic.ContainsKey("error") || dic.ContainsKey("error_code"))
+            if (obj.containsKey("error") || obj.containsKey("error_code"))
             {
-                throw new Exception($@"error_code: {dic.getString("error_code")}," +
-                    $" error_description: {dic.getString("error_description")}," +
-                    $" error_msg: {dic.getString("error_msg")}");
+                string msg = obj.containsKey("error_description") ? obj.getString("error_description") : obj.getString("error_msg");
+                throw new AuthException(msg);
             }
+        }
+
+        private AuthToken getAuthToken(string response)
+        {
+            var accessTokenObject = JsonExtensions.parseObject(response);
+            this.checkResponse(accessTokenObject);
+
+            var authToken = new AuthToken();
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.refreshToken = accessTokenObject.getString("refresh_token");
+            authToken.scope = accessTokenObject.getString("scope");
+            authToken.expireIn = accessTokenObject.getIntValue("expires_in");
+            return authToken;
         }
     }
 }

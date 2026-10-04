@@ -1,0 +1,52 @@
+{
+  "source": "WEIBO",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/weibo" },
+  "state": "fixedstate000000000000000000000",
+  "ignore": { "params": [ "API-RemoteIP" ] },
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"2.00weibo_at\",\"remind_in\":\"157679999\",\"expires_in\":157679999,\"uid\":\"1404376560\",\"isRealName\":\"true\"}",
+        "{\"id\":1404376560,\"idstr\":\"1404376560\",\"screen_name\":\"zaku\",\"name\":\"zaku\",\"province\":\"11\",\"city\":\"5\",\"location\":\"北京 朝阳区\",\"description\":\"人生五十年\",\"url\":\"\",\"profile_image_url\":\"http://tp1.sinaimg.cn/1404376560/50/0/1\",\"profile_url\":\"zaku\",\"domain\":\"zaku\",\"gender\":\"m\",\"followers_count\":1204,\"verified\":false}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":\"invalid_grant\",\"error_code\":21325,\"request\":\"/oauth2/access_token\",\"error_uri\":\"/oauth2/access_token\",\"error_description\":\"invalid authorization code:bad\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"2.00weibo_at\",\"remind_in\":\"157679999\",\"expires_in\":157679999,\"uid\":\"1404376560\",\"isRealName\":\"true\"}",
+        "{\"error\":\"invalid_access_token\",\"error_code\":21332,\"request\":\"/2/users/show.json\"}"
+      ]
+    },
+    {
+      "name": "revoke_success",
+      "action": "revoke",
+      "token": { "accessToken": "2.00weibo_at" },
+      "responses": [ "{\"result\":\"true\"}" ]
+    },
+    {
+      "name": "revoke_failure",
+      "action": "revoke",
+      "token": { "accessToken": "2.00weibo_at" },
+      "responses": [ "{\"result\":\"false\"}" ]
+    },
+    {
+      "name": "revoke_error",
+      "action": "revoke",
+      "token": { "accessToken": "bad" },
+      "responses": [ "{\"error\":\"invalid_access_token\",\"error_code\":21332,\"request\":\"/oauth2/revokeoauth2\"}" ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "source": "CODING",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/coding", "domainPrefix": "justauth" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"coding_at\",\"refresh_token\":\"coding_rt\",\"expires_in\":\"863999\"}",
+        "{\"code\":0,\"data\":{\"id\":123456,\"name\":\"coder\",\"global_key\":\"coder\",\"avatar\":\"/static/fruit_avatar/Fruit-1.png\",\"path\":\"/u/coder\",\"company\":\"Coding\",\"location\":\"深圳\",\"sex\":0,\"email\":\"coder@example.com\",\"slogan\":\"hello coding\",\"created_at\":1696400000000}}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"code\":3001,\"msg\":{\"oauth_code_invalid\":\"授权码无效\"}}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"coding_at\",\"refresh_token\":\"coding_rt\",\"expires_in\":\"863999\"}",
+        "{\"code\":1000,\"msg\":\"user_not_login\"}"
+      ]
+    }
+  ]
+}

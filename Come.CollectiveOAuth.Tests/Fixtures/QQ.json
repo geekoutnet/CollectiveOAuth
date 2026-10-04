@@ -1,0 +1,62 @@
+{
+  "source": "QQ",
+  "config": { "clientId": "101234567", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/qq" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "access_token=FE04QQAT&expires_in=7776000&refresh_token=88E4QQRT",
+        "callback( {\"client_id\":\"101234567\",\"openid\":\"4A9AQQOPENID\"} );\n",
+        "{\"ret\":0,\"msg\":\"\",\"is_lost\":0,\"nickname\":\"QQ用户\",\"gender\":\"男\",\"gender_type\":1,\"province\":\"广东\",\"city\":\"深圳\",\"year\":\"1990\",\"figureurl\":\"http://qzapp.qlogo.cn/qzapp/101234567/4A9A/30\",\"figureurl_1\":\"http://qzapp.qlogo.cn/qzapp/101234567/4A9A/50\",\"figureurl_qq_1\":\"http://thirdqq.qlogo.cn/g?b=oidb&k=1&s=40\",\"figureurl_qq_2\":\"http://thirdqq.qlogo.cn/g?b=oidb&k=1&s=100\",\"is_yellow_vip\":\"0\",\"vip\":\"0\"}"
+      ]
+    },
+    {
+      "name": "login_success_unionid",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "access_token=FE04QQAT&expires_in=7776000&refresh_token=88E4QQRT",
+        "callback( {\"client_id\":\"101234567\",\"openid\":\"4A9AQQOPENID\",\"unionid\":\"UID_QQUNION\"} );\n",
+        "{\"ret\":0,\"msg\":\"\",\"nickname\":\"QQ用户\",\"gender\":\"女\",\"figureurl_qq_1\":\"http://thirdqq.qlogo.cn/g?b=oidb&k=1&s=40\",\"figureurl_qq_2\":\"\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "code=100019&msg=code to access token error"
+      ]
+    },
+    {
+      "name": "login_openid_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "access_token=FE04QQAT&expires_in=7776000&refresh_token=88E4QQRT",
+        "callback( {\"error\":100016,\"error_description\":\"access token check failed\"} );\n"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "access_token=FE04QQAT&expires_in=7776000&refresh_token=88E4QQRT",
+        "callback( {\"client_id\":\"101234567\",\"openid\":\"4A9AQQOPENID\"} );\n",
+        "{\"ret\":-1,\"msg\":\"client request's parameters are invalid, invalid openid\"}"
+      ]
+    },
+    {
+      "name": "refresh_success",
+      "action": "refresh",
+      "token": { "accessToken": "FE04QQAT", "refreshToken": "88E4QQRT" },
+      "responses": [
+        "access_token=FE04QQAT2&expires_in=7776000&refresh_token=88E4QQRT2"
+      ]
+    }
+  ]
+}

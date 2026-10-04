@@ -1,13 +1,16 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums.Scope;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
-using System;
-using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
+using Newtonsoft.Json.Linq;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * Coding登录，对齐 JustAuth AuthCodingRequest
+     */
     public class CodingAuthRequest : DefaultAuthRequest
     {
         public CodingAuthRequest(ClientConfig config) : base(config, new CodingAuthSource())
@@ -22,12 +25,12 @@ namespace Come.CollectiveOAuth.Request
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
             string response = doGetAuthorizationCode(authCallback.code);
-            var accessTokenObject = response.parseObject();
+            var accessTokenObject = JsonExtensions.parseObject(response);
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject.getString("access_token");
-            authToken.expireIn = accessTokenObject.getInt32("expires_in");
+            authToken.expireIn = accessTokenObject.getIntValue("expires_in");
             authToken.refreshToken = accessTokenObject.getString("refresh_token");
             return authToken;
         }
@@ -35,38 +38,49 @@ namespace Come.CollectiveOAuth.Request
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
             string response = doGetUserInfo(authToken);
-            var resData = response.parseObject();
-            this.checkResponse(resData);
+            var obj = JsonExtensions.parseObject(response);
+            this.checkResponse(obj);
 
-            var userObj = resData.getString("data").parseObject();
-
+            obj = obj.getJSONObject("data");
             var authUser = new AuthUser();
-            authUser.uuid = userObj.getString("id");
-            authUser.username = userObj.getString("name");
-            authUser.nickname = userObj.getString("name");
-            authUser.avatar = $"{"https://coding.net/"}{userObj.getString("avatar")}";
-            authUser.blog = $"{"https://coding.net/"}{userObj.getString("path")}";
-            authUser.company = userObj.getString("company");
-            authUser.location = userObj.getString("location");
-            authUser.email = userObj.getString("email");
-            authUser.remark = userObj.getString("slogan");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("sex"));
-
+            authUser.rawUserInfo = obj;
+            authUser.uuid = obj.getString("id");
+            authUser.username = obj.getString("name");
+            // 与 Java 字符串拼接一致：null 拼成 "null"
+            authUser.avatar = "https://coding.net" + GlobalAuthUtil.javaValueOf(obj.getString("avatar"));
+            authUser.blog = "https://coding.net" + GlobalAuthUtil.javaValueOf(obj.getString("path"));
+            authUser.nickname = obj.getString("name");
+            authUser.company = obj.getString("company");
+            authUser.location = obj.getString("location");
+            authUser.gender = GlobalAuthUtil.getRealGender(obj.getString("sex"));
+            authUser.email = obj.getString("email");
+            authUser.remark = obj.getString("slogan");
             authUser.token = authToken;
             authUser.source = source.getName();
-            authUser.originalUser = resData;
+            authUser.originalUser = obj;
             authUser.originalUserStr = response;
             return authUser;
         }
 
-        protected override string doGetUserInfo(AuthToken authToken)
+        /**
+         * 检查响应内容是否正确
+         *
+         * @param object 请求响应内容
+         */
+        private void checkResponse(JObject obj)
         {
-            return HttpUtils.RequestJsonGet(userInfoUrl(authToken));
+            if (obj.getIntValue("code") != 0)
+            {
+                throw new AuthException(obj.getString("msg"));
+            }
         }
 
-        protected override string doGetAuthorizationCode(String code)
+        /**
+         * 对应 Java String.format(url, config.getDomainPrefix())
+         */
+        private string withDomainPrefix(string url)
         {
-            return HttpUtils.RequestJsonGet(accessTokenUrl(code));
+            return url.Replace("%s", GlobalAuthUtil.javaValueOf(config.domainPrefix));
         }
 
         /**
@@ -78,26 +92,44 @@ namespace Come.CollectiveOAuth.Request
          */
         public override string authorize(string state)
         {
-            return UrlBuilder.fromBaseUrl(source.authorize())
+            // Java 版传 encode=true 后交给不编码的 UrlBuilder；C# UrlBuilder 默认编码，这里传原值
+            return UrlBuilder.fromBaseUrl(withDomainPrefix(source.authorize()))
                 .queryParam("response_type", "code")
                 .queryParam("client_id", config.clientId)
                 .queryParam("redirect_uri", config.redirectUri)
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "user" : config.scope)
+                .queryParam("scope", this.getScopes(" ", false, AuthScopeUtils.getDefaultScopes(AuthCodingScope.values())))
                 .queryParam("state", getRealState(state))
                 .build();
         }
+
         /**
-        * 校验请求结果
-        *
-        * @param response 请求结果
-        * @return 如果请求结果正常，则返回Exception
-        */
-        private void checkResponse(Dictionary<string, object> dic)
+         * 返回获取accessToken的url
+         *
+         * @param code 授权码
+         * @return 返回获取accessToken的url
+         */
+        protected override string accessTokenUrl(string code)
         {
-            if (dic.ContainsKey("code") && dic.getInt32("code") != 0)
-            {
-                throw new Exception($"{dic.getString("msg")}");
-            }
+            return UrlBuilder.fromBaseUrl(withDomainPrefix(source.accessToken()))
+                .queryParam("code", code)
+                .queryParam("client_id", config.clientId)
+                .queryParam("client_secret", config.clientSecret)
+                .queryParam("grant_type", "authorization_code")
+                .queryParam("redirect_uri", config.redirectUri)
+                .build();
+        }
+
+        /**
+         * 返回获取userInfo的url
+         *
+         * @param authToken token
+         * @return 返回获取userInfo的url
+         */
+        protected override string userInfoUrl(AuthToken authToken)
+        {
+            return UrlBuilder.fromBaseUrl(withDomainPrefix(source.userInfo()))
+                .queryParam("access_token", authToken.accessToken)
+                .build();
         }
     }
 }

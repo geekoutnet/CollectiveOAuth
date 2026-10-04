@@ -21,6 +21,7 @@ namespace Come.CollectiveOAuth.Tests.Support
 
                 // ===== 批次 B =====
                 { "GITEE", (c, s) => new GiteeAuthRequest(c, s) },
+                { "BAIDU", (c, s) => new BaiduAuthRequest(c, s) },
 
 
                 // ===== 批次 C =====

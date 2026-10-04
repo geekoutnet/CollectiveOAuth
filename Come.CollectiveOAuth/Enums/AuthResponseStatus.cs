@@ -43,5 +43,23 @@ namespace Come.CollectiveOAuth.Enums
 
         [Description("The refresh token is required; it must not be null")]
         REQUIRED_REFRESH_TOKEN = 5010, 
+
+        [Description("Invalid token")]
+        ILLEGAL_TOKEN = 5011,
+
+        [Description("Invalid key identifier(kid)")]
+        ILLEGAL_KID = 5012,
+
+        [Description("Invalid team id")]
+        ILLEGAL_TEAM_ID = 5013,
+
+        [Description("Invalid client id")]
+        ILLEGAL_CLIENT_ID = 5014,
+
+        [Description("Invalid client secret")]
+        ILLEGAL_CLIENT_SECRET = 5015,
+
+        [Description("Illegal wechat agent id")]
+        ILLEGAL_WECHAT_AGENT_ID = 5016,
     }
 }

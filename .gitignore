@@ -147,3 +147,4 @@ Come.Web.Sample/.vs/
 .vs/
 
 tools/justauth-golden/target/
+.claude/worktrees/

@@ -21,6 +21,15 @@
       ]
     },
     {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"token_type\":\"Bearer\",\"expires_in\":3599,\"access_token\":\"eyJ0eXAiOiJKV1QiLCJub25jZSI6\"}",
+        "{\"error\":{\"code\":\"InvalidAuthenticationToken\",\"message\":\"Access token has expired.\"}}"
+      ]
+    },
+    {
       "name": "refresh_success",
       "action": "refresh",
       "token": { "accessToken": "old_access", "refreshToken": "M.R3_BAY.old", "tokenType": "Bearer" },

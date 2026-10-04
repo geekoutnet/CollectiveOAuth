@@ -90,6 +90,36 @@
 			]
 		},
 		{
+			"name":"login_userinfo_error",
+			"result":{
+				"code":5000
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://login.microsoftonline.com/contoso-tenant/oauth2/v2.0/token?code=code123&client_id=cid&client_secret=csecret&grant_type=authorization_code&scope=profile email openid offline_access&redirect_uri=https://www.justauth.cn/callback/microsoft",
+					"params":{
+						"code":"code123",
+						"grant_type":"authorization_code",
+						"scope":"profile email openid offline_access",
+						"client_secret":"csecret",
+						"redirect_uri":"https://www.justauth.cn/callback/microsoft",
+						"client_id":"cid"
+					},
+					"encode":false,
+					"headers":{}
+				},
+				{
+					"method":"GET",
+					"url":"https://graph.microsoft.com/v1.0/me",
+					"encode":false,
+					"headers":{
+						"Authorization":"Bearer eyJ0eXAiOiJKV1QiLCJub25jZSI6"
+					}
+				}
+			]
+		},
+		{
 			"name":"refresh_success",
 			"result":{
 				"code":2000,

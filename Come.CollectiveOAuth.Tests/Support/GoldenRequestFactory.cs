@@ -30,6 +30,7 @@ namespace Come.CollectiveOAuth.Tests.Support
                 { "KUJIALE", (c, s) => new KujialeAuthRequest(c, s) },
                 { "MEITUAN", (c, s) => new MeituanAuthRequest(c, s) },
                 { "ELEME", (c, s) => new ElemeAuthRequest(c, s) },
+                { "TAOBAO", (c, s) => new TaobaoAuthRequest(c, s) },
 
                 // ===== 批次 D =====
 

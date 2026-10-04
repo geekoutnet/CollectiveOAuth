@@ -11,7 +11,7 @@ namespace Come.CollectiveOAuth.Utils
          */
         public static string createState()
         {
-            return Guid.NewGuid().ToString();
+            return UuidUtils.getUUID();
         }
     }
 }

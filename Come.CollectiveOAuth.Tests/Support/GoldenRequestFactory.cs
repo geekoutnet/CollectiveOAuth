@@ -25,6 +25,7 @@ namespace Come.CollectiveOAuth.Tests.Support
                 // ===== 批次 C =====
                 { "DINGTALK", (c, s) => new DingTalkScanAuthRequest(c, s) },
                 { "DOUYIN", (c, s) => new DouyinAuthRequest(c, s) },
+                { "TOUTIAO", (c, s) => new ToutiaoAuthRequest(c, s) },
 
                 // ===== 批次 D =====
 

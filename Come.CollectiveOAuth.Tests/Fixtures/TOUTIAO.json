@@ -1,0 +1,42 @@
+{
+  "source": "TOUTIAO",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/toutiao" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"tt_abc\",\"expires_in\":7200,\"open_id\":\"openid123\",\"message\":\"success\"}",
+        "{\"data\":{\"uid\":6000000001,\"uid_type\":12,\"screen_name\":\"头条用户\",\"avatar_url\":\"https://p3.pstatp.com/a.jpg\",\"description\":\"简介\",\"gender\":\"2\"},\"message\":\"success\"}"
+      ]
+    },
+    {
+      "name": "login_anonymous_user",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"tt_abc\",\"expires_in\":7200,\"open_id\":\"openid123\",\"message\":\"success\"}",
+        "{\"data\":{\"uid\":6000000002,\"uid_type\":14,\"screen_name\":\"xyz\",\"avatar_url\":\"https://p3.pstatp.com/b.jpg\",\"gender\":0},\"message\":\"success\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error_code\":7,\"description\":\"authorize_code expired\",\"message\":\"error\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_unknown_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"tt_abc\",\"expires_in\":7200,\"open_id\":\"openid123\",\"message\":\"success\"}",
+        "{\"error_code\":1234,\"description\":\"unknown\",\"message\":\"error\"}"
+      ]
+    }
+  ]
+}

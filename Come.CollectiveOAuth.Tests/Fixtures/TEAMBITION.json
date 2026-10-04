@@ -1,0 +1,49 @@
+{
+  "source": "TEAMBITION",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/teambition" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"tb_access\",\"refresh_token\":\"tb_refresh\",\"expires_in\":7200}",
+        "{\"_id\":\"5d2e8b9a\",\"name\":\"tb user\",\"email\":\"tb@example.com\",\"avatarUrl\":\"https://striker.teambition.net/thumbnail/abc.png\",\"website\":\"https://tb.example.com\",\"location\":\"Shanghai\",\"phone\":\"\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"name\":\"InvalidCode\",\"message\":\"code is invalid\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"tb_access\",\"refresh_token\":\"tb_refresh\"}",
+        "{\"name\":\"Unauthorized\",\"message\":\"invalid access token\"}"
+      ]
+    },
+    {
+      "name": "refresh_success",
+      "action": "refresh",
+      "token": { "accessToken": "tb_access", "refreshToken": "tb_refresh", "uid": "5d2e8b9a" },
+      "responses": [
+        "{\"access_token\":\"tb_access_new\",\"refresh_token\":\"tb_refresh_new\"}"
+      ]
+    },
+    {
+      "name": "refresh_error",
+      "action": "refresh",
+      "token": { "accessToken": "tb_access", "refreshToken": "tb_refresh_bad", "uid": "5d2e8b9a" },
+      "responses": [
+        "{\"name\":\"InvalidRefreshToken\",\"message\":\"refresh token is invalid\"}"
+      ]
+    }
+  ]
+}

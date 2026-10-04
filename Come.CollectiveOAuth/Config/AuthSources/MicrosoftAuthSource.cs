@@ -1,4 +1,5 @@
 ﻿using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Exceptions;
 
 namespace Come.CollectiveOAuth.Config
 {
@@ -9,12 +10,12 @@ namespace Come.CollectiveOAuth.Config
     {
         public string authorize()
         {
-            return "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
+            return "https://login.microsoftonline.com/%s/oauth2/v2.0/authorize";
         }
 
         public string accessToken()
         {
-            return "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+            return "https://login.microsoftonline.com/%s/oauth2/v2.0/token";
         }
 
         public string userInfo()
@@ -24,12 +25,12 @@ namespace Come.CollectiveOAuth.Config
 
         public string revoke()
         {
-            throw new System.NotImplementedException();
+            throw new AuthException(AuthResponseStatus.UNSUPPORTED);
         }
 
         public string refresh()
         {
-            return "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+            return "https://login.microsoftonline.com/%s/oauth2/v2.0/token";
         }
 
         public string getName()

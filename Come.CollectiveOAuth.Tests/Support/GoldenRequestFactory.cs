@@ -29,6 +29,7 @@ namespace Come.CollectiveOAuth.Tests.Support
                 { "LINKEDIN", (c, s) => new LinkedInAuthRequest(c, s) },
                 { "GOOGLE", (c, s) => new GoogleAuthRequest(c, s) },
                 { "FACEBOOK", (c, s) => new FackbookAuthRequest(c, s) },
+                { "MICROSOFT", (c, s) => new MicrosoftAuthRequest(c, s) },
 
 
                 // ===== 批次 E =====

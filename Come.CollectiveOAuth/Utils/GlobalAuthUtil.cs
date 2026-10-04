@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using System.Web;
+using System.Globalization;
+using System.Security.Cryptography;
 
 namespace Come.CollectiveOAuth.Utils
 {
@@ -42,11 +44,11 @@ namespace Come.CollectiveOAuth.Utils
          */
         public static bool isHttpProtocol(string url)
         {
-            if (string.IsNullOrWhiteSpace(url))
+            if (string.IsNullOrEmpty(url))
             {
                 return false;
             }
-            return url.StartsWith("http://");
+            return url.StartsWith("http://") || url.StartsWith("http%3A%2F%2F");
         }
 
         /**
@@ -57,11 +59,11 @@ namespace Come.CollectiveOAuth.Utils
          */
         public static bool isHttpsProtocol(string url)
         {
-            if (string.IsNullOrWhiteSpace(url))
+            if (string.IsNullOrEmpty(url))
             {
                 return false;
             }
-            return url.StartsWith("https://");
+            return url.StartsWith("https://") || url.StartsWith("https%3A%2F%2F");
         }
 
         /**
@@ -72,7 +74,7 @@ namespace Come.CollectiveOAuth.Utils
          */
         public static bool isLocalHost(string url)
         {
-            return string.IsNullOrWhiteSpace(url) || url.Contains("127.0.0.1") || url.Contains("localhost");
+            return string.IsNullOrEmpty(url) || url.Contains("127.0.0.1") || url.Contains("localhost");
         }
 
 
@@ -105,7 +107,7 @@ namespace Come.CollectiveOAuth.Utils
         */
         public static AuthUserGender getWechatRealGender(string originalGender)
         {
-            if (string.IsNullOrWhiteSpace(originalGender) || "0".Equals(originalGender))
+            if (string.IsNullOrEmpty(originalGender) || "0".Equals(originalGender))
             {
                 return AuthUserGender.UNKNOWN;
             }
@@ -114,7 +116,7 @@ namespace Come.CollectiveOAuth.Utils
 
 
         /**
-         * 编码
+         * 编码，与 JustAuth 一致：仅保留 A-Za-z0-9 . - _，其余按 UTF-8 编码为大写 %XX（空格为 %20）
          *
          * @param value str
          * @return encode str
@@ -125,15 +127,20 @@ namespace Come.CollectiveOAuth.Utils
             {
                 return "";
             }
-            try
+            var builder = new StringBuilder();
+            foreach (var b in Encoding.UTF8.GetBytes(value))
             {
-               
-                return System.Web.HttpUtility.UrlEncode(value);
+                char c = (char)b;
+                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '.' || c == '-' || c == '_')
+                {
+                    builder.Append(c);
+                }
+                else
+                {
+                    builder.Append('%').Append(b.ToString("X2"));
+                }
             }
-            catch (Exception e)
-            {
-                throw new Exception("Failed To Encode Uri", e);
-            }
+            return builder.ToString();
         }
 
 
@@ -551,6 +558,193 @@ namespace Come.CollectiveOAuth.Utils
                     rdic.Add(kvp.Key, kvp.Value);
             }
             return rdic;
+        }
+
+        public static bool isHttpsProtocolOrLocalHost(string url)
+        {
+            if (string.IsNullOrEmpty(url))
+            {
+                return false;
+            }
+            return isHttpsProtocol(url) || isLocalHost(url);
+        }
+
+        /// <summary>
+        /// 按 Java String.split 语义拆分：去掉末尾的空串
+        /// </summary>
+        private static string[] javaSplit(string value, char separator)
+        {
+            var parts = value.Split(separator);
+            int len = parts.Length;
+            while (len > 0 && parts[len - 1].Length == 0)
+            {
+                len--;
+            }
+            var result = new string[len];
+            Array.Copy(parts, result, len);
+            return result;
+        }
+
+        /**
+         * string 转 map，格式为 xxx=xxx&xxx=xxx，与 JustAuth parseStringToMap 一致
+         */
+        public static Dictionary<string, string> parseStringToMap(string accessTokenStr)
+        {
+            var res = new Dictionary<string, string>();
+            if (accessTokenStr.Contains("&"))
+            {
+                foreach (var field in javaSplit(accessTokenStr, '&'))
+                {
+                    if (field.Contains("="))
+                    {
+                        var keyValue = javaSplit(field, '=');
+                        res[urlDecode(keyValue[0])] = keyValue.Length == 2 ? urlDecode(keyValue[1]) : null;
+                    }
+                }
+            }
+            return res;
+        }
+
+        /**
+         * map 转 url 参数串，与 JustAuth parseMapToString 一致：仅编码值，null 值输出为 key=
+         */
+        public static string parseMapToString(IDictionary<string, string> paramMap, bool encode)
+        {
+            if (paramMap == null || paramMap.Count == 0)
+            {
+                return "";
+            }
+            var paramList = new List<string>();
+            foreach (var item in paramMap)
+            {
+                paramList.Add(item.Value == null ? item.Key + "=" : item.Key + "=" + (encode ? urlEncode(item.Value) : item.Value));
+            }
+            return string.Join("&", paramList);
+        }
+
+        public static string generateNonce(int len)
+        {
+            const string s = "0123456789QWERTYUIOPLKJHGFDSAZXCVBNMqwertyuioplkjhgfdsazxcvbnm";
+            var sb = new StringBuilder();
+            for (int i = 0; i < len; i++)
+            {
+                sb.Append(s[RandomUtil.nextInt(62)]);
+            }
+            return sb.ToString();
+        }
+
+        public static string getTimestamp()
+        {
+            return DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+        }
+
+        private static byte[] hmacSha1(byte[] key, byte[] data)
+        {
+            using (var hmac = new HMACSHA1(key))
+            {
+                return hmac.ComputeHash(data);
+            }
+        }
+
+        private static byte[] hmacSha256(byte[] key, byte[] data)
+        {
+            using (var hmac = new HMACSHA256(key))
+            {
+                return hmac.ComputeHash(data);
+            }
+        }
+
+        public static string generateDingTalkSignature(string secretKey, string timestamp)
+        {
+            var signData = hmacSha256(Encoding.UTF8.GetBytes(secretKey), Encoding.UTF8.GetBytes(timestamp));
+            return urlEncode(Convert.ToBase64String(signData));
+        }
+
+        public static string generateTwitterSignature(IDictionary<string, string> paramMap, string method, string baseUrl, string apiSecret, string tokenSecret)
+        {
+            var map = new SortedDictionary<string, string>(paramMap, StringComparer.Ordinal);
+            string str = parseMapToString(map, true);
+            string baseStr = method.ToUpper() + "&" + urlEncode(baseUrl) + "&" + urlEncode(str);
+            string signKey = apiSecret + "&" + (string.IsNullOrEmpty(tokenSecret) ? "" : tokenSecret);
+            return Convert.ToBase64String(hmacSha1(Encoding.UTF8.GetBytes(signKey), Encoding.UTF8.GetBytes(baseStr)));
+        }
+
+        public static string generateXmlySignature(IDictionary<string, string> paramMap, string clientSecret)
+        {
+            var map = new SortedDictionary<string, string>(paramMap, StringComparer.Ordinal);
+            string baseStr = Base64Utils.encode(parseMapToString(map, false));
+            var sign = hmacSha1(Encoding.UTF8.GetBytes(clientSecret), Encoding.UTF8.GetBytes(baseStr));
+            using (var md5Provider = MD5.Create())
+            {
+                return toHex(md5Provider.ComputeHash(sign));
+            }
+        }
+
+        public static string generateElemeSignature(string appKey, string secret, long timestamp, string action, string token, IDictionary<string, object> parameters)
+        {
+            var sorted = new SortedDictionary<string, object>(parameters, StringComparer.Ordinal);
+            sorted["app_key"] = appKey;
+            sorted["timestamp"] = timestamp;
+            var str = new StringBuilder();
+            foreach (var entry in sorted)
+            {
+                str.Append(entry.Key).Append("=").Append(JsonConvert.SerializeObject(entry.Value));
+            }
+            return md5($"{action}{token}{str}{secret}").ToUpper();
+        }
+
+        public static string md5(string str)
+        {
+            using (var md5Provider = MD5.Create())
+            {
+                return toHex(md5Provider.ComputeHash(Encoding.UTF8.GetBytes(str)));
+            }
+        }
+
+        public static string generateJdSignature(string appSecret, IDictionary<string, object> parameters)
+        {
+            var treeMap = new SortedDictionary<string, object>(parameters, StringComparer.Ordinal);
+            var signBuilder = new StringBuilder(appSecret);
+            foreach (var entry in treeMap)
+            {
+                string value = javaValueOf(entry.Value);
+                if (!string.IsNullOrEmpty(entry.Key) && !string.IsNullOrEmpty(value))
+                {
+                    signBuilder.Append(entry.Key).Append(value);
+                }
+            }
+            signBuilder.Append(appSecret);
+            return md5(signBuilder.ToString()).ToUpper();
+        }
+
+        /// <summary>
+        /// 对应 Java String.valueOf(Object)
+        /// </summary>
+        public static string javaValueOf(object value)
+        {
+            if (value == null)
+            {
+                return "null";
+            }
+            if (value is bool b)
+            {
+                return b ? "true" : "false";
+            }
+            if (value is IFormattable formattable)
+            {
+                return formattable.ToString(null, CultureInfo.InvariantCulture);
+            }
+            return value.ToString();
+        }
+
+        private static string toHex(byte[] bytes)
+        {
+            var builder = new StringBuilder();
+            foreach (var b in bytes)
+            {
+                builder.Append(b.ToString("x2"));
+            }
+            return builder.ToString();
         }
     }
 }

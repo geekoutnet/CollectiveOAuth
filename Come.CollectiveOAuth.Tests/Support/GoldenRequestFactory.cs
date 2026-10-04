@@ -29,6 +29,7 @@ namespace Come.CollectiveOAuth.Tests.Support
 
 
                 // ===== 批次 E =====
+                { "TWITTER", (c, s) => new TwitteAuthRequest(c, s) },
 
             };
 

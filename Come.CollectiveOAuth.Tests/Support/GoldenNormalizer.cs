@@ -82,9 +82,31 @@ namespace Come.CollectiveOAuth.Tests.Support
                 {
                     continue;
                 }
-                result[key] = ignore.Contains(kv.Key) ? "<ignored>" : kv.Value;
+                if (ignore.Contains(kv.Key))
+                {
+                    result[key] = "<ignored>";
+                }
+                else if (kv.Value != null && kv.Value.StartsWith("OAuth "))
+                {
+                    result[key] = OAuthHeader(kv.Value, ignore);
+                }
+                else
+                {
+                    result[key] = kv.Value;
+                }
             }
             return result;
+        }
+
+        /// <summary>
+        /// 把 OAuth1 头 `OAuth k="v", ...` 拆成解码后的参数列表（参数顺序不影响语义）
+        /// </summary>
+        private static JArray OAuthHeader(string value, ISet<string> ignore)
+        {
+            var pairs = System.Text.RegularExpressions.Regex.Matches(value.Substring("OAuth ".Length), "([^\\s=,]+)=\"([^\"]*)\"")
+                .Cast<System.Text.RegularExpressions.Match>()
+                .Select(m => new KeyValuePair<string, string>(m.Groups[1].Value, GlobalAuthUtil.urlDecode(m.Groups[2].Value)));
+            return Params(pairs, ignore);
         }
 
         /// <summary>

@@ -77,12 +77,21 @@ public class GoldenGenerator {
         JSONObject golden = new JSONObject(true);
         golden.put("source", source.name());
 
+        // 部分平台（如 Twitter）生成授权地址时也会发请求，回放 fixture 中的 authorizeResponses
+        List<String> authorizeResponses = fixture.containsKey("authorizeResponses")
+            ? fixture.getJSONArray("authorizeResponses").toJavaList(String.class)
+            : Collections.<String>emptyList();
+
         // 授权地址
-        HttpUtil.setHttp(new ReplayHttp(Collections.emptyList()));
+        ReplayHttp authorizeHttp = new ReplayHttp(authorizeResponses);
+        HttpUtil.setHttp(authorizeHttp);
         try {
             AuthRequest request = newRequest(source, config, new MemoryStateCache());
             golden.put("constructorError", null);
             golden.put("authorizeUrl", request.authorize(state));
+            if (!authorizeHttp.getRequests().isEmpty()) {
+                golden.put("authorizeRequests", authorizeHttp.getRequests());
+            }
         } catch (Exception e) {
             golden.put("constructorError", error(e));
             golden.put("authorizeUrl", null);
@@ -95,14 +104,15 @@ public class GoldenGenerator {
             JSONObject scenario = (JSONObject) item;
             List<String> responses = scenario.getJSONArray("responses").toJavaList(String.class);
             ReplayHttp http = new ReplayHttp(responses);
-            HttpUtil.setHttp(http);
 
             JSONObject out = new JSONObject(true);
             out.put("name", scenario.getString("name"));
             try {
                 MemoryStateCache cache = new MemoryStateCache();
                 AuthRequest request = newRequest(source, config, cache);
+                HttpUtil.setHttp(new ReplayHttp(authorizeResponses));
                 request.authorize(state);
+                HttpUtil.setHttp(http);
                 AuthResponse<?> result;
                 switch (scenario.getString("action")) {
                     case "login":

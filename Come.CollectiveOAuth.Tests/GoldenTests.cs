@@ -41,6 +41,8 @@ namespace Come.CollectiveOAuth.Tests
             var ignore = new HashSet<string>(fixture["ignore"]?["params"]?.ToObject<string[]>() ?? new string[0]);
             var config = fixture["config"].ToObject<ClientConfig>();
             string state = fixture.Value<string>("state");
+            // 部分平台（如 Twitter）生成授权地址时也会发请求
+            var authorizeResponses = fixture["authorizeResponses"]?.ToObject<string[]>() ?? new string[0];
 
             if (scenarioName == "authorize")
             {
@@ -53,7 +55,20 @@ namespace Come.CollectiveOAuth.Tests
                     return;
                 }
                 var request = GoldenRequestFactory.Create(source, config, new DefaultAuthStateCache());
-                AssertJson(GoldenNormalizer.Url(golden.Value<string>("authorizeUrl"), null, ignore), GoldenNormalizer.Url(request.authorize(state), null, ignore), "authorizeUrl");
+                var authorizeSender = new RecordingHttpSender(authorizeResponses);
+                string authorizeUrl;
+                var originalSender = HttpUtils.Sender;
+                HttpUtils.Sender = authorizeSender;
+                try
+                {
+                    authorizeUrl = request.authorize(state);
+                }
+                finally
+                {
+                    HttpUtils.Sender = originalSender;
+                }
+                AssertJson(GoldenNormalizer.Url(golden.Value<string>("authorizeUrl"), null, ignore), GoldenNormalizer.Url(authorizeUrl, null, ignore), "authorizeUrl");
+                AssertRequests((JArray)golden["authorizeRequests"] ?? new JArray(), authorizeSender.requests, ignore, "authorize");
                 return;
             }
 
@@ -61,13 +76,14 @@ namespace Come.CollectiveOAuth.Tests
             var goldenScenario = golden["scenarios"].First(s => s.Value<string>("name") == scenarioName);
             var sender = new RecordingHttpSender(fixtureScenario["responses"].ToObject<string[]>());
             var original = HttpUtils.Sender;
-            HttpUtils.Sender = sender;
             object result = null;
             Exception error = null;
             try
             {
                 var request = GoldenRequestFactory.Create(source, config, new DefaultAuthStateCache());
+                HttpUtils.Sender = new RecordingHttpSender(authorizeResponses);
                 request.authorize(state);
+                HttpUtils.Sender = sender;
                 switch (fixtureScenario.Value<string>("action"))
                 {
                     case "login":
@@ -91,26 +107,7 @@ namespace Come.CollectiveOAuth.Tests
             }
 
             // 请求序列
-            var goldenRequests = (JArray)goldenScenario["requests"];
-            Assert.True(goldenRequests.Count == sender.requests.Count,
-                $"请求数量不同：Java {goldenRequests.Count}，C# {sender.requests.Count}\nJava: {goldenRequests}\nC#: {string.Join("\n", sender.requests.Select(r => r.method + " " + r.url))}");
-            for (int i = 0; i < goldenRequests.Count; i++)
-            {
-                var g = (JObject)goldenRequests[i];
-                var c = sender.requests[i];
-                Assert.Equal(g.Value<string>("method"), c.method);
-                var gParams = g["params"]?.Type == JTokenType.Object ? g["params"].ToObject<Dictionary<string, string>>() : null;
-                bool gIsGet = g.Value<string>("method") == "GET";
-                AssertJson(GoldenNormalizer.Url(g.Value<string>("url"), gIsGet ? gParams : null, ignore), GoldenNormalizer.Url(c.url, null, ignore), $"request[{i}].url");
-
-                JToken gBody = !gIsGet && gParams != null
-                    ? GoldenNormalizer.Params(gParams.Select(kv => kv), ignore)
-                    : GoldenNormalizer.Body(g.Value<string>("data"), false, ignore);
-                JToken cBody = GoldenNormalizer.Body(c.body, c.contentType == "application/x-www-form-urlencoded", ignore);
-                AssertJson(gBody, cBody, $"request[{i}].body");
-
-                AssertJson(GoldenNormalizer.Headers(g["headers"].ToObject<Dictionary<string, string>>(), ignore), GoldenNormalizer.Headers(c.headers, ignore), $"request[{i}].headers");
-            }
+            AssertRequests((JArray)goldenScenario["requests"], sender.requests, ignore, scenarioName);
 
             // 结果或异常
             var goldenError = goldenScenario["error"];
@@ -123,6 +120,29 @@ namespace Come.CollectiveOAuth.Tests
             }
             Assert.Null(error);
             AssertJson(GoldenNormalizer.Numbers(goldenScenario["result"].DeepClone()), GoldenNormalizer.Result(result), "result");
+        }
+
+        private static void AssertRequests(JArray goldenRequests, List<HttpRequestRecord> actual, ISet<string> ignore, string what)
+        {
+            Assert.True(goldenRequests.Count == actual.Count,
+                $"{what} 请求数量不同：Java {goldenRequests.Count}，C# {actual.Count}\nJava: {goldenRequests}\nC#: {string.Join("\n", actual.Select(r => r.method + " " + r.url))}");
+            for (int i = 0; i < goldenRequests.Count; i++)
+            {
+                var g = (JObject)goldenRequests[i];
+                var c = actual[i];
+                Assert.Equal(g.Value<string>("method"), c.method);
+                var gParams = g["params"]?.Type == JTokenType.Object ? g["params"].ToObject<Dictionary<string, string>>() : null;
+                bool gIsGet = g.Value<string>("method") == "GET";
+                AssertJson(GoldenNormalizer.Url(g.Value<string>("url"), gIsGet ? gParams : null, ignore), GoldenNormalizer.Url(c.url, null, ignore), $"{what}.request[{i}].url");
+
+                JToken gBody = !gIsGet && gParams != null
+                    ? GoldenNormalizer.Params(gParams.Select(kv => kv), ignore)
+                    : GoldenNormalizer.Body(g.Value<string>("data"), false, ignore);
+                JToken cBody = GoldenNormalizer.Body(c.body, c.contentType == "application/x-www-form-urlencoded", ignore);
+                AssertJson(gBody, cBody, $"{what}.request[{i}].body");
+
+                AssertJson(GoldenNormalizer.Headers(g["headers"].ToObject<Dictionary<string, string>>(), ignore), GoldenNormalizer.Headers(c.headers, ignore), $"{what}.request[{i}].headers");
+            }
         }
 
         private static void AssertJson(JToken expected, JToken actual, string what)

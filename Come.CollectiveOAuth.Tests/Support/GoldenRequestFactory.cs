@@ -27,6 +27,7 @@ namespace Come.CollectiveOAuth.Tests.Support
                 { "DOUYIN", (c, s) => new DouyinAuthRequest(c, s) },
                 { "TOUTIAO", (c, s) => new ToutiaoAuthRequest(c, s) },
                 { "HUAWEI", (c, s) => new HuaweiAuthRequest(c, s) },
+                { "KUJIALE", (c, s) => new KujialeAuthRequest(c, s) },
 
                 // ===== 批次 D =====
 

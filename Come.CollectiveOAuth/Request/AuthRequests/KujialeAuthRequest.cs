@@ -82,8 +82,6 @@ namespace Come.CollectiveOAuth.Request
             authUser.nickname = resultObject.getString("userName");
             authUser.avatar = resultObject.getString("avatar");
             authUser.uuid = resultObject.getString("openId");
-            // Java 版不设置 gender（为 null）；C# gender 不可空，保留原有的 UNKNOWN，避免默认值 FEMALE
-            authUser.gender = AuthUserGender.UNKNOWN;
             authUser.token = authToken;
             authUser.source = source.getName();
             authUser.originalUser = resultObject;

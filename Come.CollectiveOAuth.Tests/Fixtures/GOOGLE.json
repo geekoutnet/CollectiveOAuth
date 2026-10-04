@@ -1,0 +1,33 @@
+{
+  "source": "GOOGLE",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/google" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"ya29.a0AfH6\",\"expires_in\":3599,\"scope\":\"openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile\",\"token_type\":\"Bearer\",\"id_token\":\"eyJhbGciOiJSUzI1NiJ9.payload.sig\"}",
+        "{\"sub\":\"110169484474386276334\",\"name\":\"Test User\",\"given_name\":\"Test\",\"family_name\":\"User\",\"picture\":\"https://lh3.googleusercontent.com/a/abc=s96-c\",\"email\":\"test.user@gmail.com\",\"email_verified\":true,\"locale\":\"en\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":\"invalid_grant\",\"error_description\":\"Bad Request\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"ya29.a0AfH6\",\"expires_in\":3599,\"token_type\":\"Bearer\"}",
+        "{\"error\":\"invalid_token\"}"
+      ]
+    }
+  ]
+}

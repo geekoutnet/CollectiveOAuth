@@ -1,4 +1,5 @@
 ﻿using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Exceptions;
 
 namespace Come.CollectiveOAuth.Config
 {
@@ -14,22 +15,22 @@ namespace Come.CollectiveOAuth.Config
 
         public string accessToken()
         {
-            return "https://www.googleapis.com/oauth2/v4/token";
+            return "https://oauth2.googleapis.com/token";
         }
 
         public string userInfo()
         {
-            return "https://www.googleapis.com/oauth2/v3/userinfo";
+            return "https://openidconnect.googleapis.com/v1/userinfo";
         }
 
         public string revoke()
         {
-            throw new System.NotImplementedException();
+            throw new AuthException(AuthResponseStatus.UNSUPPORTED);
         }
 
         public string refresh()
         {
-            throw new System.NotImplementedException();
+            throw new AuthException(AuthResponseStatus.UNSUPPORTED);
         }
 
         public string getName()

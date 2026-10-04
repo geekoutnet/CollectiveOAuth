@@ -59,5 +59,119 @@
          * @since 1.10.0
          */
         public string scope { get; set; }
+
+        /**
+         * 是否需要申请 unionid（JustAuth 中为 boolean，这里兼容字符串配置："true" 忽略大小写视为开启）
+         */
+        public bool isUnionId()
+        {
+            return "true".Equals(unionId?.Trim(), System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        /**
+         * 企业微信，授权方的网页应用ID
+         */
+        public string usertype { get; set; }
+
+        /**
+         * 域名前缀。使用 Coding 登录和 Okta 登录时，需要传该值
+         */
+        public string domainPrefix { get; set; }
+
+        /**
+         * 针对国外服务可以单独设置代理
+         */
+        public HttpConfig httpConfig { get; set; }
+
+        /**
+         * 忽略校验 state 参数，默认不开启
+         */
+        public bool ignoreCheckState { get; set; }
+
+        /**
+         * 支持自定义授权平台的 scope 内容
+         */
+        public System.Collections.Generic.List<string> scopes { get; set; }
+
+        /**
+         * 设备ID, 设备唯一标识ID（喜马拉雅）
+         */
+        public string deviceId { get; set; }
+
+        /**
+         * 喜马拉雅：客户端操作系统类型，1-iOS系统，2-Android系统，3-Web
+         */
+        public int? clientOsType { get; set; }
+
+        /**
+         * 喜马拉雅：客户端包名
+         */
+        public string packId { get; set; }
+
+        /**
+         * 是否开启 PKCE 模式
+         */
+        public bool pkce { get; set; }
+
+        private string _authServerId;
+
+        /**
+         * Okta 授权服务器的 ID，默认为 default
+         */
+        public string authServerId
+        {
+            get { return string.IsNullOrEmpty(_authServerId) ? "default" : _authServerId; }
+            set { _authServerId = value; }
+        }
+
+        /**
+         * 忽略校验 redirectUri 参数，默认不开启
+         */
+        public bool ignoreCheckRedirectUri { get; set; }
+
+        /**
+         * 适配 builder 模式创建 AuthRequest 对象时，Microsoft Entra ID 的 tenantId
+         */
+        public string tenantId { get; set; }
+
+        /**
+         * 苹果开发者账号中的密钥标识符
+         */
+        public string kid { get; set; }
+
+        /**
+         * 苹果开发者账号中的团队ID
+         */
+        public string teamId { get; set; }
+
+        /**
+         * 企业微信扫码登录类型：ServiceApp 服务商登录、CorpApp 企业自建/代开发应用登录
+         */
+        public string loginType { get; set; } = "CorpApp";
+
+        /**
+         * 企业微信扫码登录语言：zh 中文、en 英文
+         */
+        public string lang { get; set; } = "zh";
+
+        /**
+         * 钉钉：控制输出特定类型的组织列表，org_type=management 表示只输出有管理权限的组织
+         */
+        public string dingTalkOrgType { get; set; }
+
+        /**
+         * 钉钉：用于指定用户需要选择的组织
+         */
+        public string dingTalkCorpId { get; set; }
+
+        /**
+         * 钉钉：true 表示专属帐号登录，展示组织代码输入页
+         */
+        public bool dingTalkExclusiveLogin { get; set; }
+
+        /**
+         * 钉钉：开启了专属帐号功能的组织 corpId
+         */
+        public string dingTalkExclusiveCorpId { get; set; }
     }
 }

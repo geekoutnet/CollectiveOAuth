@@ -1,0 +1,77 @@
+{
+  "source": "WECHAT_ENTERPRISE_WEB",
+  "config": { "clientId": "wwcorpid", "clientSecret": "corpsecret", "redirectUri": "https://www.justauth.cn/callback/wechat_enterprise_web", "agentId": "1000002" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"access_token\":\"qy_access_token\",\"expires_in\":7200}",
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"UserId\":\"zhangsan\",\"DeviceId\":\"\",\"user_ticket\":\"USER_TICKET\",\"expires_in\":1800}",
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"userid\":\"zhangsan\",\"name\":\"张三\",\"department\":[1,2],\"order\":[1,2],\"position\":\"产品经理\",\"gender\":\"1\",\"is_leader_in_dept\":[1,0],\"direct_leader\":[\"lisi\"],\"status\":1,\"alias\":\"jackzhang\",\"telephone\":\"020-123456\",\"main_department\":1,\"open_userid\":\"xxxxxx\"}",
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"userid\":\"zhangsan\",\"gender\":\"1\",\"avatar\":\"https://wework.qpic.cn/wwhead/abc/0\",\"qr_code\":\"https://open.work.weixin.qq.com/wwopen/userQRCode?vcode=xxx\",\"mobile\":\"13800000000\",\"email\":\"zhangsan@example.com\",\"biz_mail\":\"zhangsan@qyycs2.wecom.work\",\"address\":\"广州市海珠区新港中路\"}"
+      ]
+    },
+    {
+      "name": "login_success_without_ticket",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"access_token\":\"qy_access_token\",\"expires_in\":7200}",
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"UserId\":\"zhangsan\",\"DeviceId\":\"\"}",
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"userid\":\"zhangsan\",\"name\":\"张三\",\"department\":[1],\"position\":\"产品经理\",\"gender\":\"2\",\"status\":1,\"alias\":\"jackzhang\",\"main_department\":1}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"errcode\":40001,\"errmsg\":\"invalid credential\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"access_token\":\"qy_access_token\",\"expires_in\":7200}",
+        "{\"errcode\":40029,\"errmsg\":\"invalid code\"}"
+      ]
+    },
+    {
+      "name": "login_not_corp_member",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"access_token\":\"qy_access_token\",\"expires_in\":7200}",
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"OpenId\":\"oOPENID789\",\"DeviceId\":\"\"}"
+      ]
+    },
+    {
+      "name": "login_user_detail_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"access_token\":\"qy_access_token\",\"expires_in\":7200}",
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"UserId\":\"zhangsan\",\"user_ticket\":\"USER_TICKET\"}",
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"userid\":\"zhangsan\",\"name\":\"张三\"}",
+        "{\"errcode\":40014,\"errmsg\":\"invalid access_token\"}"
+      ]
+    },
+    {
+      "name": "login_illegal_state",
+      "action": "login",
+      "callback": { "code": "code123", "state": "otherstate" },
+      "responses": []
+    },
+    {
+      "name": "refresh_not_implemented",
+      "action": "refresh",
+      "token": { "accessToken": "qy_access_token" },
+      "responses": []
+    }
+  ]
+}

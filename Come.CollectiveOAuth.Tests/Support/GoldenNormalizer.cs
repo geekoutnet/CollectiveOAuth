@@ -64,12 +64,37 @@ namespace Come.CollectiveOAuth.Tests.Support
             }
             try
             {
-                return Numbers(JToken.Parse(body));
+                return Numbers(IgnoreJson(JToken.Parse(body), ignore, ""));
             }
             catch (JsonReaderException)
             {
                 return body;
             }
+        }
+
+        /// <summary>
+        /// JSON 体中需忽略的字段：ignore 中的字段名匹配任意层级，点分路径（如 metas.timestamp）只匹配对应位置
+        /// </summary>
+        private static JToken IgnoreJson(JToken token, ISet<string> ignore, string path)
+        {
+            if (token is JObject obj)
+            {
+                foreach (var prop in obj.Properties())
+                {
+                    string propPath = path.Length == 0 ? prop.Name : path + "." + prop.Name;
+                    prop.Value = ignore.Contains(prop.Name) || ignore.Contains(propPath)
+                        ? new JValue("<ignored>")
+                        : IgnoreJson(prop.Value, ignore, propPath);
+                }
+            }
+            else if (token is JArray arr)
+            {
+                for (int i = 0; i < arr.Count; i++)
+                {
+                    arr[i] = IgnoreJson(arr[i], ignore, path);
+                }
+            }
+            return token;
         }
 
         public static JObject Headers(IDictionary<string, string> headers, ISet<string> ignore)

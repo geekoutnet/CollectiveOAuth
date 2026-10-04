@@ -34,7 +34,7 @@ namespace Come.CollectiveOAuth.Config
 
         public string getName()
         {
-            return DefaultAuthSourceEnum.KUJIALE.ToString();
+            return DefaultAuthSourceEnum.HUAWEI.ToString();
         }
     }
 }

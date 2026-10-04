@@ -1,6 +1,5 @@
 using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
-using Come.CollectiveOAuth.Enums;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
 using System;
@@ -138,8 +137,6 @@ namespace Come.CollectiveOAuth.Request
             authUser.blog = userInfo.getString("url");
             authUser.location = userInfo.getString("location");
             authUser.email = userInfo.getString("email");
-            // Java 未设置 gender（为 null）；C# 枚举不可空，默认值会成为 FEMALE，这里显式设为 UNKNOWN
-            authUser.gender = AuthUserGender.UNKNOWN;
             authUser.source = source.getName();
             authUser.token = authToken;
             authUser.originalUser = userInfo;

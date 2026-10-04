@@ -1,4 +1,5 @@
 ﻿using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Exceptions;
 
 namespace Come.CollectiveOAuth.Config
 {
@@ -14,22 +15,22 @@ namespace Come.CollectiveOAuth.Config
 
         public string accessToken()
         {
-            throw new System.NotImplementedException(AuthResponseStatus.UNSUPPORTED.GetDesc());
+            throw new AuthException(AuthResponseStatus.UNSUPPORTED);
         }
 
         public string userInfo()
         {
-            return "https://oapi.dingtalk.com/sns/getuserinfo_bycode"; ;
+            return "https://oapi.dingtalk.com/sns/getuserinfo_bycode";
         }
 
         public string revoke()
         {
-            throw new System.NotImplementedException();
+            throw new AuthException(AuthResponseStatus.UNSUPPORTED);
         }
 
         public string refresh()
         {
-            throw new System.NotImplementedException();
+            throw new AuthException(AuthResponseStatus.UNSUPPORTED);
         }
 
         public string getName()

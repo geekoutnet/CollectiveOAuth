@@ -1,0 +1,30 @@
+{
+  "source": "DINGTALK",
+  "config": { "clientId": "dingappkey", "clientSecret": "dingsecret", "redirectUri": "https://www.justauth.cn/callback/dingtalk" },
+  "state": "fixedstate000000000000000000000",
+  "ignore": { "params": ["signature", "timestamp"] },
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "tmpcode123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"errcode\":0,\"errmsg\":\"ok\",\"user_info\":{\"nick\":\"张三\",\"unionid\":\"unionid123\",\"dingId\":\"$:LWCP_v1:$abc\",\"openid\":\"openid123\",\"main_org_auth_high_level\":true}}"
+      ]
+    },
+    {
+      "name": "login_user_error",
+      "action": "login",
+      "callback": { "code": "badcode", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"errcode\":40078,\"errmsg\":\"不存在的临时授权码\"}"
+      ]
+    },
+    {
+      "name": "login_illegal_state",
+      "action": "login",
+      "callback": { "code": "tmpcode123", "state": "otherstate" },
+      "responses": []
+    }
+  ]
+}

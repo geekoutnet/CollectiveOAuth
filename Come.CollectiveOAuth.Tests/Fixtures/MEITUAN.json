@@ -1,0 +1,49 @@
+{
+  "source": "MEITUAN",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/meituan" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"mt_at\",\"expires_in\":2592000,\"refresh_token\":\"mt_rt\"}",
+        "{\"openid\":\"mt_openid\",\"nickname\":\"美团用户\",\"avatar\":\"https://img.meituan.net/a.jpg\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error_code\":1001,\"erroe_msg\":\"invalid code\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"mt_at\",\"expires_in\":2592000,\"refresh_token\":\"mt_rt\"}",
+        "{\"error_code\":1002,\"erroe_msg\":\"invalid token\"}"
+      ]
+    },
+    {
+      "name": "refresh_success",
+      "action": "refresh",
+      "token": { "refreshToken": "mt_rt" },
+      "responses": [
+        "{\"access_token\":\"mt_at2\",\"expires_in\":2592000,\"refresh_token\":\"mt_rt2\"}"
+      ]
+    },
+    {
+      "name": "refresh_error",
+      "action": "refresh",
+      "token": { "refreshToken": "bad" },
+      "responses": [
+        "{\"error_code\":1003,\"erroe_msg\":\"invalid refresh token\"}"
+      ]
+    }
+  ]
+}

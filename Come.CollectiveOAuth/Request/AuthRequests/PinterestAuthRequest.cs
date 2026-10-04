@@ -1,15 +1,21 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Enums.Scope;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
-using System;
-using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
+using Newtonsoft.Json.Linq;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * Pinterest登录，对齐 JustAuth AuthPinterestRequest
+     */
     public class PinterestAuthRequest : DefaultAuthRequest
     {
+        private const string FAILURE = "failure";
+
         public PinterestAuthRequest(ClientConfig config) : base(config, new PinterestAuthSource())
         {
         }
@@ -21,54 +27,49 @@ namespace Come.CollectiveOAuth.Request
 
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
-            var response = doPostAuthorizationCode(authCallback.code);
-            var accessTokenObject = response.parseObject();
+            string response = doPostAuthorizationCode(authCallback.code);
+            var accessTokenObject = JsonExtensions.parseObject(response);
             this.checkResponse(accessTokenObject);
 
-            var authToken = new AuthToken
-            {
-                accessToken = accessTokenObject.getString("access_token"),
-                tokenType = accessTokenObject.getString("token_type"),
-                code = authCallback.code
-            };
-
+            var authToken = new AuthToken();
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.tokenType = accessTokenObject.getString("token_type");
             return authToken;
         }
 
-        
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
             string userinfoUrl = userInfoUrl(authToken);
-            var response = HttpUtils.RequestGet(userinfoUrl);
-            var responseObj = response.parseObject();
-            this.checkResponse(responseObj);
-
-            var userObj = responseObj.getString("data").parseObject();
+            string response = HttpUtils.RequestGet(userinfoUrl, null, config.httpConfig);
+            var obj = JsonExtensions.parseObject(response);
+            this.checkResponse(obj);
+            var userObj = obj.getJSONObject("data");
 
             var authUser = new AuthUser();
+            authUser.rawUserInfo = userObj;
             authUser.uuid = userObj.getString("id");
-            authUser.username = userObj.getString("username");
-            authUser.nickname = userObj.getString("first_name") + userObj.getString("last_name");
             authUser.avatar = getAvatarUrl(userObj);
-            authUser.remark = userObj.getString("bio");
+            authUser.username = userObj.getString("username");
+            // 与 Java 字符串拼接一致：null 输出为 "null"
+            authUser.nickname = (userObj.getString("first_name") ?? "null") + " " + (userObj.getString("last_name") ?? "null");
             authUser.gender = AuthUserGender.UNKNOWN;
+            authUser.remark = userObj.getString("bio");
             authUser.token = authToken;
             authUser.source = source.getName();
-            authUser.originalUser = responseObj;
+            authUser.originalUser = userObj;
             authUser.originalUserStr = response;
             return authUser;
         }
 
-
-        private string getAvatarUrl(Dictionary<string, object> userObj)
+        private string getAvatarUrl(JObject userObj)
         {
             // image is a map data structure
-            var jsonObject = userObj.getString("image").parseObject();
-            if (jsonObject.Count == 0)
+            var jsonObject = userObj.getJSONObject("image");
+            if (jsonObject == null)
             {
                 return null;
             }
-            return jsonObject.getString("60x60").parseObject().getString("url");
+            return jsonObject.getJSONObject("60x60").getString("url");
         }
 
         /**
@@ -80,12 +81,8 @@ namespace Come.CollectiveOAuth.Request
          */
         public override string authorize(string state)
         {
-            return UrlBuilder.fromBaseUrl(source.authorize())
-                .queryParam("response_type", "code")
-                .queryParam("client_id", config.clientId)
-                .queryParam("redirect_uri", config.redirectUri)
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "read_public": config.scope)
-                .queryParam("state", getRealState(state))
+            return UrlBuilder.fromBaseUrl(base.authorize(state))
+                .queryParam("scope", this.getScopes(",", false, AuthScopeUtils.getDefaultScopes(AuthPinterestScope.values())))
                 .build();
         }
 
@@ -103,17 +100,18 @@ namespace Come.CollectiveOAuth.Request
                 .build();
         }
 
-
         /**
          * 检查响应内容是否正确
+         * <p>
+         * 注意：与 JustAuth 1.16.7 原样一致，该条件恒为 false（不含 status 时 status 不可能等于 failure），即实际不会抛出异常
          *
          * @param object 请求响应内容
          */
-        private void checkResponse(Dictionary<string, object> dic)
+        private void checkResponse(JObject obj)
         {
-            if (dic.ContainsKey("status") && "failure".Equals(dic.getString("status")))
+            if (!obj.containsKey("status") && FAILURE.Equals(obj.getString("status")))
             {
-                throw new Exception($"{dic.getString("message")}");
+                throw new AuthException(obj.getString("message"));
             }
         }
     }

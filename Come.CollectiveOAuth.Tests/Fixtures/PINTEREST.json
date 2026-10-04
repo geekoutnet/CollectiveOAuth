@@ -1,0 +1,34 @@
+{
+  "source": "PINTEREST",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/pinterest" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"AfL0xyz\",\"token_type\":\"bearer\",\"scope\":[\"read_public\"]}",
+        "{\"data\":{\"id\":\"519180944\",\"username\":\"pinuser\",\"first_name\":\"Pin\",\"last_name\":\"User\",\"bio\":\"hello pinterest\",\"image\":{\"60x60\":{\"url\":\"https://i.pinimg.com/60x60_RS/abc.jpg\",\"width\":60,\"height\":60}}}}"
+      ]
+    },
+    {
+      "name": "login_success_without_image",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"AfL0xyz\",\"token_type\":\"bearer\"}",
+        "{\"data\":{\"id\":\"519180944\",\"username\":\"pinuser\",\"first_name\":\"Pin\",\"last_name\":\"User\"}}"
+      ]
+    },
+    {
+      "name": "login_failure_status_not_checked",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"status\":\"failure\",\"code\":3,\"message\":\"Authorization failed.\",\"data\":null}",
+        "{\"data\":{\"id\":\"519180944\",\"username\":\"pinuser\",\"first_name\":\"Pin\",\"last_name\":\"User\"}}"
+      ]
+    }
+  ]
+}

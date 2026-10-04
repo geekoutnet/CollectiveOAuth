@@ -30,6 +30,7 @@ namespace Come.CollectiveOAuth.Tests.Support
                 { "GOOGLE", (c, s) => new GoogleAuthRequest(c, s) },
                 { "FACEBOOK", (c, s) => new FackbookAuthRequest(c, s) },
                 { "MICROSOFT", (c, s) => new MicrosoftAuthRequest(c, s) },
+                { "PINTEREST", (c, s) => new PinterestAuthRequest(c, s) },
 
 
                 // ===== 批次 E =====

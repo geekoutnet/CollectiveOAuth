@@ -1,13 +1,19 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Enums.Scope;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * 华为登录，对齐 JustAuth AuthHuaweiRequest
+     */
     public class HuaweiAuthRequest : DefaultAuthRequest
     {
         public HuaweiAuthRequest(ClientConfig config) : base(config, new HuaweiAuthSource())
@@ -19,147 +25,93 @@ namespace Come.CollectiveOAuth.Request
         {
         }
 
-        /**
-        * 获取access token
-        *
-        * @param authCallback 授权成功后的回调参数
-        * @return token
-        * @see AuthDefaultRequest#authorize()
-        * @see AuthDefaultRequest#authorize(String)
-        */
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
-            var reqParams = new Dictionary<string, object>
+            var form = new Dictionary<string, string>
             {
                 { "grant_type", "authorization_code" },
                 { "code", authCallback.authorization_code },
                 { "client_id", config.clientId },
                 { "client_secret", config.clientSecret },
-                { "redirect_uri", config.redirectUri },
+                { "redirect_uri", config.redirectUri }
             };
 
-            var response = HttpUtils.RequestFormPost(source.accessToken(), reqParams.spellParams(true));
-
+            string response = HttpUtils.RequestFormPost(source.accessToken(), GlobalAuthUtil.parseMapToString(form, true), null, null, config.httpConfig);
             return getAuthToken(response);
         }
 
-        /**
-         * 使用token换取用户信息
-         *
-         * @param authToken token信息
-         * @return 用户信息
-         * @see AuthDefaultRequest#getAccessToken(AuthCallback)
-         */
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
-            var reqParams = new Dictionary<string, object>
+            var form = new Dictionary<string, string>
             {
-                { "nsp_ts", DateTime.Now.Ticks },
+                { "nsp_ts", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString() },
                 { "access_token", authToken.accessToken },
                 { "nsp_fmt", "JS" },
-                { "nsp_svc", "OpenUP.User.getInfo" },
+                { "open_id", "OPENID" },
+                { "nsp_svc", "huawei.oauth2.user.getTokenInfo" }
             };
 
-            var response = HttpUtils.RequestFormPost(source.userInfo(), reqParams.spellParams(true));
-            var userObj = response.parseObject();
+            string response = HttpUtils.RequestFormPost(source.userInfo(), GlobalAuthUtil.parseMapToString(form, true), null, null, config.httpConfig);
+            var obj = JsonExtensions.parseObject(response);
 
-            this.checkResponse(userObj);
+            this.checkResponse(obj);
 
-            AuthUserGender gender = getRealGender(userObj);
+            AuthUserGender gender = getRealGender(obj);
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.getString("userID");
-            authUser.username = userObj.getString("userName");
-            authUser.nickname = userObj.getString("userName");
+            authUser.rawUserInfo = obj;
+            authUser.uuid = obj.getString("userID");
+            authUser.username = obj.getString("userName");
+            authUser.nickname = obj.getString("userName");
             authUser.gender = gender;
-            authUser.avatar = userObj.getString("headPictureURL");
-          
+            authUser.avatar = obj.getString("headPictureURL");
             authUser.token = authToken;
             authUser.source = source.getName();
-            authUser.originalUser = userObj;
+            authUser.originalUser = obj;
             authUser.originalUserStr = response;
             return authUser;
         }
 
-        /**
-         * 刷新access token （续期）
-         *
-         * @param authToken 登录成功后返回的Token信息
-         * @return AuthResponse
-         */
         public override AuthResponse refresh(AuthToken authToken)
         {
-            var reqParams = new Dictionary<string, object>
+            var form = new Dictionary<string, string>
             {
                 { "client_id", config.clientId },
                 { "client_secret", config.clientSecret },
                 { "refresh_token", authToken.refreshToken },
-                { "grant_type", "refresh_token" },
+                { "grant_type", "refresh_token" }
             };
-            var response = HttpUtils.RequestFormPost(source.refresh(), reqParams.spellParams(true));
 
-            return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), AuthResponseStatus.SUCCESS.GetDesc(), getAuthToken(response));
+            string response = HttpUtils.RequestFormPost(source.refresh(), GlobalAuthUtil.parseMapToString(form, true), null, null, config.httpConfig);
+            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getAuthToken(response));
         }
 
         private AuthToken getAuthToken(string response)
         {
-            var authTokenObj = response.parseObject();
+            var obj = JsonExtensions.parseObject(response);
 
-            this.checkResponse(authTokenObj);
+            this.checkResponse(obj);
 
             var authToken = new AuthToken();
-            authToken.accessToken = authTokenObj.getString("access_token");
-            authToken.refreshToken = authTokenObj.getString("refresh_token");
-            authToken.expireIn = authTokenObj.getInt32("expires_in");
+            authToken.accessToken = obj.getString("access_token");
+            authToken.expireIn = obj.getIntValue("expires_in");
+            authToken.refreshToken = obj.getString("refresh_token");
             return authToken;
         }
 
-        /**
-         * 返回带{@code state}参数的授权url，授权回调时会带上这个{@code state}
-         *
-         * @param state state 验证授权流程的参数，可以防止csrf
-         * @return 返回授权地址
-         * @since 1.9.3
-         */
         public override string authorize(string state)
         {
-            return UrlBuilder.fromBaseUrl(source.authorize())
-                .queryParam("response_type", "code")
-                .queryParam("client_id", config.clientId)
-                .queryParam("redirect_uri", config.redirectUri)
+            // Java 版传 encode=true 后交给不编码的 UrlBuilder；C# UrlBuilder 默认编码，这里传原值
+            return UrlBuilder.fromBaseUrl(base.authorize(state))
                 .queryParam("access_type", "offline")
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "https://www.huawei.com/auth/account/base.profile" : config.scope)
-                .queryParam("state", getRealState(state))
+                .queryParam("scope", this.getScopes(" ", false, AuthScopeUtils.getDefaultScopes(AuthHuaweiScope.values())))
                 .build();
         }
 
-        /**
-         * 返回获取accessToken的url
-         *
-         * @param code 授权码
-         * @return 返回获取accessToken的url
-         */
-        protected override string accessTokenUrl(string code)
-        {
-            return UrlBuilder.fromBaseUrl(source.accessToken())
-                .queryParam("grant_type", "authorization_code")
-                .queryParam("code", code)
-                .queryParam("client_id", config.clientId)
-                .queryParam("client_secret", config.clientSecret)
-                .queryParam("redirect_uri", config.redirectUri)
-                .build();
-        }
-
-        /**
-         * 返回获取userInfo的url
-         *
-         * @param authToken token
-         * @return 返回获取userInfo的url
-         */
         protected override string userInfoUrl(AuthToken authToken)
         {
             return UrlBuilder.fromBaseUrl(source.userInfo())
-                .queryParam("nsp_ts", DateTime.Now.Ticks)
+                .queryParam("nsp_ts", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())
                 .queryParam("access_token", authToken.accessToken)
                 .queryParam("nsp_fmt", "JS")
                 .queryParam("nsp_svc", "OpenUP.User.getInfo")
@@ -168,31 +120,26 @@ namespace Come.CollectiveOAuth.Request
 
         /**
          * 获取用户的实际性别。华为系统中，用户的性别：1表示女，0表示男
-         *
-         * @param object obj
-         * @return AuthUserGender
          */
-        private AuthUserGender getRealGender(Dictionary<string, object> userObj)
+        private AuthUserGender getRealGender(JObject obj)
         {
-            int genderCodeInt = userObj.getInt32("gender");
+            int genderCodeInt = obj.getIntValue("gender");
             string genderCode = genderCodeInt == 1 ? "0" : (genderCodeInt == 0) ? "1" : genderCodeInt + "";
             return GlobalAuthUtil.getRealGender(genderCode);
         }
 
         /**
          * 校验响应结果
-         *
-         * @param object 接口返回的结果
          */
-        private void checkResponse(Dictionary<string, object> dic)
+        private void checkResponse(JObject obj)
         {
-            if (dic.ContainsKey("NSP_STATUS"))
+            if (obj.containsKey("NSP_STATUS"))
             {
-                throw new Exception(dic.getString("error"));
+                throw new AuthException(obj.getString("error"));
             }
-            if (dic.ContainsKey("error"))
+            if (obj.containsKey("error"))
             {
-                throw new Exception(dic.getString("sub_error") + ":" + dic.getString("error_description"));
+                throw new AuthException(GlobalAuthUtil.javaValueOf(obj.getString("sub_error")) + ":" + GlobalAuthUtil.javaValueOf(obj.getString("error_description")));
             }
         }
     }

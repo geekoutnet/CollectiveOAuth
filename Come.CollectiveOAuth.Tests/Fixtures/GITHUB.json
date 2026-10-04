@@ -1,0 +1,36 @@
+{
+  "source": "GITHUB",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/github" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "access_token=gho_abc&scope=user&token_type=bearer",
+        "{\"login\":\"octocat\",\"id\":583231,\"avatar_url\":\"https://avatars.githubusercontent.com/u/583231?v=4\",\"name\":\"The Octocat\",\"company\":\"@github\",\"blog\":\"https://github.blog\",\"location\":\"San Francisco\",\"email\":null,\"bio\":null,\"public_repos\":8,\"site_admin\":false}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "error=bad_verification_code&error_description=The+code+passed+is+incorrect+or+expired.&error_uri=https%3A%2F%2Fdocs.github.com"
+      ]
+    },
+    {
+      "name": "login_illegal_state",
+      "action": "login",
+      "callback": { "code": "code123", "state": "otherstate" },
+      "responses": []
+    },
+    {
+      "name": "login_missing_code",
+      "action": "login",
+      "callback": { "state": "fixedstate000000000000000000000" },
+      "responses": []
+    }
+  ]
+}

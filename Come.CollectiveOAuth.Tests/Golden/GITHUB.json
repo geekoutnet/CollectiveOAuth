@@ -1,0 +1,88 @@
+{
+	"source":"GITHUB",
+	"authorizeUrl":"https://github.com/login/oauth/authorize?response_type=code&client_id=cid&redirect_uri=https://www.justauth.cn/callback/github&state=fixedstate000000000000000000000&scope=",
+	"scenarios":[
+		{
+			"name":"login_success",
+			"result":{
+				"code":2000,
+				"data":{
+					"gender":"UNKNOWN",
+					"avatar":"https://avatars.githubusercontent.com/u/583231?v=4",
+					"source":"GITHUB",
+					"blog":"https://github.blog",
+					"uuid":"583231",
+					"rawUserInfo":{
+						"avatar_url":"https://avatars.githubusercontent.com/u/583231?v=4",
+						"name":"The Octocat",
+						"site_admin":false,
+						"company":"@github",
+						"location":"San Francisco",
+						"id":583231,
+						"public_repos":8,
+						"login":"octocat",
+						"blog":"https://github.blog"
+					},
+					"token":{
+						"accessToken":"gho_abc",
+						"snapshotUser":false,
+						"scope":"user",
+						"refreshTokenExpireIn":0,
+						"expireIn":0,
+						"tokenType":"bearer"
+					},
+					"snapshotUser":false,
+					"nickname":"The Octocat",
+					"company":"@github",
+					"location":"San Francisco",
+					"username":"octocat"
+				}
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://github.com/login/oauth/access_token?code=code123&client_id=cid&client_secret=csecret&grant_type=authorization_code&redirect_uri=https://www.justauth.cn/callback/github",
+					"headers":{}
+				},
+				{
+					"method":"GET",
+					"url":"https://api.github.com/user",
+					"encode":false,
+					"headers":{
+						"Authorization":"token gho_abc"
+					}
+				}
+			]
+		},
+		{
+			"name":"login_token_error",
+			"result":{
+				"msg":"The code passed is incorrect or expired.",
+				"code":5000
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://github.com/login/oauth/access_token?code=bad&client_id=cid&client_secret=csecret&grant_type=authorization_code&redirect_uri=https://www.justauth.cn/callback/github",
+					"headers":{}
+				}
+			]
+		},
+		{
+			"name":"login_illegal_state",
+			"result":{
+				"msg":"Illegal state [GITHUB]",
+				"code":5009
+			},
+			"requests":[]
+		},
+		{
+			"name":"login_missing_code",
+			"result":{
+				"msg":"Illegal code [GITHUB]",
+				"code":5008
+			},
+			"requests":[]
+		}
+	]
+}

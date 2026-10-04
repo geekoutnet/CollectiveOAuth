@@ -145,3 +145,5 @@ source/src/Orchard.Web/App_Data/Dependencies/
 Come.Web.Sample/packages/
 Come.Web.Sample/.vs/
 .vs/
+
+tools/justauth-golden/target/

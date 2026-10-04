@@ -1,0 +1,49 @@
+{
+  "source": "DOUYIN",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/douyin" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"data\":{\"access_token\":\"act.abc\",\"description\":\"\",\"error_code\":0,\"expires_in\":1296000,\"open_id\":\"openid123\",\"refresh_expires_in\":2592000,\"refresh_token\":\"rft.abc\",\"scope\":\"user_info\"},\"message\":\"success\"}",
+        "{\"data\":{\"avatar\":\"https://p3.douyinpic.com/a.jpeg\",\"avatar_larger\":\"https://p3.douyinpic.com/b.jpeg\",\"client_key\":\"cid\",\"description\":\"个人简介\",\"e_account_role\":\"\",\"error_code\":0,\"nickname\":\"抖音用户\",\"open_id\":\"openid123\",\"union_id\":\"unionid123\",\"gender\":1,\"country\":\"中国\",\"province\":\"浙江\"},\"message\":\"success\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"data\":{\"captcha\":\"\",\"desc_url\":\"\",\"description\":\"Parameter error\",\"error_code\":2100005},\"message\":\"error\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"data\":{\"access_token\":\"act.abc\",\"description\":\"\",\"error_code\":0,\"expires_in\":1296000,\"open_id\":\"openid123\",\"refresh_expires_in\":2592000,\"refresh_token\":\"rft.abc\",\"scope\":\"user_info\"},\"message\":\"success\"}",
+        "{\"data\":{\"description\":\"access_token无效\",\"error_code\":2190008},\"extra\":{\"logid\":\"abc\"},\"message\":\"success\"}"
+      ]
+    },
+    {
+      "name": "refresh_success",
+      "action": "refresh",
+      "token": { "refreshToken": "rft.abc" },
+      "responses": [
+        "{\"data\":{\"access_token\":\"act.new\",\"description\":\"\",\"error_code\":0,\"expires_in\":1296000,\"open_id\":\"openid123\",\"refresh_expires_in\":2592000,\"refresh_token\":\"rft.new\",\"scope\":\"user_info\"},\"message\":\"success\"}"
+      ]
+    },
+    {
+      "name": "refresh_error",
+      "action": "refresh",
+      "token": { "refreshToken": "rft.bad" },
+      "responses": [
+        "{\"data\":{\"description\":\"refresh_token过期\",\"error_code\":10010},\"message\":\"error\"}"
+      ]
+    }
+  ]
+}

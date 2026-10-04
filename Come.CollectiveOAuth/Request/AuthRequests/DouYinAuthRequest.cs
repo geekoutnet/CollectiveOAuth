@@ -1,13 +1,18 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Enums.Scope;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * 抖音登录，对齐 JustAuth AuthDouyinRequest
+     */
     public class DouyinAuthRequest : DefaultAuthRequest
     {
         public DouyinAuthRequest(ClientConfig config) : base(config, new DouyinAuthSource())
@@ -27,84 +32,82 @@ namespace Come.CollectiveOAuth.Request
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
             string response = doGetUserInfo(authToken);
-            var userInfoObject = response.parseObject();
+            var userInfoObject = JsonExtensions.parseObject(response);
             this.checkResponse(userInfoObject);
-            var userObj = userInfoObject.getString("data").parseObject();
+            var obj = userInfoObject.getJSONObject("data");
+            authToken.unionId = obj.getString("union_id");
 
-            var location = $"{userObj.getString("country")}-{userObj.getString("province")}-{userObj.getString("city")}";
             var authUser = new AuthUser();
-            authUser.uuid = userObj.getString("union_id");
-            authUser.username = userObj.getString("nickname");
-            authUser.nickname = userObj.getString("nickname");
-            authUser.avatar = userObj.getString("avatar");
-            authUser.location = location;
-            authUser.remark = userObj.getString("description");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("gender"));
-
+            authUser.rawUserInfo = obj;
+            authUser.uuid = obj.getString("union_id");
+            authUser.username = obj.getString("nickname");
+            authUser.nickname = obj.getString("nickname");
+            authUser.avatar = obj.getString("avatar");
+            authUser.remark = obj.getString("description");
+            authUser.gender = GlobalAuthUtil.getRealGender(obj.getString("gender"));
+            // 与 Java String.format("%s %s %s") 一致，null 输出为 "null"
+            authUser.location = string.Format("{0} {1} {2}",
+                GlobalAuthUtil.javaValueOf(obj.getString("country")),
+                GlobalAuthUtil.javaValueOf(obj.getString("province")),
+                GlobalAuthUtil.javaValueOf(obj.getString("city")));
             authUser.token = authToken;
             authUser.source = source.getName();
-            authUser.originalUser = userObj;
+            authUser.originalUser = obj;
             authUser.originalUserStr = response;
             return authUser;
         }
 
         public override AuthResponse refresh(AuthToken oldToken)
         {
-            var data = getToken(refreshTokenUrl(oldToken.refreshToken));
-            return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), AuthResponseStatus.SUCCESS.GetDesc(), data);
+            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(refreshTokenUrl(oldToken.refreshToken)));
         }
 
+        /**
+         * 检查响应内容是否正确
+         */
+        private void checkResponse(JObject obj)
+        {
+            string message = obj.getString("message");
+            var data = obj.getJSONObject("data");
+            int errorCode = data.getIntValue("error_code");
+            if ("error".Equals(message) || errorCode != 0)
+            {
+                throw new AuthException(errorCode, data.getString("description"));
+            }
+        }
 
         /**
          * 获取token，适用于获取access_token和刷新token
-         *
-         * @param accessTokenUrl 实际请求token的地址
-         * @return token对象
          */
         private AuthToken getToken(string accessTokenUrl)
         {
-            var response = HttpUtils.RequestPost(accessTokenUrl);
-            string accessTokenStr = response;
-            var tokenObj = accessTokenStr.parseObject();
-            this.checkResponse(tokenObj);
-            var accessTokenObject = tokenObj.getString("data").parseObject();
+            string response = HttpUtils.RequestPost(accessTokenUrl, null, null, null, config.httpConfig);
+            var obj = JsonExtensions.parseObject(response);
+            this.checkResponse(obj);
+            var dataObj = obj.getJSONObject("data");
 
-            var authToken = new AuthToken
-            {
-                accessToken = accessTokenObject.getString("access_token"),
-                openId = accessTokenObject.getString("open_id"),
-                expireIn = accessTokenObject.getInt32("token_type"),
-                refreshToken = accessTokenObject.getString("refresh_token"),
-                scope = accessTokenObject.getString("scope")
-            };
-
+            var authToken = new AuthToken();
+            authToken.accessToken = dataObj.getString("access_token");
+            authToken.openId = dataObj.getString("open_id");
+            authToken.expireIn = dataObj.getIntValue("expires_in");
+            authToken.refreshToken = dataObj.getString("refresh_token");
+            authToken.refreshTokenExpireIn = dataObj.getIntValue("refresh_expires_in");
+            authToken.scope = dataObj.getString("scope");
             return authToken;
         }
 
-        /**
-         * 返回带{@code state}参数的授权url，授权回调时会带上这个{@code state}
-         *
-         * @param state state 验证授权流程的参数，可以防止csrf
-         * @return 返回授权地址
-         * @since 1.9.3
-         */
-    public override string authorize(string state)
+        public override string authorize(string state)
         {
+            // Java 版传 encode=true 后交给不编码的 UrlBuilder；C# UrlBuilder 默认编码，这里传原值
             return UrlBuilder.fromBaseUrl(source.authorize())
                 .queryParam("response_type", "code")
                 .queryParam("client_key", config.clientId)
                 .queryParam("redirect_uri", config.redirectUri)
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "user_info" : config.scope)
+                .queryParam("scope", this.getScopes(",", false, AuthScopeUtils.getDefaultScopes(AuthDouyinScope.values())))
                 .queryParam("state", getRealState(state))
                 .build();
         }
 
-        /**
-         * 返回获取accessToken的url
-         *
-         * @param code oauth的授权码
-         * @return 返回获取accessToken的url
-         */
         protected override string accessTokenUrl(string code)
         {
             return UrlBuilder.fromBaseUrl(source.accessToken())
@@ -115,12 +118,6 @@ namespace Come.CollectiveOAuth.Request
                 .build();
         }
 
-        /**
-         * 返回获取userInfo的url
-         *
-         * @param authToken oauth返回的token
-         * @return 返回获取userInfo的url
-         */
         protected override string userInfoUrl(AuthToken authToken)
         {
             return UrlBuilder.fromBaseUrl(source.userInfo())
@@ -129,12 +126,6 @@ namespace Come.CollectiveOAuth.Request
                 .build();
         }
 
-        /**
-         * 返回获取accessToken的url
-         *
-         * @param refreshToken oauth返回的refreshtoken
-         * @return 返回获取accessToken的url
-         */
         protected override string refreshTokenUrl(string refreshToken)
         {
             return UrlBuilder.fromBaseUrl(source.refresh())
@@ -142,22 +133,6 @@ namespace Come.CollectiveOAuth.Request
                 .queryParam("refresh_token", refreshToken)
                 .queryParam("grant_type", "refresh_token")
                 .build();
-        }
-        /**
-       * 校验请求结果
-       *
-       * @param response 请求结果
-       * @return 如果请求结果正常，则返回Exception
-       */
-        private void checkResponse(Dictionary<string, object> dic)
-        {
-            string message = dic.getString("message");
-            var data = dic.getString("data").parseObject();
-            int errorCode = data.getInt32("error_code");
-            if ("error".Equals(message) || errorCode != 0)
-            {
-                throw new Exception(data.getString("description"));
-            }
         }
     }
 }

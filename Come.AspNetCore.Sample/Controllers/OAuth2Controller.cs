@@ -9,6 +9,7 @@ using Come.CollectiveOAuth.Utils;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Exceptions;
 using Newtonsoft.Json;
 
 namespace Come.AspNetCore.Sample.Controllers
@@ -34,7 +35,9 @@ namespace Come.AspNetCore.Sample.Controllers
         /// </summary>
         private IActionResult UnsupportedResult(Exception e)
         {
-            var authResponse = new AuthResponse(Convert.ToInt32(AuthResponseStatus.UNSUPPORTED), e.Message);
+            // 库内抛出的 AuthException 保留其错误码（如配置不全 5002），其余按不支持的平台处理
+            var code = e is AuthException authException ? authException.errorCode : Convert.ToInt32(AuthResponseStatus.UNSUPPORTED);
+            var authResponse = new AuthResponse(code, e.Message);
             return Content(JsonConvert.SerializeObject(authResponse));
         }
 

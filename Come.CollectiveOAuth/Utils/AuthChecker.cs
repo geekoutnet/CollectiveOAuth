@@ -1,114 +1,103 @@
-﻿using System;
-using System.Linq;
-using Come.CollectiveOAuth.Cache;
+﻿using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
 using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 
 namespace Come.CollectiveOAuth.Utils
 {
     public class AuthChecker
     {
+        private static string nameOf(IAuthSource source)
+        {
+            return AuthSourceNames.toJustAuthName(source.getName().ToUpper());
+        }
+
         /**
-      * 是否支持第三方登录
-      *
-      * @param config config
-      * @param source source
-      * @return true or false
-      * @since 1.6.1-beta
-      */
+         * 是否支持第三方登录
+         */
         public static bool isSupportedAuth(ClientConfig config, IAuthSource source)
         {
-
-            bool isSupported = !string.IsNullOrWhiteSpace(config.clientId) && !string.IsNullOrWhiteSpace(config.clientSecret) && !string.IsNullOrWhiteSpace(config.redirectUri);
-            /*if (isSupported && DefaultAuthSource.ALIPAY == source)
+            string name = nameOf(source);
+            bool isSupported = !string.IsNullOrEmpty(config.clientId) && !string.IsNullOrEmpty(config.clientSecret);
+            if (isSupported && "STACK_OVERFLOW" == name)
             {
-                isSupported = StringUtils.isNotEmpty(config.getAlipayPublicKey());
+                isSupported = !string.IsNullOrEmpty(config.stackOverflowKey);
             }
-            if (isSupported && AuthDefaultSource.STACK_OVERFLOW == source)
+            if (isSupported && "WECHAT_ENTERPRISE" == name)
             {
-                isSupported = StringUtils.isNotEmpty(config.getStackOverflowKey());
+                isSupported = !string.IsNullOrEmpty(config.agentId);
             }
-            if (isSupported && AuthDefaultSource.WECHAT_ENTERPRISE == source)
+            if (isSupported && ("CODING" == name || "OKTA" == name))
             {
-                isSupported = StringUtils.isNotEmpty(config.getAgentId());
-            }*/
-
-           
-
+                isSupported = !string.IsNullOrEmpty(config.domainPrefix);
+            }
+            if (isSupported && "XMLY" == name)
+            {
+                isSupported = !string.IsNullOrEmpty(config.deviceId) && config.clientOsType != null;
+                if (isSupported)
+                {
+                    isSupported = config.clientOsType == 3 || !string.IsNullOrEmpty(config.packId);
+                }
+            }
             return isSupported;
         }
 
-
         /**
-         * 检查配置合法性。针对部分平台， 对redirect uri有特定要求。一般来说redirect uri都是http://，而对于facebook平台， redirect uri 必须是https的链接
-         *
-         * @param config config
-         * @param source source
-         * @since 1.6.1-beta
+         * 检查配置合法性
          */
         public static void checkConfig(ClientConfig config, IAuthSource source)
         {
             string redirectUri = config.redirectUri;
+            if (config.ignoreCheckRedirectUri)
+            {
+                return;
+            }
+            if (string.IsNullOrEmpty(redirectUri))
+            {
+                throw new AuthException(AuthResponseStatus.ILLEGAL_REDIRECT_URI, source);
+            }
             if (!GlobalAuthUtil.isHttpProtocol(redirectUri) && !GlobalAuthUtil.isHttpsProtocol(redirectUri))
             {
-                throw new Exception(AuthResponseStatus.ILLEGAL_REDIRECT_URI.GetDesc());
-            }
-            // facebook的回调地址必须为https的链接
-            if ("FACEBOOK".Equals(source.getName().ToUpper()) && !GlobalAuthUtil.isHttpsProtocol(redirectUri))
-            {
-                // Facebook's redirect uri must use the HTTPS protocol
-                throw new Exception(AuthResponseStatus.ILLEGAL_REDIRECT_URI.GetDesc());
-            }
-            // 支付宝在创建回调地址时，不允许使用localhost或者127.0.0.1
-            if ("ALIPAY".Equals(source.getName().ToUpper()) && GlobalAuthUtil.isLocalHost(redirectUri))
-            {
-                // The redirect uri of alipay is forbidden to use localhost or 127.0.0.1
-                throw new Exception(AuthResponseStatus.ILLEGAL_REDIRECT_URI.GetDesc());
+                throw new AuthException(AuthResponseStatus.ILLEGAL_REDIRECT_URI, source);
             }
         }
 
         /**
          * 校验回调传回的code
-         * <p>
-         * {@code v1.10.0}版本中改为传入{@code source}和{@code callback}，对于不同平台使用不同参数接受code的情况统一做处理
-         *
-         * @param source   当前授权平台
-         * @param callback 从第三方授权回调回来时传入的参数集合
-         * @since 1.8.0
          */
         public static void checkCode(IAuthSource source, AuthCallback callback)
         {
-            string code = callback.code;
-            if (source.getName().ToUpper().Equals(DefaultAuthSourceEnum.ALIPAY_MP.ToString()))
+            string name = nameOf(source);
+            // 推特平台不支持回调 code 和 state
+            if ("TWITTER" == name)
             {
-                code = callback.auth_code;
+                return;
             }
-            else if ("HUAWEI".Equals(source.getName().ToUpper()))
+            string code = callback.code;
+            if (string.IsNullOrEmpty(code) && "HUAWEI" == name)
             {
                 code = callback.authorization_code;
             }
-            if (string.IsNullOrWhiteSpace(code))
+            if (string.IsNullOrEmpty(code))
             {
-                throw new Exception(AuthResponseStatus.ILLEGAL_CODE.GetDesc());
+                throw new AuthException(AuthResponseStatus.ILLEGAL_CODE, source);
             }
         }
 
         /**
-         * 校验回调传回的{@code state}，为空或者不存在
-         * <p>
-         * {@code state}不存在的情况只有两种：
-         * 1. {@code state}已使用，被正常清除
-         * 2. {@code state}为前端伪造，本身就不存在
-         *
-         * @param state          {@code state}一定不为空
-         * @param authStateCache {@code authStateCache} state缓存实现
+         * 校验回调传回的state，为空或者不存在
          */
         public static void checkState(string state, IAuthSource source, IAuthStateCache authStateCache)
         {
-            if (string.IsNullOrWhiteSpace(state) || !authStateCache.containsKey(state))
+            // 推特平台不支持回调 code 和 state
+            if ("TWITTER" == nameOf(source))
             {
-                throw new Exception(AuthResponseStatus.ILLEGAL_STATUS.GetDesc());
+                return;
+            }
+            if (string.IsNullOrEmpty(state) || !authStateCache.containsKey(state))
+            {
+                throw new AuthException(AuthResponseStatus.ILLEGAL_STATUS, source);
             }
         }
     }

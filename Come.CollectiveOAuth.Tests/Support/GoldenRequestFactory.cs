@@ -17,6 +17,7 @@ namespace Come.CollectiveOAuth.Tests.Support
                 { "GITHUB", (c, s) => new GithubAuthRequest(c, s) },
 
                 // ===== 批次 A =====
+                { "WECHAT_ENTERPRISE", (c, s) => new WeChatEnterpriseScanAuthRequest(c, s) },
 
 
                 // ===== 批次 B =====

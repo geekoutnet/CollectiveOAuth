@@ -26,6 +26,7 @@ namespace Come.CollectiveOAuth.Tests.Support
                 { "OSCHINA", (c, s) => new OschinaAuthRequest(c, s) },
                 { "CODING", (c, s) => new CodingAuthRequest(c, s) },
                 { "WEIBO", (c, s) => new WeiboAuthRequest(c, s) },
+                { "QQ", (c, s) => new QQAuthRequest(c, s) },
 
 
                 // ===== 批次 C =====

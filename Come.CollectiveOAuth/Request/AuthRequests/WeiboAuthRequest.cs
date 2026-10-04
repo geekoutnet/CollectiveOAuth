@@ -1,13 +1,21 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Enums.Scope;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
 using System;
 using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * 微博登录，对齐 JustAuth AuthWeiboRequest
+     */
     public class WeiboAuthRequest : DefaultAuthRequest
     {
         public WeiboAuthRequest(ClientConfig config) : base(config, new WeiboAuthSource())
@@ -21,55 +29,73 @@ namespace Come.CollectiveOAuth.Request
 
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
-            var response = doPostAuthorizationCode(authCallback.code);
-            var accessTokenObject = response.parseObject();
-            if (accessTokenObject.ContainsKey("error"))
+            string response = doPostAuthorizationCode(authCallback.code);
+            var accessTokenObject = JsonExtensions.parseObject(response);
+            if (accessTokenObject.containsKey("error"))
             {
-                throw new Exception(accessTokenObject.getString("error_description"));
+                throw new AuthException(accessTokenObject.getString("error_description"));
             }
 
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject.getString("access_token");
             authToken.uid = accessTokenObject.getString("uid");
             authToken.openId = accessTokenObject.getString("uid");
-            authToken.expireIn = accessTokenObject.getInt32("expires_in");
-            authToken.code = authCallback.code;
-
+            authToken.expireIn = accessTokenObject.getIntValue("expires_in");
             return authToken;
         }
 
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
-            var accessToken = authToken.accessToken;
-            var uid = authToken.uid;
-            var oauthParam = $"uid={uid}&access_token={accessToken}";
-            var reqParams = new Dictionary<string, object>();
-            reqParams.Add("Authorization", "OAuth2 " + oauthParam);
-            reqParams.Add("API-RemoteIP", "application/x-www-form-urlencoded");
+            string accessToken = authToken.accessToken;
+            string uid = authToken.uid;
+            string oauthParam = string.Format("uid={0}&access_token={1}", GlobalAuthUtil.javaValueOf(uid), GlobalAuthUtil.javaValueOf(accessToken));
 
-            string response = HttpUtils.RequestGet(userInfoUrl(authToken), reqParams);
-          
-            var userObj = response.parseObject();
-            if (userObj.ContainsKey("error"))
+            var httpHeader = new Dictionary<string, object>
             {
-                throw new Exception(userObj.getString("error"));
+                { "Authorization", "OAuth2 " + oauthParam },
+                { "API-RemoteIP", getLocalIp() }
+            };
+            string userInfo = HttpUtils.RequestGet(userInfoUrl(authToken), httpHeader, config.httpConfig);
+            var obj = JsonExtensions.parseObject(userInfo);
+            if (obj.containsKey("error"))
+            {
+                throw new AuthException(obj.getString("error"));
             }
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.getString("id");
-            authUser.username = userObj.getString("name");
-            authUser.nickname = userObj.getString("screen_name");
-            authUser.avatar = userObj.getString("profile_image_url");
-            authUser.blog = userObj.getString("url").IsNullOrWhiteSpace() ? $"{"https://weibo.com/"}{userObj.getString("profile_url")}" : userObj.getString("url");
-            authUser.location = userObj.getString("location");
-            authUser.remark = userObj.getString("description");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("gender"));
-
+            authUser.rawUserInfo = obj;
+            authUser.uuid = obj.getString("id");
+            authUser.username = obj.getString("name");
+            authUser.avatar = obj.getString("profile_image_url");
+            authUser.blog = string.IsNullOrEmpty(obj.getString("url"))
+                ? "https://weibo.com/" + GlobalAuthUtil.javaValueOf(obj.getString("profile_url"))
+                : obj.getString("url");
+            authUser.nickname = obj.getString("screen_name");
+            authUser.location = obj.getString("location");
+            authUser.remark = obj.getString("description");
+            authUser.gender = GlobalAuthUtil.getRealGender(obj.getString("gender"));
             authUser.token = authToken;
             authUser.source = source.getName();
-            authUser.originalUser = userObj;
-            authUser.originalUserStr = response;
+            authUser.originalUser = obj;
+            authUser.originalUserStr = userInfo;
             return authUser;
+        }
+
+        /**
+         * 对应 JustAuth IpUtils.getLocalIp()：InetAddress.getLocalHost().getHostAddress()
+         */
+        private static string getLocalIp()
+        {
+            try
+            {
+                var addresses = Dns.GetHostAddresses(Dns.GetHostName());
+                var address = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork) ?? addresses.FirstOrDefault();
+                return address?.ToString();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         /**
@@ -86,16 +112,23 @@ namespace Come.CollectiveOAuth.Request
                 .build();
         }
 
+        public override string authorize(string state)
+        {
+            return UrlBuilder.fromBaseUrl(base.authorize(state))
+                .queryParam("scope", this.getScopes(",", false, AuthScopeUtils.getDefaultScopes(AuthWeiboScope.values())))
+                .build();
+        }
+
         public override AuthResponse revoke(AuthToken authToken)
         {
-            var response = doGetRevoke(authToken);
-            var retObj = response.parseObject();
-            if (retObj.ContainsKey("error"))
+            string response = doGetRevoke(authToken);
+            var obj = JsonExtensions.parseObject(response);
+            if (obj.containsKey("error"))
             {
-                return new AuthResponse(AuthResponseStatus.FAILURE.GetCode(), retObj.getString("error"));
+                return new AuthResponse(AuthResponseStatus.FAILURE.GetCode(), obj.getString("error"));
             }
             // 返回 result = true 表示取消授权成功，否则失败
-            AuthResponseStatus status = retObj.getBool("result") ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
+            AuthResponseStatus status = obj.getBooleanValue("result") ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
             return new AuthResponse(status.GetCode(), status.GetDesc());
         }
     }

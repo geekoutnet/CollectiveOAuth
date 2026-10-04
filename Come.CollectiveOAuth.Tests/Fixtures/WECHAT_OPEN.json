@@ -1,0 +1,64 @@
+{
+  "source": "WECHAT_OPEN",
+  "config": { "clientId": "wxappid", "clientSecret": "wxsecret", "redirectUri": "https://www.justauth.cn/callback/wechat_open" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"open_access_token\",\"expires_in\":7200,\"refresh_token\":\"open_refresh_token\",\"openid\":\"oOPENID456\",\"scope\":\"snsapi_login\",\"unionid\":\"oUNIONID456\"}",
+        "{\"openid\":\"oOPENID456\",\"nickname\":\"开放平台用户\",\"sex\":2,\"province\":\"浙江\",\"city\":\"杭州\",\"country\":\"中国\",\"headimgurl\":\"https://thirdwx.qlogo.cn/mmopen/def/0\",\"privilege\":[],\"unionid\":\"oUNIONID456\"}"
+      ]
+    },
+    {
+      "name": "login_success_without_location",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"open_access_token\",\"expires_in\":7200,\"refresh_token\":\"open_refresh_token\",\"openid\":\"oOPENID456\",\"scope\":\"snsapi_login\"}",
+        "{\"openid\":\"oOPENID456\",\"nickname\":\"开放平台用户\",\"sex\":0,\"headimgurl\":\"https://thirdwx.qlogo.cn/mmopen/def/0\",\"privilege\":[]}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"errcode\":40029,\"errmsg\":\"invalid code\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"open_access_token\",\"expires_in\":7200,\"refresh_token\":\"open_refresh_token\",\"openid\":\"oOPENID456\",\"scope\":\"snsapi_login\"}",
+        "{\"errcode\":40003,\"errmsg\":\"invalid openid\"}"
+      ]
+    },
+    {
+      "name": "login_illegal_state",
+      "action": "login",
+      "callback": { "code": "code123", "state": "otherstate" },
+      "responses": []
+    },
+    {
+      "name": "refresh_success",
+      "action": "refresh",
+      "token": { "accessToken": "open_access_token", "refreshToken": "open_refresh_token", "openId": "oOPENID456" },
+      "responses": [
+        "{\"access_token\":\"open_access_token_new\",\"expires_in\":7200,\"refresh_token\":\"open_refresh_token_new\",\"openid\":\"oOPENID456\",\"scope\":\"snsapi_login\"}"
+      ]
+    },
+    {
+      "name": "refresh_error",
+      "action": "refresh",
+      "token": { "accessToken": "open_access_token", "refreshToken": "expired", "openId": "oOPENID456" },
+      "responses": [
+        "{\"errcode\":40030,\"errmsg\":\"invalid refresh_token\"}"
+      ]
+    }
+  ]
+}

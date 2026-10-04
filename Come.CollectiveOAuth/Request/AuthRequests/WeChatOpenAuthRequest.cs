@@ -1,30 +1,34 @@
-﻿using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
-using Come.CollectiveOAuth.Cache;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * 微信开放平台登录，对齐 JustAuth AuthWeChatOpenRequest
+     */
     public partial class WeChatOpenAuthRequest : DefaultAuthRequest
     {
         public WeChatOpenAuthRequest(ClientConfig config) : base(config, new WechatOpenAuthSource())
         {
         }
 
-        public WeChatOpenAuthRequest(ClientConfig config, IAuthStateCache authStateCache) 
+        public WeChatOpenAuthRequest(ClientConfig config, IAuthStateCache authStateCache)
             : base(config, new WechatOpenAuthSource(), authStateCache)
         {
         }
 
         /**
-          * 微信的特殊性，此时返回的信息同时包含 openid 和 access_token
-          *
-          * @param authCallback 回调返回的参数
-          * @return 所有信息
-          */
+         * 微信的特殊性，此时返回的信息同时包含 openid 和 access_token
+         *
+         * @param authCallback 回调返回的参数
+         * @return 所有信息
+         */
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
             return this.getToken(accessTokenUrl(authCallback.code));
@@ -35,31 +39,30 @@ namespace Come.CollectiveOAuth.Request
             string openId = authToken.openId;
 
             string response = doGetUserInfo(authToken);
-            var jsonObj = response.parseObject();
+            JObject obj = JsonExtensions.parseObject(response);
 
-            this.checkResponse(jsonObj);
+            this.checkResponse(obj);
 
-            //string location = String.format("%s-%s-%s", object.getString("country"), object.getString("province"), object.getString("city"));
-            string location = $"{jsonObj.getString("country")}-{jsonObj.getString("province")}-{jsonObj.getString("city")}";
-            if (jsonObj.ContainsKey("unionid"))
+            // 与 Java String.format("%s-%s-%s") 一致：缺失字段输出 "null"
+            string location = $"{obj.getString("country") ?? "null"}-{obj.getString("province") ?? "null"}-{obj.getString("city") ?? "null"}";
+
+            if (obj.containsKey("unionid"))
             {
-                authToken.unionId = jsonObj.getString("unionid");
+                authToken.unionId = obj.getString("unionid");
             }
 
             var authUser = new AuthUser();
-
-            authUser.username = jsonObj.getString("nickname");
-            authUser.nickname = jsonObj.getString("nickname");
-            authUser.avatar = jsonObj.getString("headimgurl");
+            authUser.rawUserInfo = obj;
+            authUser.username = obj.getString("nickname");
+            authUser.nickname = obj.getString("nickname");
+            authUser.avatar = obj.getString("headimgurl");
             authUser.location = location;
             authUser.uuid = openId;
-            authUser.gender = GlobalAuthUtil.getWechatRealGender(jsonObj.getString("sex"));
+            authUser.gender = GlobalAuthUtil.getWechatRealGender(obj.getString("sex"));
             authUser.token = authToken;
             authUser.source = source.getName();
-
-            authUser.originalUser = jsonObj;
+            authUser.originalUser = obj;
             authUser.originalUserStr = response;
-
             return authUser;
         }
 
@@ -73,11 +76,11 @@ namespace Come.CollectiveOAuth.Request
          *
          * @param object 请求响应内容
          */
-        private void checkResponse(Dictionary<string, object> dic)
+        private void checkResponse(JObject obj)
         {
-            if (dic.ContainsKey("errcode"))
+            if (obj.containsKey("errcode"))
             {
-                throw new Exception($"errcode: {dic.getString("errcode")}, errmsg: {dic.getString("errmsg")}");
+                throw new AuthException(obj.getIntValue("errcode"), obj.getString("errmsg"));
             }
         }
 
@@ -89,18 +92,16 @@ namespace Come.CollectiveOAuth.Request
          */
         private AuthToken getToken(string accessTokenUrl)
         {
-            string response = HttpUtils.RequestGet(accessTokenUrl);
-            var accessTokenObject = response.parseObject();
+            string response = HttpUtils.RequestGet(accessTokenUrl, null, config.httpConfig);
+            JObject accessTokenObject = JsonExtensions.parseObject(response);
 
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
-
             authToken.accessToken = accessTokenObject.getString("access_token");
             authToken.refreshToken = accessTokenObject.getString("refresh_token");
-            authToken.expireIn = accessTokenObject.getInt32("expires_in");
+            authToken.expireIn = accessTokenObject.getIntValue("expires_in");
             authToken.openId = accessTokenObject.getString("openid");
-
             return authToken;
         }
 
@@ -114,10 +115,10 @@ namespace Come.CollectiveOAuth.Request
         public override string authorize(string state)
         {
             return UrlBuilder.fromBaseUrl(source.authorize())
+                .queryParam("response_type", "code")
                 .queryParam("appid", config.clientId)
                 .queryParam("redirect_uri", config.redirectUri)
-                .queryParam("response_type", "code")
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "snsapi_login" : config.scope)
+                .queryParam("scope", "snsapi_login")
                 .queryParam("state", getRealState(state))
                 .build();
         }
@@ -131,9 +132,9 @@ namespace Come.CollectiveOAuth.Request
         protected override string accessTokenUrl(string code)
         {
             return UrlBuilder.fromBaseUrl(source.accessToken())
+                .queryParam("code", code)
                 .queryParam("appid", config.clientId)
                 .queryParam("secret", config.clientSecret)
-                .queryParam("code", code)
                 .queryParam("grant_type", "authorization_code")
                 .build();
         }
@@ -163,8 +164,8 @@ namespace Come.CollectiveOAuth.Request
         {
             return UrlBuilder.fromBaseUrl(source.refresh())
                 .queryParam("appid", config.clientId)
-                .queryParam("grant_type", "refresh_token")
                 .queryParam("refresh_token", refreshToken)
+                .queryParam("grant_type", "refresh_token")
                 .build();
         }
     }

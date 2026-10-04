@@ -3,6 +3,71 @@
 	"authorizeUrl":"https://open-api.shop.ele.me/authorize?response_type=code&client_id=cid&redirect_uri=https://www.justauth.cn/callback/eleme&state=fixedstate000000000000000000000&scope=all",
 	"scenarios":[
 		{
+			"name":"login_success",
+			"result":{
+				"code":2000,
+				"data":{
+					"gender":"UNKNOWN",
+					"source":"ELEME",
+					"uuid":"36110001",
+					"rawUserInfo":{
+						"authorizedShops":[
+							{
+								"name":"店铺",
+								"id":1001
+							}
+						],
+						"userName":"饿了么商户",
+						"userId":36110001
+					},
+					"token":{
+						"accessToken":"elm_at",
+						"snapshotUser":false,
+						"refreshTokenExpireIn":0,
+						"expireIn":86400,
+						"tokenType":"Bearer",
+						"refreshToken":"elm_rt"
+					},
+					"snapshotUser":false,
+					"nickname":"饿了么商户",
+					"username":"饿了么商户"
+				}
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://open-api.shop.ele.me/token",
+					"params":{
+						"redirect_uri":"https://www.justauth.cn/callback/eleme",
+						"code":"code123",
+						"grant_type":"authorization_code",
+						"client_id":"cid"
+					},
+					"encode":false,
+					"headers":{
+						"Authorization":"Basic Y2lkOmNzZWNyZXQ=",
+						"Accept":"text/xml,text/javascript,text/html",
+						"x-eleme-requestid":"F55A76BBC5EB48B2428D724E14210B83|1791101182443",
+						"User-Agent":"eleme-openapi-java-sdk",
+						"Accept-Encoding":"gzip",
+						"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"
+					}
+				},
+				{
+					"method":"POST",
+					"url":"https://open-api.shop.ele.me/api/v1/",
+					"data":"{\"metas\":{\"app_key\":\"cid\",\"timestamp\":1791101182444},\"signature\":\"89942885BDC2B9CEC874734DF19AE699\",\"action\":\"eleme.user.getUser\",\"id\":\"F233E173C9080D39A15435B5B765EA07|1791101182444\",\"params\":{},\"nop\":\"1.0.0\",\"token\":\"elm_at\"}",
+					"headers":{
+						"Accept":"text/xml,text/javascript,text/html",
+						"x-eleme-requestid":"F233E173C9080D39A15435B5B765EA07|1791101182444",
+						"User-Agent":"eleme-openapi-java-sdk",
+						"Accept-Encoding":"gzip",
+						"Content-Type":"application/json; charset=utf-8"
+					}
+				}
+			]
+		},
+		{
 			"name":"login_token_error",
 			"result":{
 				"msg":"授权码无效",
@@ -22,10 +87,50 @@
 					"headers":{
 						"Authorization":"Basic Y2lkOmNzZWNyZXQ=",
 						"Accept":"text/xml,text/javascript,text/html",
-						"x-eleme-requestid":"1EF224D7285A0CB3E3C2F48DC2C18D01|1791100923569",
+						"x-eleme-requestid":"A87636F64530DF6927A518852FE46DFD|1791101182444",
 						"User-Agent":"eleme-openapi-java-sdk",
 						"Accept-Encoding":"gzip",
 						"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"
+					}
+				}
+			]
+		},
+		{
+			"name":"login_userinfo_error",
+			"result":{
+				"msg":"token 无效",
+				"code":5000
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://open-api.shop.ele.me/token",
+					"params":{
+						"redirect_uri":"https://www.justauth.cn/callback/eleme",
+						"code":"code123",
+						"grant_type":"authorization_code",
+						"client_id":"cid"
+					},
+					"encode":false,
+					"headers":{
+						"Authorization":"Basic Y2lkOmNzZWNyZXQ=",
+						"Accept":"text/xml,text/javascript,text/html",
+						"x-eleme-requestid":"4C1B0269DACFF5A6417549C76AF9A40C|1791101182444",
+						"User-Agent":"eleme-openapi-java-sdk",
+						"Accept-Encoding":"gzip",
+						"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"
+					}
+				},
+				{
+					"method":"POST",
+					"url":"https://open-api.shop.ele.me/api/v1/",
+					"data":"{\"metas\":{\"app_key\":\"cid\",\"timestamp\":1791101182444},\"signature\":\"89942885BDC2B9CEC874734DF19AE699\",\"action\":\"eleme.user.getUser\",\"id\":\"B8DAC4A8450B01E599143552D5647515|1791101182445\",\"params\":{},\"nop\":\"1.0.0\",\"token\":\"elm_at\"}",
+					"headers":{
+						"Accept":"text/xml,text/javascript,text/html",
+						"x-eleme-requestid":"B8DAC4A8450B01E599143552D5647515|1791101182445",
+						"User-Agent":"eleme-openapi-java-sdk",
+						"Accept-Encoding":"gzip",
+						"Content-Type":"application/json; charset=utf-8"
 					}
 				}
 			]
@@ -55,7 +160,7 @@
 					"headers":{
 						"Authorization":"Basic Y2lkOmNzZWNyZXQ=",
 						"Accept":"text/xml,text/javascript,text/html",
-						"x-eleme-requestid":"996036D38136D61C029BA1F01E74D915|1791100923569",
+						"x-eleme-requestid":"9DC6E37EC99D5AEED09395BA3ECBB52C|1791101182445",
 						"User-Agent":"eleme-openapi-java-sdk",
 						"Accept-Encoding":"gzip",
 						"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"
@@ -82,7 +187,7 @@
 					"headers":{
 						"Authorization":"Basic Y2lkOmNzZWNyZXQ=",
 						"Accept":"text/xml,text/javascript,text/html",
-						"x-eleme-requestid":"953B4480CD75B9FE80262DB239C4FD39|1791100923569",
+						"x-eleme-requestid":"BB94792D09D316AB32404D7F9A3D2F24|1791101182445",
 						"User-Agent":"eleme-openapi-java-sdk",
 						"Accept-Encoding":"gzip",
 						"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"

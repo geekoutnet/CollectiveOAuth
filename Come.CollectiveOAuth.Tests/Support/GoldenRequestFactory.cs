@@ -34,6 +34,7 @@ namespace Come.CollectiveOAuth.Tests.Support
                 { "STACK_OVERFLOW", (c, s) => new StackOverflowAuthRequest(c, s) },
                 { "GITLAB", (c, s) => new GitlabAuthRequest(c, s) },
                 { "TEAMBITION", (c, s) => new TeambitionAuthRequest(c, s) },
+                { "RENREN", (c, s) => new RenrenAuthRequest(c, s) },
 
 
                 // ===== 批次 E =====

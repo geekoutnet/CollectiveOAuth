@@ -1,13 +1,19 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Enums.Scope;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * 人人登录，对齐 JustAuth AuthRenrenRequest
+     */
     public class RenrenAuthRequest : DefaultAuthRequest
     {
         public RenrenAuthRequest(ClientConfig config) : base(config, new RenrenAuthSource())
@@ -26,17 +32,16 @@ namespace Come.CollectiveOAuth.Request
 
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
-            var response = doGetUserInfo(authToken);
-            var userObj = response.parseObject().getJSONObject("response");
+            string response = doGetUserInfo(authToken);
+            var userObj = JsonExtensions.parseObject(response).getJSONObject("response");
 
             var authUser = new AuthUser();
+            authUser.rawUserInfo = userObj;
             authUser.uuid = userObj.getString("id");
-            authUser.username = userObj.getString("name");
-            authUser.nickname = userObj.getString("name");
             authUser.avatar = getAvatarUrl(userObj);
+            authUser.nickname = userObj.getString("name");
             authUser.company = getCompany(userObj);
             authUser.gender = getGender(userObj);
-
             authUser.token = authToken;
             authUser.source = source.getName();
             authUser.originalUser = userObj;
@@ -46,57 +51,59 @@ namespace Come.CollectiveOAuth.Request
 
         public override AuthResponse refresh(AuthToken authToken)
         {
-            var token = getToken(this.refreshTokenUrl(authToken.refreshToken));
-            return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), AuthResponseStatus.SUCCESS.GetDesc(), token);
+            // token 以 urlEncode 后的形式保存（与 Java 一致），Java 原样拼入不编码的 url；
+            // C# UrlBuilder 会再编码一次，这里先解码，保证服务端收到的值与 Java 相同
+            string refreshToken = authToken.refreshToken == null ? null : GlobalAuthUtil.urlDecode(authToken.refreshToken);
+            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(this.refreshTokenUrl(refreshToken)));
         }
 
         private AuthToken getToken(string url)
         {
-            var response = HttpUtils.RequestPost(url);
-            var jsonObject = response.parseObject();
-            if (jsonObject.ContainsKey("error"))
+            string response = HttpUtils.RequestPost(url, null, null, null, config.httpConfig);
+            var jsonObject = JsonExtensions.parseObject(response);
+            if (jsonObject.containsKey("error"))
             {
-                throw new Exception("Failed to get token from Renren: " + jsonObject);
+                // 对应 Java JSONObject.toString()（紧凑格式；fastjson 的键顺序可能与原文不同）
+                throw new AuthException("Failed to get token from Renren: " + jsonObject.ToString(Formatting.None));
             }
 
             var authToken = new AuthToken();
-            authToken.accessToken = jsonObject.getString("access_token");
             authToken.tokenType = jsonObject.getString("token_type");
-            authToken.expireIn = jsonObject.getInt32("expires_in");
-            authToken.refreshToken = jsonObject.getString("refresh_token");
+            authToken.expireIn = jsonObject.getIntValue("expires_in");
+            authToken.accessToken = GlobalAuthUtil.urlEncode(jsonObject.getString("access_token"));
+            authToken.refreshToken = GlobalAuthUtil.urlEncode(jsonObject.getString("refresh_token"));
             authToken.openId = jsonObject.getJSONObject("user").getString("id");
-
             return authToken;
         }
 
-        private string getAvatarUrl(Dictionary<string, object> userObj)
+        private string getAvatarUrl(JObject userObj)
         {
             var jsonArray = userObj.getJSONArray("avatar");
-            if (jsonArray.Count == 0)
+            if (jsonArray == null || jsonArray.Count == 0)
             {
                 return null;
             }
-            return jsonArray[0].getString("url");
+            return ((JObject)jsonArray[0]).getString("url");
         }
 
-        private AuthUserGender getGender(Dictionary<string, object> userObj)
+        private AuthUserGender getGender(JObject userObj)
         {
             var basicInformation = userObj.getJSONObject("basicInformation");
-            if (basicInformation.Count == 0)
+            if (basicInformation == null)
             {
                 return AuthUserGender.UNKNOWN;
             }
             return GlobalAuthUtil.getRealGender(basicInformation.getString("sex"));
         }
 
-        private string getCompany(Dictionary<string, object> userObj)
+        private string getCompany(JObject userObj)
         {
             var jsonArray = userObj.getJSONArray("work");
-            if (jsonArray.Count == 0)
+            if (jsonArray == null || jsonArray.Count == 0)
             {
                 return null;
             }
-            return jsonArray[0].getString("name");
+            return ((JObject)jsonArray[0]).getString("name");
         }
 
         /**
@@ -107,20 +114,18 @@ namespace Come.CollectiveOAuth.Request
          */
         protected override string userInfoUrl(AuthToken authToken)
         {
+            // accessToken 已是 urlEncode 后的值（与 Java 一致），Java 原样拼入不编码的 url；
+            // C# UrlBuilder 会再编码一次，这里先解码，保证服务端收到的值与 Java 相同
             return UrlBuilder.fromBaseUrl(source.userInfo())
-                .queryParam("access_token", authToken.accessToken)
+                .queryParam("access_token", authToken.accessToken == null ? null : GlobalAuthUtil.urlDecode(authToken.accessToken))
                 .queryParam("userId", authToken.openId)
                 .build();
         }
 
         public override string authorize(string state)
         {
-            return UrlBuilder.fromBaseUrl(source.authorize())
-                .queryParam("response_type", "code")
-                .queryParam("client_id", config.clientId)
-                .queryParam("redirect_uri", config.redirectUri)
-                .queryParam("state", getRealState(state))
-                .queryParam("display", "page")
+            return UrlBuilder.fromBaseUrl(base.authorize(state))
+                .queryParam("scope", this.getScopes(",", false, AuthScopeUtils.getDefaultScopes(AuthRenrenScope.values())))
                 .build();
         }
     }

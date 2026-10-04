@@ -23,6 +23,7 @@ namespace Come.CollectiveOAuth.Tests.Support
                 { "GITEE", (c, s) => new GiteeAuthRequest(c, s) },
                 { "BAIDU", (c, s) => new BaiduAuthRequest(c, s) },
                 { "MI", (c, s) => new XiaoMiAuthRequest(c, s) },
+                { "OSCHINA", (c, s) => new OschinaAuthRequest(c, s) },
 
 
                 // ===== 批次 C =====

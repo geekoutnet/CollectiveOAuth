@@ -1,0 +1,33 @@
+{
+  "source": "OSCHINA",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/oschina" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"osc_at\",\"refresh_token\":\"osc_rt\",\"uid\":1234567,\"token_type\":\"bearer\",\"expires_in\":604799}",
+        "{\"id\":1234567,\"email\":\"osc@example.com\",\"name\":\"开源中国用户\",\"gender\":\"male\",\"avatar\":\"https://static.oschina.net/uploads/user/avatar.jpg\",\"location\":\"北京 朝阳\",\"url\":\"https://my.oschina.net/u/1234567\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":\"invalid_grant\",\"error_description\":\"Invalid authorization code\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"osc_at\",\"refresh_token\":\"osc_rt\",\"uid\":1234567,\"token_type\":\"bearer\",\"expires_in\":604799}",
+        "{\"error\":\"invalid_token\",\"error_description\":\"Invalid access token: osc_at\"}"
+      ]
+    }
+  ]
+}

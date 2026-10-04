@@ -1,13 +1,15 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
-using System;
-using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
+using Newtonsoft.Json.Linq;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * oschina登录，对齐 JustAuth AuthOschinaRequest
+     */
     public class OschinaAuthRequest : DefaultAuthRequest
     {
         public OschinaAuthRequest(ClientConfig config) : base(config, new OschinaAuthSource())
@@ -22,38 +24,36 @@ namespace Come.CollectiveOAuth.Request
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
             string response = doPostAuthorizationCode(authCallback.code);
-            var accessTokenObject = response.parseObject();
+            var accessTokenObject = JsonExtensions.parseObject(response);
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject.getString("access_token");
             authToken.refreshToken = accessTokenObject.getString("refresh_token");
             authToken.uid = accessTokenObject.getString("uid");
-            authToken.expireIn = accessTokenObject.getInt32("expires_in");
-            authToken.code = authCallback.code;
+            authToken.expireIn = accessTokenObject.getIntValue("expires_in");
             return authToken;
         }
 
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
             string response = doGetUserInfo(authToken);
-
-            var userObj = response.parseObject();
-            this.checkResponse(userObj);
+            var obj = JsonExtensions.parseObject(response);
+            this.checkResponse(obj);
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.getString("id");
-            authUser.username = userObj.getString("name");
-            authUser.nickname = userObj.getString("name");
-            authUser.avatar = userObj.getString("avatar");
-            authUser.blog = userObj.getString("url");
-            authUser.location = userObj.getString("location");
-            authUser.email = userObj.getString("email");
-            authUser.gender = GlobalAuthUtil.getRealGender(userObj.getString("gender"));
-
+            authUser.rawUserInfo = obj;
+            authUser.uuid = obj.getString("id");
+            authUser.username = obj.getString("name");
+            authUser.nickname = obj.getString("name");
+            authUser.avatar = obj.getString("avatar");
+            authUser.blog = obj.getString("url");
+            authUser.location = obj.getString("location");
+            authUser.gender = GlobalAuthUtil.getRealGender(obj.getString("gender"));
+            authUser.email = obj.getString("email");
             authUser.token = authToken;
             authUser.source = source.getName();
-            authUser.originalUser = userObj;
+            authUser.originalUser = obj;
             authUser.originalUserStr = response;
             return authUser;
         }
@@ -90,18 +90,16 @@ namespace Come.CollectiveOAuth.Request
                 .build();
         }
 
-
         /**
-       * 校验请求结果
-       *
-       * @param response 请求结果
-       * @return 如果请求结果正常，则返回Exception
-       */
-        private void checkResponse(Dictionary<string, object> dic)
+         * 检查响应内容是否正确
+         *
+         * @param object 请求响应内容
+         */
+        private void checkResponse(JObject obj)
         {
-            if (dic.ContainsKey("error"))
+            if (obj.containsKey("error"))
             {
-                throw new Exception($"{dic.getString("error_description")}");
+                throw new AuthException(obj.getString("error_description"));
             }
         }
     }

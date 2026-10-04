@@ -46,7 +46,7 @@ namespace Come.CollectiveOAuth.Models
         /**
          * 性别
          */
-        public AuthUserGender gender { get; set; }
+        public AuthUserGender? gender { get; set; }
         /**
          * 用户来源
          */

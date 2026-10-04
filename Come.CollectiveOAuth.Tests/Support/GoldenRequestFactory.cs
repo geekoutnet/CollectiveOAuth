@@ -26,6 +26,7 @@ namespace Come.CollectiveOAuth.Tests.Support
 
 
                 // ===== 批次 D =====
+                { "LINKEDIN", (c, s) => new LinkedInAuthRequest(c, s) },
 
 
                 // ===== 批次 E =====

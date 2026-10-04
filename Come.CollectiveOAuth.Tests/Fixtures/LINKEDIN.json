@@ -1,0 +1,51 @@
+{
+  "source": "LINKEDIN",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/linkedin" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"AQV_token\",\"expires_in\":5184000,\"refresh_token\":\"AQX_refresh\",\"refresh_token_expires_in\":31536000,\"scope\":\"r_emailaddress,r_liteprofile\"}",
+        "{\"id\":\"yrZCpj2Z12\",\"firstName\":{\"localized\":{\"en_US\":\"Bob\"},\"preferredLocale\":{\"country\":\"US\",\"language\":\"en\"}},\"lastName\":{\"localized\":{\"en_US\":\"Smith\"},\"preferredLocale\":{\"country\":\"US\",\"language\":\"en\"}},\"profilePicture\":{\"displayImage\":\"urn:li:digitalmediaAsset:C4D00AAAAbBCDEFGhiJ\",\"displayImage~\":{\"elements\":[{\"artifact\":\"urn:li:digitalmediaMediaArtifact:100\",\"identifiers\":[{\"identifier\":\"https://media.licdn.com/dms/image/100_100.jpg\",\"identifierType\":\"EXTERNAL_URL\"}]},{\"artifact\":\"urn:li:digitalmediaMediaArtifact:800\",\"identifiers\":[{\"identifier\":\"https://media.licdn.com/dms/image/800_800.jpg\",\"identifierType\":\"EXTERNAL_URL\"}]}]}}}",
+        "{\"elements\":[{\"handle\":\"urn:li:emailAddress:3775708763\",\"handle~\":{\"emailAddress\":\"hsimpson@linkedin.com\"}}]}"
+      ]
+    },
+    {
+      "name": "login_success_localized_name",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"AQV_token\",\"expires_in\":5184000}",
+        "{\"id\":\"yrZCpj2Z12\",\"localizedFirstName\":\"Bob\",\"localizedLastName\":\"Smith\"}",
+        "{\"elements\":[]}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":\"invalid_request\",\"error_description\":\"Unable to retrieve access token: authorization code expired\"}"
+      ]
+    },
+    {
+      "name": "login_email_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"AQV_token\",\"expires_in\":5184000}",
+        "{\"id\":\"yrZCpj2Z12\",\"localizedFirstName\":\"Bob\",\"localizedLastName\":\"Smith\"}",
+        "{\"error\":\"access_denied\",\"error_description\":\"Not enough permissions to access emailAddress\"}"
+      ]
+    },
+    {
+      "name": "refresh_not_implemented",
+      "action": "refresh",
+      "token": { "accessToken": "AQV_token", "refreshToken": "AQX_refresh" },
+      "responses": []
+    }
+  ]
+}

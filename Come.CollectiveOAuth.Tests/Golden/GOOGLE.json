@@ -1,0 +1,91 @@
+{
+	"source":"GOOGLE",
+	"authorizeUrl":"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=cid&redirect_uri=https://www.justauth.cn/callback/google&state=fixedstate000000000000000000000&access_type=offline&scope=openid email profile&prompt=select_account",
+	"scenarios":[
+		{
+			"name":"login_success",
+			"result":{
+				"code":2000,
+				"data":{
+					"gender":"UNKNOWN",
+					"avatar":"https://lh3.googleusercontent.com/a/abc=s96-c",
+					"source":"GOOGLE",
+					"uuid":"110169484474386276334",
+					"rawUserInfo":{
+						"sub":"110169484474386276334",
+						"email_verified":true,
+						"name":"Test User",
+						"given_name":"Test",
+						"locale":"en",
+						"family_name":"User",
+						"picture":"https://lh3.googleusercontent.com/a/abc=s96-c",
+						"email":"test.user@gmail.com"
+					},
+					"token":{
+						"accessToken":"ya29.a0AfH6",
+						"snapshotUser":false,
+						"scope":"openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+						"idToken":"eyJhbGciOiJSUzI1NiJ9.payload.sig",
+						"refreshTokenExpireIn":0,
+						"expireIn":3599,
+						"tokenType":"Bearer"
+					},
+					"snapshotUser":false,
+					"nickname":"Test User",
+					"location":"en",
+					"email":"test.user@gmail.com",
+					"username":"test.user@gmail.com"
+				}
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://oauth2.googleapis.com/token?code=code123&client_id=cid&client_secret=csecret&grant_type=authorization_code&redirect_uri=https://www.justauth.cn/callback/google",
+					"headers":{}
+				},
+				{
+					"method":"POST",
+					"url":"https://openidconnect.googleapis.com/v1/userinfo?access_token=ya29.a0AfH6",
+					"headers":{
+						"Authorization":"Bearer ya29.a0AfH6"
+					}
+				}
+			]
+		},
+		{
+			"name":"login_token_error",
+			"result":{
+				"msg":"true:Bad Request",
+				"code":5000
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://oauth2.googleapis.com/token?code=bad&client_id=cid&client_secret=csecret&grant_type=authorization_code&redirect_uri=https://www.justauth.cn/callback/google",
+					"headers":{}
+				}
+			]
+		},
+		{
+			"name":"login_userinfo_error",
+			"result":{
+				"msg":"true:null",
+				"code":5000
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://oauth2.googleapis.com/token?code=code123&client_id=cid&client_secret=csecret&grant_type=authorization_code&redirect_uri=https://www.justauth.cn/callback/google",
+					"headers":{}
+				},
+				{
+					"method":"POST",
+					"url":"https://openidconnect.googleapis.com/v1/userinfo?access_token=ya29.a0AfH6",
+					"headers":{
+						"Authorization":"Bearer ya29.a0AfH6"
+					}
+				}
+			]
+		}
+	]
+}

@@ -1,13 +1,17 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Enums.Scope;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
-using System;
-using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
+using Newtonsoft.Json.Linq;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * Facebook登录，对齐 JustAuth AuthFacebookRequest（C# 类名沿用原拼写）
+     */
     public class FackbookAuthRequest : DefaultAuthRequest
     {
         public FackbookAuthRequest(ClientConfig config) : base(config, new FackbookAuthSource())
@@ -21,50 +25,47 @@ namespace Come.CollectiveOAuth.Request
 
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
-            var response = doPostAuthorizationCode(authCallback.code);
-            var accessTokenObject = response.parseObject();
+            string response = doPostAuthorizationCode(authCallback.code);
+            var accessTokenObject = JsonExtensions.parseObject(response);
             this.checkResponse(accessTokenObject);
 
-            var authToken = new AuthToken
-            {
-                accessToken = accessTokenObject.getString("access_token"),
-                expireIn = accessTokenObject.getInt32("expires_in"),
-                tokenType = accessTokenObject.getString("token_type"),
-                code = authCallback.code
-            };
+            var authToken = new AuthToken();
+            authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.expireIn = accessTokenObject.getIntValue("expires_in");
+            authToken.tokenType = accessTokenObject.getString("token_type");
             return authToken;
         }
 
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
-            var response = doGetUserInfo(authToken);
-            var userObj = response.parseObject();
-            this.checkResponse(userObj);
+            string userInfo = doGetUserInfo(authToken);
+            var obj = JsonExtensions.parseObject(userInfo);
+            this.checkResponse(obj);
 
-            var authUser = new AuthUser
-            {
-                uuid = userObj.getString("id"),
-                username = userObj.getString("name"),
-                nickname = userObj.getString("name"),
-                avatar = getUserPicture(userObj),
-                location = userObj.getString("locale"),
-                email = userObj.getString("email"),
-                gender = GlobalAuthUtil.getRealGender(userObj.getString("gender")),
-                token = authToken,
-                source = source.getName(),
-                originalUser = userObj,
-                originalUserStr = response
-            };
+            var authUser = new AuthUser();
+            authUser.rawUserInfo = obj;
+            authUser.uuid = obj.getString("id");
+            authUser.username = obj.getString("name");
+            authUser.nickname = obj.getString("name");
+            authUser.blog = obj.getString("link");
+            authUser.avatar = getUserPicture(obj);
+            authUser.location = obj.getString("locale");
+            authUser.email = obj.getString("email");
+            authUser.gender = GlobalAuthUtil.getRealGender(obj.getString("gender"));
+            authUser.token = authToken;
+            authUser.source = source.getName();
+            authUser.originalUser = obj;
+            authUser.originalUserStr = userInfo;
             return authUser;
         }
 
-        private string getUserPicture(Dictionary<string, object> userObj)
+        private string getUserPicture(JObject obj)
         {
             string picture = null;
-            if (userObj.ContainsKey("picture"))
+            if (obj.containsKey("picture"))
             {
-                var pictureObj = userObj.getString("picture").parseObject();
-                pictureObj = pictureObj.getString("data").parseObject();
+                var pictureObj = obj.getJSONObject("picture");
+                pictureObj = pictureObj.getJSONObject("data");
                 if (null != pictureObj)
                 {
                     picture = pictureObj.getString("url");
@@ -83,22 +84,45 @@ namespace Come.CollectiveOAuth.Request
         {
             return UrlBuilder.fromBaseUrl(source.userInfo())
                 .queryParam("access_token", authToken.accessToken)
-                .queryParam("fields", "id,name,birthday,gender,hometown,email,devices,picture.width(400)")
+                .queryParam("fields", "id,name,birthday,gender,hometown,email,devices,picture.width(400),link")
                 .build();
         }
 
+        protected override void checkConfig(ClientConfig config)
+        {
+            base.checkConfig(config);
+            // facebook的回调地址必须为https的链接
+            if (!GlobalAuthUtil.isHttpsProtocol(config.redirectUri))
+            {
+                // Facebook's redirect uri must use the HTTPS protocol
+                throw new AuthException(AuthResponseStatus.ILLEGAL_REDIRECT_URI, source);
+            }
+        }
 
         /**
-          * 检查响应内容是否正确
-          *
-          * @param object 请求响应内容
-          */
-        private void checkResponse(Dictionary<string, object> dic)
+         * 检查响应内容是否正确
+         *
+         * @param object 请求响应内容
+         */
+        private void checkResponse(JObject obj)
         {
-            if (dic.ContainsKey("error"))
+            if (obj.containsKey("error"))
             {
-                throw new Exception($"{dic.getString("error").parseObject().getString("message")}");
+                throw new AuthException(obj.getJSONObject("error").getString("message"));
             }
+        }
+
+        /**
+         * 返回带{@code state}参数的授权url，授权回调时会带上这个{@code state}
+         *
+         * @param state state 验证授权流程的参数，可以防止csrf
+         * @return 返回授权地址
+         */
+        public override string authorize(string state)
+        {
+            return UrlBuilder.fromBaseUrl(base.authorize(state))
+                .queryParam("scope", this.getScopes(",", false, AuthScopeUtils.getDefaultScopes(AuthFacebookScope.values())))
+                .build();
         }
     }
 }

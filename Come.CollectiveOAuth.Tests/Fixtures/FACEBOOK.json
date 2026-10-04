@@ -1,0 +1,42 @@
+{
+  "source": "FACEBOOK",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/facebook" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"EAABwzLixnjYBA\",\"token_type\":\"bearer\",\"expires_in\":5183944}",
+        "{\"id\":\"10158093\",\"name\":\"Test User\",\"gender\":\"male\",\"email\":\"test.user@example.com\",\"link\":\"https://www.facebook.com/app_scoped_user_id/10158093/\",\"picture\":{\"data\":{\"height\":400,\"is_silhouette\":false,\"url\":\"https://platform-lookaside.fbsbx.com/platform/profilepic/abc.jpg\",\"width\":400}}}"
+      ]
+    },
+    {
+      "name": "login_success_without_picture",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"EAABwzLixnjYBA\",\"token_type\":\"bearer\",\"expires_in\":5183944}",
+        "{\"id\":\"10158093\",\"name\":\"Test User\",\"gender\":\"female\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":{\"message\":\"Invalid verification code format.\",\"type\":\"OAuthException\",\"code\":100,\"fbtrace_id\":\"AjC3eJm\"}}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"EAABwzLixnjYBA\",\"token_type\":\"bearer\",\"expires_in\":5183944}",
+        "{\"error\":{\"message\":\"Error validating access token: Session has expired.\",\"type\":\"OAuthException\",\"code\":190,\"error_subcode\":463,\"fbtrace_id\":\"A1b2\"}}"
+      ]
+    }
+  ]
+}

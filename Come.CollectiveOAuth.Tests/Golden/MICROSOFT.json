@@ -1,0 +1,148 @@
+{
+	"source":"MICROSOFT",
+	"authorizeUrl":"https://login.microsoftonline.com/contoso-tenant/oauth2/v2.0/authorize?response_type=code&client_id=cid&redirect_uri=https://www.justauth.cn/callback/microsoft&state=fixedstate000000000000000000000&response_mode=query&scope=profile email openid offline_access",
+	"scenarios":[
+		{
+			"name":"login_success",
+			"result":{
+				"code":2000,
+				"data":{
+					"gender":"UNKNOWN",
+					"source":"MICROSOFT",
+					"uuid":"87d349ed-44d7-43e1-9a83-5f2406dee5bd",
+					"rawUserInfo":{
+						"businessPhones":[
+							"+1 425 555 0109"
+						],
+						"preferredLanguage":"en-US",
+						"mail":"AdeleV@contoso.com",
+						"officeLocation":"18/2111",
+						"displayName":"Adele Vance",
+						"surname":"Vance",
+						"givenName":"Adele",
+						"jobTitle":"Retail Manager",
+						"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#users/$entity",
+						"id":"87d349ed-44d7-43e1-9a83-5f2406dee5bd",
+						"userPrincipalName":"AdeleV@contoso.com"
+					},
+					"token":{
+						"accessToken":"eyJ0eXAiOiJKV1QiLCJub25jZSI6",
+						"snapshotUser":false,
+						"scope":"User.Read profile openid email",
+						"refreshTokenExpireIn":0,
+						"expireIn":3599,
+						"tokenType":"Bearer",
+						"refreshToken":"M.R3_BAY.CbBX"
+					},
+					"snapshotUser":false,
+					"nickname":"Adele Vance",
+					"location":"18/2111",
+					"email":"AdeleV@contoso.com",
+					"username":"AdeleV@contoso.com"
+				}
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://login.microsoftonline.com/contoso-tenant/oauth2/v2.0/token?code=code123&client_id=cid&client_secret=csecret&grant_type=authorization_code&scope=profile email openid offline_access&redirect_uri=https://www.justauth.cn/callback/microsoft",
+					"params":{
+						"code":"code123",
+						"grant_type":"authorization_code",
+						"scope":"profile email openid offline_access",
+						"client_secret":"csecret",
+						"redirect_uri":"https://www.justauth.cn/callback/microsoft",
+						"client_id":"cid"
+					},
+					"encode":false,
+					"headers":{}
+				},
+				{
+					"method":"GET",
+					"url":"https://graph.microsoft.com/v1.0/me",
+					"encode":false,
+					"headers":{
+						"Authorization":"Bearer eyJ0eXAiOiJKV1QiLCJub25jZSI6"
+					}
+				}
+			]
+		},
+		{
+			"name":"login_token_error",
+			"result":{
+				"msg":"AADSTS70000: The provided authorization code is invalid or has expired.",
+				"code":5000
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://login.microsoftonline.com/contoso-tenant/oauth2/v2.0/token?code=bad&client_id=cid&client_secret=csecret&grant_type=authorization_code&scope=profile email openid offline_access&redirect_uri=https://www.justauth.cn/callback/microsoft",
+					"params":{
+						"code":"bad",
+						"grant_type":"authorization_code",
+						"scope":"profile email openid offline_access",
+						"client_secret":"csecret",
+						"redirect_uri":"https://www.justauth.cn/callback/microsoft",
+						"client_id":"cid"
+					},
+					"encode":false,
+					"headers":{}
+				}
+			]
+		},
+		{
+			"name":"refresh_success",
+			"result":{
+				"code":2000,
+				"data":{
+					"accessToken":"eyJ0eXAiOiJKV1QiLCJuZXci",
+					"snapshotUser":false,
+					"scope":"User.Read profile openid email",
+					"refreshTokenExpireIn":0,
+					"expireIn":3599,
+					"tokenType":"Bearer",
+					"refreshToken":"M.R3_BAY.new"
+				}
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://login.microsoftonline.com/contoso-tenant/oauth2/v2.0/token?client_id=cid&client_secret=csecret&refresh_token=M.R3_BAY.old&grant_type=refresh_token&scope=profile email openid offline_access&redirect_uri=https://www.justauth.cn/callback/microsoft",
+					"params":{
+						"refresh_token":"M.R3_BAY.old",
+						"grant_type":"refresh_token",
+						"scope":"profile email openid offline_access",
+						"client_secret":"csecret",
+						"redirect_uri":"https://www.justauth.cn/callback/microsoft",
+						"client_id":"cid"
+					},
+					"encode":false,
+					"headers":{}
+				}
+			]
+		},
+		{
+			"name":"refresh_error",
+			"error":{
+				"type":"me.zhyd.oauth.exception.AuthException",
+				"code":5000,
+				"msg":"AADSTS70008: The refresh token has expired."
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://login.microsoftonline.com/contoso-tenant/oauth2/v2.0/token?client_id=cid&client_secret=csecret&refresh_token=M.R3_BAY.bad&grant_type=refresh_token&scope=profile email openid offline_access&redirect_uri=https://www.justauth.cn/callback/microsoft",
+					"params":{
+						"refresh_token":"M.R3_BAY.bad",
+						"grant_type":"refresh_token",
+						"scope":"profile email openid offline_access",
+						"client_secret":"csecret",
+						"redirect_uri":"https://www.justauth.cn/callback/microsoft",
+						"client_id":"cid"
+					},
+					"encode":false,
+					"headers":{}
+				}
+			]
+		}
+	]
+}

@@ -1,13 +1,17 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Enums.Scope;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
-using System;
-using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
+using Newtonsoft.Json.Linq;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * Gitlab登录，对齐 JustAuth AuthGitlabRequest
+     */
     public class GitlabAuthRequest : DefaultAuthRequest
     {
         public GitlabAuthRequest(ClientConfig config) : base(config, new GitlabAuthSource())
@@ -21,49 +25,59 @@ namespace Come.CollectiveOAuth.Request
 
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
-            var response = doPostAuthorizationCode(authCallback.code);
-            var accessTokenObject = response.parseObject();
+            string response = doPostAuthorizationCode(authCallback.code);
+            var obj = JsonExtensions.parseObject(response);
 
-            this.checkResponse(accessTokenObject);
+            this.checkResponse(obj);
 
             var authToken = new AuthToken();
-            authToken.accessToken = accessTokenObject.getString("access_token");
-            authToken.refreshToken = accessTokenObject.getString("refresh_token");
-            authToken.idToken = accessTokenObject.getString("id_token");
-            authToken.tokenType = accessTokenObject.getString("token_type");
-            authToken.scope = accessTokenObject.getString("scope");
-            authToken.code = authCallback.code;
-
+            authToken.accessToken = obj.getString("access_token");
+            authToken.refreshToken = obj.getString("refresh_token");
+            authToken.idToken = obj.getString("id_token");
+            authToken.tokenType = obj.getString("token_type");
+            authToken.scope = obj.getString("scope");
             return authToken;
         }
 
-
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
-            var response = doGetUserInfo(authToken);
-            var userObj = response.parseObject();
+            string response = doGetUserInfo(authToken);
+            var obj = JsonExtensions.parseObject(response);
 
-            this.checkResponse(userObj);
+            this.checkResponse(obj);
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.getString("id");
-            authUser.username = userObj.getString("username");
-            authUser.nickname = userObj.getString("name");
-            authUser.avatar = userObj.getString("avatar_url");
-            authUser.blog = userObj.getString("web_url");
-            authUser.company = userObj.getString("organization");
-            authUser.location = userObj.getString("location");
-            authUser.email = userObj.getString("email");
-            authUser.remark = userObj.getString("bio");
+            authUser.rawUserInfo = obj;
+            authUser.uuid = obj.getString("id");
+            authUser.username = obj.getString("username");
+            authUser.nickname = obj.getString("name");
+            authUser.avatar = obj.getString("avatar_url");
+            authUser.blog = obj.getString("web_url");
+            authUser.company = obj.getString("organization");
+            authUser.location = obj.getString("location");
+            authUser.email = obj.getString("email");
+            authUser.remark = obj.getString("bio");
             authUser.gender = AuthUserGender.UNKNOWN;
-
             authUser.token = authToken;
             authUser.source = source.getName();
-            authUser.originalUser = userObj;
+            authUser.originalUser = obj;
             authUser.originalUserStr = response;
             return authUser;
         }
 
+        private void checkResponse(JObject obj)
+        {
+            // oauth/token 验证异常
+            if (obj.containsKey("error"))
+            {
+                throw new AuthException(obj.getString("error_description"));
+            }
+            // user 验证异常
+            if (obj.containsKey("message"))
+            {
+                throw new AuthException(obj.getString("message"));
+            }
+        }
 
         /**
          * 返回带{@code state}参数的授权url，授权回调时会带上这个{@code state}
@@ -74,33 +88,11 @@ namespace Come.CollectiveOAuth.Request
          */
         public override string authorize(string state)
         {
-            return UrlBuilder.fromBaseUrl(source.authorize())
-                .queryParam("response_type", "code")
-                .queryParam("client_id", config.clientId)
-                .queryParam("redirect_uri", config.redirectUri)
-                .queryParam("state", getRealState(state))
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "read_user openid profile email" : config.scope)
+            // Java 以未编码的 "+" 连接（服务端按空格解析）；C# UrlBuilder 会编码参数值，"+" 会变成 %2B，
+            // 这里改用空格连接，编码后服务端收到的同样是以空格分隔的 scope
+            return UrlBuilder.fromBaseUrl(base.authorize(state))
+                .queryParam("scope", this.getScopes(" ", false, AuthScopeUtils.getDefaultScopes(AuthGitlabScope.values())))
                 .build();
         }
-
-        /**
-       * 校验请求结果
-       *
-       * @param response 请求结果
-       * @return 如果请求结果正常，则返回Exception
-       */
-        private void checkResponse(Dictionary<string, object> dic)
-        {
-            if (dic.ContainsKey("error"))
-            {
-                throw new Exception($"{dic.getString("error_description")}");
-            }
-            // user 验证异常
-            if (dic.ContainsKey("message"))
-            {
-                throw new Exception($"{dic.getString("message")}");
-            }
-        }
-
     }
 }

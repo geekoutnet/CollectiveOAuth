@@ -1,13 +1,18 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Enums.Scope;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
-using System;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * 领英登录，对齐 JustAuth AuthLinkedinRequest
+     */
     public class LinkedInAuthRequest : DefaultAuthRequest
     {
         public LinkedInAuthRequest(ClientConfig config) : base(config, new LinkedInAuthSource())
@@ -26,41 +31,39 @@ namespace Come.CollectiveOAuth.Request
 
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
-            var accessToken = authToken.accessToken;
-            var reqParams = new Dictionary<string, object>
+            string accessToken = authToken.accessToken;
+            var httpHeader = new Dictionary<string, object>
             {
                 { "Host", "api.linkedin.com" },
                 { "Connection", "Keep-Alive" },
                 { "Authorization", "Bearer " + accessToken }
             };
-            var response = HttpUtils.RequestGet(userInfoUrl(authToken), reqParams);
-             
-            var userObj = response.parseObject();
 
-            this.checkResponse(userObj);
+            string response = HttpUtils.RequestGet(userInfoUrl(authToken), httpHeader, config.httpConfig);
+            var userInfoObject = JsonExtensions.parseObject(response);
 
-            string userName = getUserName(userObj);
+            this.checkResponse(userInfoObject);
+
+            string userName = getUserName(userInfoObject);
 
             // 获取用户头像
-            string avatar = this.getAvatar(userObj);
+            string avatar = this.getAvatar(userInfoObject);
 
             // 获取用户邮箱地址
             string email = this.getUserEmail(accessToken);
 
-
-            var authUser = new AuthUser
-            {
-                uuid = userObj.getString("id"),
-                username = userName,
-                nickname = userName,
-                avatar = avatar,
-                email = email,
-                gender = AuthUserGender.UNKNOWN,
-                token = authToken,
-                source = source.getName(),
-                originalUser = userObj,
-                originalUserStr = response
-            };
+            var authUser = new AuthUser();
+            authUser.rawUserInfo = userInfoObject;
+            authUser.uuid = userInfoObject.getString("id");
+            authUser.username = userName;
+            authUser.nickname = userName;
+            authUser.avatar = avatar;
+            authUser.email = email;
+            authUser.token = authToken;
+            authUser.gender = AuthUserGender.UNKNOWN;
+            authUser.source = source.getName();
+            authUser.originalUser = userInfoObject;
+            authUser.originalUserStr = response;
             return authUser;
         }
 
@@ -70,11 +73,11 @@ namespace Come.CollectiveOAuth.Request
          * @param userInfoObject 用户json对象
          * @return 用户名
          */
-        private string getUserName(Dictionary<string, object> userInfoObject)
+        private string getUserName(JObject userInfoObject)
         {
             string firstName, lastName;
             // 获取firstName
-            if (userInfoObject.ContainsKey("localizedFirstName"))
+            if (userInfoObject.containsKey("localizedFirstName"))
             {
                 firstName = userInfoObject.getString("localizedFirstName");
             }
@@ -83,7 +86,7 @@ namespace Come.CollectiveOAuth.Request
                 firstName = getUserName(userInfoObject, "firstName");
             }
             // 获取lastName
-            if (userInfoObject.ContainsKey("localizedLastName"))
+            if (userInfoObject.containsKey("localizedLastName"))
             {
                 lastName = userInfoObject.getString("localizedLastName");
             }
@@ -100,21 +103,34 @@ namespace Come.CollectiveOAuth.Request
          * @param userInfoObject 用户json对象
          * @return 用户的头像地址
          */
-        private string getAvatar(Dictionary<string, object> userInfoObject)
+        private string getAvatar(JObject userInfoObject)
         {
-            string avatar = null;
             var profilePictureObject = userInfoObject.getJSONObject("profilePicture");
-            if (profilePictureObject.ContainsKey("displayImage~"))
+            if (null == profilePictureObject || !profilePictureObject.containsKey("displayImage~"))
             {
-                var displayImageElements = profilePictureObject.getJSONObject("displayImage~")
-                    .getJSONArray("elements");
-                if (null != displayImageElements && displayImageElements.Count > 0)
-                {
-                    var largestImageObj = displayImageElements[displayImageElements.Count - 1];
-                    avatar = largestImageObj.getJSONArray("identifiers")[0].getString("identifier");
-                }
+                return null;
             }
-            return avatar;
+            var displayImageObject = profilePictureObject.getJSONObject("displayImage~");
+            if (null == displayImageObject || !displayImageObject.containsKey("elements"))
+            {
+                return null;
+            }
+            var displayImageElements = displayImageObject.getJSONArray("elements");
+            if (null == displayImageElements || displayImageElements.Count == 0)
+            {
+                return null;
+            }
+            var largestImageObj = displayImageElements[displayImageElements.Count - 1] as JObject;
+            if (null == largestImageObj || !largestImageObj.containsKey("identifiers"))
+            {
+                return null;
+            }
+            var identifiers = largestImageObj.getJSONArray("identifiers");
+            if (null == identifiers || identifiers.Count == 0)
+            {
+                return null;
+            }
+            return ((JObject)identifiers[0]).getString("identifier");
         }
 
         /**
@@ -125,25 +141,29 @@ namespace Come.CollectiveOAuth.Request
          */
         private string getUserEmail(string accessToken)
         {
-            string email = null;
-            var reqParams = new Dictionary<string, object>();
-            reqParams.Add("Host", "api.linkedin.com");
-            reqParams.Add("Connection", "Keep-Alive");
-            reqParams.Add("Authorization", "Bearer " + accessToken);
-            var emailResponse = HttpUtils.RequestGet("https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))", reqParams);
-                
-            var emailObj = emailResponse.parseObject();
-            this.checkResponse(emailObj);
-            var listObject = emailObj.getJSONArray("elements");
-            if (listObject != null && listObject.Count > 0)
+            var httpHeader = new Dictionary<string, object>
             {
-                email = listObject[listObject.Count - 1].getJSONObject("handle~").getString("emailAddress");
-            }
+                { "Host", "api.linkedin.com" },
+                { "Connection", "Keep-Alive" },
+                { "Authorization", "Bearer " + accessToken }
+            };
 
-            return email;
+            string emailResponse = HttpUtils.RequestGet("https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))", httpHeader, config.httpConfig);
+            var emailObj = JsonExtensions.parseObject(emailResponse);
+
+            this.checkResponse(emailObj);
+
+            // 对应 JSONPath.eval(emailObj, "$['elements'][0]['handle~']['emailAddress']")
+            var elements = emailObj.getJSONArray("elements");
+            if (elements == null || elements.Count == 0)
+            {
+                return null;
+            }
+            var handle = (elements[0] as JObject).getJSONObject("handle~");
+            return handle.getString("emailAddress");
         }
 
-        private string getUserName(Dictionary<string, object> userInfoObject, string nameKey)
+        private string getUserName(JObject userInfoObject, string nameKey)
         {
             string firstName;
             var firstNameObj = userInfoObject.getJSONObject(nameKey);
@@ -153,16 +173,17 @@ namespace Come.CollectiveOAuth.Request
             return firstName;
         }
 
-        public override AuthResponse refresh(AuthToken oldToken)
+        /**
+         * 检查响应内容是否正确
+         *
+         * @param object 请求响应内容
+         */
+        private void checkResponse(JObject obj)
         {
-            string refreshToken = oldToken.refreshToken;
-            if (refreshToken.IsNullOrWhiteSpace())
+            if (obj.containsKey("error"))
             {
-                throw new Exception(AuthResponseStatus.REQUIRED_REFRESH_TOKEN.GetDesc());
+                throw new AuthException(obj.getString("error_description"), source);
             }
-            string refreshTokenUrl = this.refreshTokenUrl(refreshToken);
-
-            return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), AuthResponseStatus.SUCCESS.GetDesc(), this.getToken(refreshTokenUrl));
         }
 
         /**
@@ -173,21 +194,21 @@ namespace Come.CollectiveOAuth.Request
          */
         private AuthToken getToken(string accessTokenUrl)
         {
-            var reqParams = new Dictionary<string, object>();
-            reqParams.Add("Host", "www.linkedin.com");
-            reqParams.Add("Content-Type", "application/x-www-form-urlencoded");
+            var httpHeader = new Dictionary<string, object>
+            {
+                { "Host", "www.linkedin.com" },
+                { "Content-Type", "application/x-www-form-urlencoded" }
+            };
 
-            string response = HttpUtils.RequestPost(accessTokenUrl, null, reqParams);
-            string accessTokenStr = response;
-            var accessTokenObject = accessTokenStr.parseObject();
+            string response = HttpUtils.RequestPost(accessTokenUrl, null, httpHeader, null, config.httpConfig);
+            var accessTokenObject = JsonExtensions.parseObject(response);
 
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject.getString("access_token");
+            authToken.expireIn = accessTokenObject.getIntValue("expires_in");
             authToken.refreshToken = accessTokenObject.getString("refresh_token");
-            authToken.expireIn = accessTokenObject.getInt32("expire_in");
-
             return authToken;
         }
 
@@ -200,12 +221,8 @@ namespace Come.CollectiveOAuth.Request
          */
         public override string authorize(string state)
         {
-            return UrlBuilder.fromBaseUrl(source.authorize())
-                .queryParam("response_type", "code")
-                .queryParam("client_id", config.clientId)
-                .queryParam("redirect_uri", config.redirectUri)
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "r_liteprofile r_emailaddress w_member_social": config.scope)
-                .queryParam("state", getRealState(state))
+            return UrlBuilder.fromBaseUrl(base.authorize(state))
+                .queryParam("scope", this.getScopes(" ", false, AuthScopeUtils.getDefaultScopes(AuthLinkedinScope.values())))
                 .build();
         }
 
@@ -220,19 +237,6 @@ namespace Come.CollectiveOAuth.Request
             return UrlBuilder.fromBaseUrl(source.userInfo())
                 .queryParam("projection", "(id,firstName,lastName,profilePicture(displayImage~:playableStreams))")
                 .build();
-        }
-        /**
-       * 校验请求结果
-       *
-       * @param response 请求结果
-       * @return 如果请求结果正常，则返回Exception
-       */
-        private void checkResponse(Dictionary<string, object> dic)
-        {
-            if (dic.ContainsKey("error"))
-            {
-                throw new Exception($"{dic.getString("error_description")}");
-            }
         }
     }
 }

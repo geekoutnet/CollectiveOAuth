@@ -44,6 +44,15 @@ namespace Come.CollectiveOAuth.Tests.Support
                 { "TAOBAO", (c, s) => new TaobaoAuthRequest(c, s) },
 
                 // ===== 批次 D =====
+                { "LINKEDIN", (c, s) => new LinkedInAuthRequest(c, s) },
+                { "GOOGLE", (c, s) => new GoogleAuthRequest(c, s) },
+                { "FACEBOOK", (c, s) => new FackbookAuthRequest(c, s) },
+                { "MICROSOFT", (c, s) => new MicrosoftAuthRequest(c, s) },
+                { "PINTEREST", (c, s) => new PinterestAuthRequest(c, s) },
+                { "STACK_OVERFLOW", (c, s) => new StackOverflowAuthRequest(c, s) },
+                { "GITLAB", (c, s) => new GitlabAuthRequest(c, s) },
+                { "TEAMBITION", (c, s) => new TeambitionAuthRequest(c, s) },
+                { "RENREN", (c, s) => new RenrenAuthRequest(c, s) },
 
 
                 // ===== 批次 E =====

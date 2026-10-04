@@ -1,0 +1,33 @@
+{
+  "source": "GITLAB",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/gitlab" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"de6780bc506a0446309bd9362820ba8aed28aa506c71eedbe1c5c4f9dd350e54\",\"token_type\":\"Bearer\",\"expires_in\":7200,\"refresh_token\":\"8257e65c97202ed1726cf9571600918f3bffb2544b26e00a61df9897668c33a1\",\"scope\":\"read_user openid profile\",\"created_at\":1607635748,\"id_token\":\"eyJ0eXAiOiJKV1QifQ.payload.sig\"}",
+        "{\"id\":1,\"username\":\"john_smith\",\"name\":\"John Smith\",\"state\":\"active\",\"avatar_url\":\"https://gitlab.com/uploads/user/avatar/1/cd8.jpeg\",\"web_url\":\"https://gitlab.com/john_smith\",\"bio\":\"\",\"location\":null,\"organization\":\"ACME\",\"email\":\"john@example.com\",\"public_email\":\"\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":\"invalid_grant\",\"error_description\":\"The provided authorization grant is invalid, expired, revoked.\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"access_token\":\"de6780\",\"token_type\":\"Bearer\"}",
+        "{\"message\":\"401 Unauthorized\"}"
+      ]
+    }
+  ]
+}

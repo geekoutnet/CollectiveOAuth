@@ -1,13 +1,18 @@
-﻿using Come.CollectiveOAuth.Cache;
+using Come.CollectiveOAuth.Cache;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Enums;
+using Come.CollectiveOAuth.Enums.Scope;
+using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
-using System;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-using Come.CollectiveOAuth.Enums;
 
 namespace Come.CollectiveOAuth.Request
 {
+    /**
+     * Google登录，对齐 JustAuth AuthGoogleRequest
+     */
     public class GoogleAuthRequest : DefaultAuthRequest
     {
         public GoogleAuthRequest(ClientConfig config) : base(config, new GoogleAuthSource())
@@ -18,46 +23,42 @@ namespace Come.CollectiveOAuth.Request
             : base(config, new GoogleAuthSource(), authStateCache)
         {
         }
+
         protected override AuthToken getAccessToken(AuthCallback authCallback)
         {
-            var response = doPostAuthorizationCode(authCallback.code);
-            var accessTokenObject = response.parseObject();
+            string response = doPostAuthorizationCode(authCallback.code);
+            var accessTokenObject = JsonExtensions.parseObject(response);
             this.checkResponse(accessTokenObject);
 
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject.getString("access_token");
-            authToken.expireIn = accessTokenObject.getInt32("expires_in");
-            authToken.idToken = accessTokenObject.getString("id_token");
-            authToken.tokenType = accessTokenObject.getString("token_type");
+            authToken.expireIn = accessTokenObject.getIntValue("expires_in");
             authToken.scope = accessTokenObject.getString("scope");
-
+            authToken.tokenType = accessTokenObject.getString("token_type");
+            authToken.idToken = accessTokenObject.getString("id_token");
             return authToken;
         }
 
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
-            var reqParams = new Dictionary<string, object>
-            {
-                { "Authorization", "Bearer " + authToken.accessToken }
-            };
-            var response = HttpUtils.RequestPost(userInfoUrl(authToken), null, reqParams);
-            var userInfo = response;
-            var userObj = userInfo.parseObject();
-            this.checkResponse(userObj);
+            var httpHeader = new Dictionary<string, object> { { "Authorization", "Bearer " + authToken.accessToken } };
+            string userInfo = HttpUtils.RequestPost(userInfoUrl(authToken), null, httpHeader, null, config.httpConfig);
+            var obj = JsonExtensions.parseObject(userInfo);
+            this.checkResponse(obj);
 
             var authUser = new AuthUser();
-            authUser.uuid = userObj.getString("sub");
-            authUser.username = userObj.getString("email");
-            authUser.nickname = userObj.getString("name");
-            authUser.avatar = userObj.getString("picture");
-            authUser.location = userObj.getString("locale");
-            authUser.email = userObj.getString("email");
+            authUser.rawUserInfo = obj;
+            authUser.uuid = obj.getString("sub");
+            authUser.username = obj.getString("email");
+            authUser.avatar = obj.getString("picture");
+            authUser.nickname = obj.getString("name");
+            authUser.location = obj.getString("locale");
+            authUser.email = obj.getString("email");
             authUser.gender = AuthUserGender.UNKNOWN;
-
             authUser.token = authToken;
             authUser.source = source.getName();
-            authUser.originalUser = userObj;
-            authUser.originalUserStr = response;
+            authUser.originalUser = obj;
+            authUser.originalUserStr = userInfo;
             return authUser;
         }
 
@@ -70,12 +71,10 @@ namespace Come.CollectiveOAuth.Request
          */
         public override string authorize(string state)
         {
-            return UrlBuilder.fromBaseUrl(source.authorize())
-                .queryParam("response_type", "code")
-                .queryParam("client_id", config.clientId)
-                .queryParam("scope", config.scope.IsNullOrWhiteSpace() ? "openid email profile" : config.scope)
-                .queryParam("redirect_uri", config.redirectUri)
-                .queryParam("state", getRealState(state))
+            return UrlBuilder.fromBaseUrl(base.authorize(state))
+                .queryParam("access_type", "offline")
+                .queryParam("scope", this.getScopes(" ", false, AuthScopeUtils.getDefaultScopes(AuthGoogleScope.values())))
+                .queryParam("prompt", "select_account")
                 .build();
         }
 
@@ -87,22 +86,20 @@ namespace Come.CollectiveOAuth.Request
          */
         protected override string userInfoUrl(AuthToken authToken)
         {
-            return UrlBuilder.fromBaseUrl(source.userInfo())
-                .queryParam("access_token", authToken.accessToken)
-                .build();
+            return UrlBuilder.fromBaseUrl(source.userInfo()).queryParam("access_token", authToken.accessToken).build();
         }
 
         /**
-       * 校验请求结果
-       *
-       * @param response 请求结果
-       * @return 如果请求结果正常，则返回Exception
-       */
-        private void checkResponse(Dictionary<string, object> dic)
+         * 检查响应内容是否正确
+         *
+         * @param object 请求响应内容
+         */
+        private void checkResponse(JObject obj)
         {
-            if (dic.ContainsKey("error") || dic.ContainsKey("error_description"))
+            if (obj.containsKey("error") || obj.containsKey("error_description"))
             {
-                throw new Exception($"{dic.getString("error")}: {dic.getString("error_description")}");
+                // 与 Java 字符串拼接一致：布尔值输出 true/false，null 输出 "null"
+                throw new AuthException((obj.containsKey("error") ? "true" : "false") + ":" + (obj.getString("error_description") ?? "null"));
             }
         }
     }

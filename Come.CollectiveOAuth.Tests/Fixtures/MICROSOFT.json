@@ -1,0 +1,40 @@
+{
+  "source": "MICROSOFT",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/microsoft", "tenantId": "contoso-tenant" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"token_type\":\"Bearer\",\"scope\":\"User.Read profile openid email\",\"expires_in\":3599,\"ext_expires_in\":3599,\"access_token\":\"eyJ0eXAiOiJKV1QiLCJub25jZSI6\",\"refresh_token\":\"M.R3_BAY.CbBX\"}",
+        "{\"@odata.context\":\"https://graph.microsoft.com/v1.0/$metadata#users/$entity\",\"businessPhones\":[\"+1 425 555 0109\"],\"displayName\":\"Adele Vance\",\"givenName\":\"Adele\",\"jobTitle\":\"Retail Manager\",\"mail\":\"AdeleV@contoso.com\",\"mobilePhone\":null,\"officeLocation\":\"18/2111\",\"preferredLanguage\":\"en-US\",\"surname\":\"Vance\",\"userPrincipalName\":\"AdeleV@contoso.com\",\"id\":\"87d349ed-44d7-43e1-9a83-5f2406dee5bd\"}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":\"invalid_grant\",\"error_description\":\"AADSTS70000: The provided authorization code is invalid or has expired.\",\"error_codes\":[70000]}"
+      ]
+    },
+    {
+      "name": "refresh_success",
+      "action": "refresh",
+      "token": { "accessToken": "old_access", "refreshToken": "M.R3_BAY.old", "tokenType": "Bearer" },
+      "responses": [
+        "{\"token_type\":\"Bearer\",\"scope\":\"User.Read profile openid email\",\"expires_in\":3599,\"access_token\":\"eyJ0eXAiOiJKV1QiLCJuZXci\",\"refresh_token\":\"M.R3_BAY.new\"}"
+      ]
+    },
+    {
+      "name": "refresh_error",
+      "action": "refresh",
+      "token": { "accessToken": "old_access", "refreshToken": "M.R3_BAY.bad", "tokenType": "Bearer" },
+      "responses": [
+        "{\"error\":\"invalid_grant\",\"error_description\":\"AADSTS70008: The refresh token has expired.\"}"
+      ]
+    }
+  ]
+}

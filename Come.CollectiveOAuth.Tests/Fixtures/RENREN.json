@@ -1,0 +1,41 @@
+{
+  "source": "RENREN",
+  "config": { "clientId": "cid", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/renren" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"token_type\":\"bearer\",\"expires_in\":2592000,\"access_token\":\"195345|6.abcdef.2592000.1390000000-222\",\"refresh_token\":\"195345|0.ghijkl.1390000000-222\",\"user\":{\"id\":222,\"name\":\"rr user\",\"avatar\":[]},\"scope\":\"read_user_feed read_user_album\"}",
+        "{\"response\":{\"id\":222,\"name\":\"rr user\",\"avatar\":[{\"size\":\"TINY\",\"url\":\"http://hdn.xnimg.cn/photos/tiny.jpg\"},{\"size\":\"HEAD\",\"url\":\"http://hdn.xnimg.cn/photos/head.jpg\"}],\"basicInformation\":{\"sex\":\"MALE\",\"birthday\":\"1990-01-01\"},\"work\":[{\"name\":\"ACME\",\"time\":\"2010-01\"}]}}"
+      ]
+    },
+    {
+      "name": "login_success_minimal",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"token_type\":\"bearer\",\"expires_in\":2592000,\"access_token\":\"195345|6.abcdef.2592000.1390000000-333\",\"refresh_token\":\"195345|0.ghijkl.1390000000-333\",\"user\":{\"id\":333}}",
+        "{\"response\":{\"id\":333,\"name\":\"rr minimal\",\"avatar\":[],\"work\":[]}}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "{\"error\":\"invalid_grant\"}"
+      ]
+    },
+    {
+      "name": "refresh_success",
+      "action": "refresh",
+      "token": { "accessToken": "old", "refreshToken": "195345|0.ghijkl.1390000000-222" },
+      "responses": [
+        "{\"token_type\":\"bearer\",\"expires_in\":2592000,\"access_token\":\"195345|6.newnew.2592000.1390000000-222\",\"refresh_token\":\"195345|0.newref.1390000000-222\",\"user\":{\"id\":222}}"
+      ]
+    }
+  ]
+}

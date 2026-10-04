@@ -1,0 +1,125 @@
+{
+	"source":"TWITTER",
+	"authorizeUrl":"https://api.twitter.com/oauth/authenticate?oauth_token=NPcudxy0yU5T3tBzho7iCotZ3cnetKwcTIRlX0iwRl0",
+	"authorizeRequests":[
+		{
+			"method":"POST",
+			"url":"https://api.twitter.com/oauth/request_token",
+			"headers":{
+				"Authorization":"OAuth oauth_nonce=\"bEGpgVr7M6KcITiHDGqFfiyKfu6g5Wkh\", oauth_signature=\"DLhw5Mc08MrP7mkKPDU2XFdUfpE%3D\", oauth_callback=\"https%3A%2F%2Fwww.justauth.cn%2Fcallback%2Ftwitter\", oauth_consumer_key=\"ckey\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"1791100986\", oauth_version=\"1.0\" ",
+				"User-Agent":"'JustAuth' HTTP Client Simple-Http"
+			}
+		}
+	],
+	"scenarios":[
+		{
+			"name":"login_success",
+			"result":{
+				"code":2000,
+				"data":{
+					"remark":"The Real Twitter API.",
+					"avatar":"http://pbs.twimg.com/profile_images/942858479592554497/BbazLO9L_normal.jpg",
+					"source":"TWITTER",
+					"blog":"https://t.co/8IkCzCDr19",
+					"uuid":"7588892",
+					"rawUserInfo":{
+						"profile_image_url_https":"https://pbs.twimg.com/profile_images/942858479592554497/BbazLO9L_normal.jpg",
+						"verified":true,
+						"description":"The Real Twitter API.",
+						"profile_image_url":"http://pbs.twimg.com/profile_images/942858479592554497/BbazLO9L_normal.jpg",
+						"url":"https://t.co/8IkCzCDr19",
+						"protected":false,
+						"screen_name":"twitterapi",
+						"id_str":"7588892",
+						"followers_count":6133636,
+						"name":"Twitter API",
+						"location":"San Francisco, CA",
+						"id":7588892,
+						"email":"api@twitter.com"
+					},
+					"token":{
+						"screenName":"twitterapi",
+						"oauthToken":"7588892-kagSNqWge8gB1WwE3plnFsJHAZVfxWD7Vb57p0b4",
+						"userId":"7588892",
+						"snapshotUser":false,
+						"oauthTokenSecret":"PbKfYqSryyeKDWz4ebtY3o5ogNLG11WJuZBc9fQrQo",
+						"refreshTokenExpireIn":0,
+						"expireIn":0
+					},
+					"snapshotUser":false,
+					"nickname":"Twitter API",
+					"location":"San Francisco, CA",
+					"email":"api@twitter.com",
+					"username":"twitterapi"
+				}
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://api.twitter.com/oauth/access_token",
+					"params":{
+						"oauth_verifier":"uw7NjWHT6OJ1MpJOXsHfNxoAhPKpgI8BlYDhxEjIBY"
+					},
+					"encode":false,
+					"headers":{
+						"Authorization":"OAuth oauth_verifier=\"uw7NjWHT6OJ1MpJOXsHfNxoAhPKpgI8BlYDhxEjIBY\", oauth_nonce=\"IrwvRvi8c6ln2Ogy46AcrbQDKGMgyvYH\", oauth_signature=\"RdtWxsRZ1TrazT7j1L1Od%2BlaqAc%3D\", oauth_token=\"NPcudxy0yU5T3tBzho7iCotZ3cnetKwcTIRlX0iwRl0\", oauth_consumer_key=\"ckey\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"1791100987\", oauth_version=\"1.0\" ",
+						"Content-Type":"application/x-www-form-urlencoded"
+					}
+				},
+				{
+					"method":"GET",
+					"url":"https://api.twitter.com/1.1/account/verify_credentials.json?include_entities=true&include_email=true",
+					"encode":false,
+					"headers":{
+						"Authorization":"OAuth oauth_nonce=\"czxVkvv2mAy74MttQ7Mm6aLxyzEow5zA\", oauth_signature=\"QSY6wK5oL6sDZOXIh4UXD%2FY%2FUV8%3D\", oauth_token=\"7588892-kagSNqWge8gB1WwE3plnFsJHAZVfxWD7Vb57p0b4\", oauth_consumer_key=\"ckey\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"1791100987\", oauth_version=\"1.0\" "
+					}
+				}
+			]
+		},
+		{
+			"name":"login_invalid_verifier",
+			"result":{
+				"code":2000,
+				"data":{
+					"source":"TWITTER",
+					"rawUserInfo":{
+						"errors":[
+							{
+								"code":89,
+								"message":"Invalid or expired token."
+							}
+						]
+					},
+					"token":{
+						"snapshotUser":false,
+						"refreshTokenExpireIn":0,
+						"expireIn":0
+					},
+					"snapshotUser":false
+				}
+			},
+			"requests":[
+				{
+					"method":"POST",
+					"url":"https://api.twitter.com/oauth/access_token",
+					"params":{
+						"oauth_verifier":"bad"
+					},
+					"encode":false,
+					"headers":{
+						"Authorization":"OAuth oauth_verifier=\"bad\", oauth_nonce=\"hU4wRFbWhwyboN1BVsE3K9SjuMy8Y4ol\", oauth_signature=\"D6urboKCd1Hr6HKbDr%2Bn50kwIRg%3D\", oauth_token=\"NPcudxy0yU5T3tBzho7iCotZ3cnetKwcTIRlX0iwRl0\", oauth_consumer_key=\"ckey\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"1791100987\", oauth_version=\"1.0\" ",
+						"Content-Type":"application/x-www-form-urlencoded"
+					}
+				},
+				{
+					"method":"GET",
+					"url":"https://api.twitter.com/1.1/account/verify_credentials.json?include_entities=true&include_email=true",
+					"encode":false,
+					"headers":{
+						"Authorization":"OAuth oauth_nonce=\"4DqB15N1efOC06fpbbDLPHVGe2YvVK0O\", oauth_signature=\"xxhnbJb79pjwyG2B0uSPV07aTHU%3D\", oauth_token=\"\", oauth_consumer_key=\"ckey\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"1791100987\", oauth_version=\"1.0\" "
+					}
+				}
+			]
+		}
+	]
+}

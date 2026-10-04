@@ -1,0 +1,11 @@
+{
+  "source": "ALIPAY",
+  "config": {
+    "clientId": "2021000000000000",
+    "clientSecret": "fakeprivatekey",
+    "alipayPublicKey": "fakealipaypublickey",
+    "redirectUri": "https://www.justauth.cn/callback/alipay"
+  },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": []
+}

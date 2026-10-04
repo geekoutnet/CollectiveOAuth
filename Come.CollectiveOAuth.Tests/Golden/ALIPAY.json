@@ -1,0 +1,5 @@
+{
+	"source":"ALIPAY",
+	"authorizeUrl":"https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=2021000000000000&scope=auth_user&redirect_uri=https://www.justauth.cn/callback/alipay&state=fixedstate000000000000000000000",
+	"scenarios":[]
+}

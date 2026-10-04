@@ -196,8 +196,10 @@ namespace Come.Web.Sample
                 case DefaultAuthSourceEnum.TAOBAO:
                     return new TaobaoAuthRequest(clientConfig, authStateCache);
 
+                case DefaultAuthSourceEnum.TWITTER:
+                    return new TwitteAuthRequest(clientConfig, authStateCache);
+
                 default:
-                    // TWITTER 暂未实现
                     throw new NotSupportedException($"暂不支持的授权平台: {authSource}");
             }
         }

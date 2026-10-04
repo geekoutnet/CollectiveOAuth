@@ -1,0 +1,52 @@
+{
+  "source": "MI",
+  "config": { "clientId": "2882303761517", "clientSecret": "csecret", "redirectUri": "https://www.justauth.cn/callback/mi" },
+  "state": "fixedstate000000000000000000000",
+  "scenarios": [
+    {
+      "name": "login_success",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "&&&START&&&{\"access_token\":\"V2_mi_at\",\"expires_in\":7776000,\"refresh_token\":\"mi_rt\",\"scope\":\"1 3\",\"token_type\":\"mac\",\"mac_key\":\"mk\",\"mac_algorithm\":\"HmacSha1\",\"openId\":\"2.0XbS_openid\"}",
+        "{\"result\":\"ok\",\"description\":\"成功\",\"data\":{\"unionId\":\"u_123\",\"miliaoNick\":\"米粉\",\"miliaoIcon\":\"https://cdn.cnbj1.fds.api.mi-img.com/avatar.jpg\",\"mail\":\"old@example.com\"},\"code\":0}",
+        "{\"result\":\"ok\",\"description\":\"成功\",\"data\":{\"phone\":\"138****0000\",\"email\":\"mi@example.com\"},\"code\":0}"
+      ]
+    },
+    {
+      "name": "login_email_unavailable",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "&&&START&&&{\"access_token\":\"V2_mi_at\",\"expires_in\":7776000,\"refresh_token\":\"mi_rt\",\"scope\":\"1 3\",\"token_type\":\"mac\",\"mac_key\":\"mk\",\"mac_algorithm\":\"HmacSha1\",\"openId\":\"2.0XbS_openid\"}",
+        "{\"result\":\"ok\",\"description\":\"成功\",\"data\":{\"unionId\":\"u_123\",\"miliaoNick\":\"米粉\",\"miliaoIcon\":\"https://cdn.cnbj1.fds.api.mi-img.com/avatar.jpg\",\"mail\":\"old@example.com\"},\"code\":0}",
+        "{\"result\":\"error\",\"description\":\"no permission\",\"code\":96009}"
+      ]
+    },
+    {
+      "name": "login_token_error",
+      "action": "login",
+      "callback": { "code": "bad", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "&&&START&&&{\"error\":96013,\"error_description\":\"invalid grant code\"}"
+      ]
+    },
+    {
+      "name": "login_userinfo_error",
+      "action": "login",
+      "callback": { "code": "code123", "state": "fixedstate000000000000000000000" },
+      "responses": [
+        "&&&START&&&{\"access_token\":\"V2_mi_at\",\"expires_in\":7776000,\"refresh_token\":\"mi_rt\",\"scope\":\"1 3\",\"token_type\":\"mac\",\"mac_key\":\"mk\",\"mac_algorithm\":\"HmacSha1\",\"openId\":\"2.0XbS_openid\"}",
+        "{\"result\":\"error\",\"description\":\"invalid token\",\"code\":96008}"
+      ]
+    },
+    {
+      "name": "refresh_success",
+      "action": "refresh",
+      "token": { "accessToken": "V2_mi_at", "refreshToken": "mi_rt" },
+      "responses": [
+        "&&&START&&&{\"access_token\":\"V2_mi_at2\",\"expires_in\":7776000,\"refresh_token\":\"mi_rt2\",\"scope\":\"1 3\",\"token_type\":\"mac\",\"mac_key\":\"mk2\",\"mac_algorithm\":\"HmacSha1\",\"openId\":\"2.0XbS_openid\"}"
+      ]
+    }
+  ]
+}

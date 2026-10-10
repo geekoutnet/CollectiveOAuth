@@ -59,5 +59,12 @@ namespace Come.CollectiveOAuth.Tests
             var ex = Assert.Throws<AuthException>(() => AuthChecker.checkState("nope", new GithubAuthSource(), cache));
             Assert.Equal(5009, ex.errorCode);
         }
+
+        [Fact]
+        public void github_source_refresh_revoke_unsupported_like_java()
+        {
+            Assert.Equal(5003, Assert.Throws<AuthException>(() => new GithubAuthSource().refresh()).errorCode);
+            Assert.Equal(5003, Assert.Throws<AuthException>(() => new GithubAuthSource().revoke()).errorCode);
+        }
     }
 }

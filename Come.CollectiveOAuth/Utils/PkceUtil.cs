@@ -25,5 +25,10 @@ namespace Come.CollectiveOAuth.Utils
             }
             return codeVerifier;
         }
+
+        public static string newStringUsAscii(byte[] bytes)
+        {
+            return Encoding.ASCII.GetString(bytes);
+        }
     }
 }

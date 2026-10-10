@@ -24,12 +24,12 @@ namespace Come.CollectiveOAuth.Config
 
         public string revoke()
         {
-            throw new System.NotImplementedException();
+            throw new Come.CollectiveOAuth.Exceptions.AuthException(AuthResponseStatus.UNSUPPORTED);
         }
 
         public string refresh()
         {
-            throw new System.NotImplementedException();
+            throw new Come.CollectiveOAuth.Exceptions.AuthException(AuthResponseStatus.UNSUPPORTED);
         }
 
         public string getName()

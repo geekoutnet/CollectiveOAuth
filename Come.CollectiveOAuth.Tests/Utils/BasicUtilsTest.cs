@@ -37,5 +37,11 @@ namespace Come.CollectiveOAuth.Tests.Utils
             Assert.Equal("plain-verifier", PkceUtil.generateCodeChallenge("plain", "plain-verifier"));
             Assert.Matches("^[A-Za-z0-9_-]+$", PkceUtil.generateCodeVerifier());
         }
+
+        [Fact]
+        public void Pkce_newStringUsAscii()
+        {
+            Assert.Equal("abc", PkceUtil.newStringUsAscii(new byte[] { 97, 98, 99 }));
+        }
     }
 }

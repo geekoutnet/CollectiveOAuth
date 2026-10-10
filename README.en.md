@@ -43,11 +43,8 @@ The library is a C# implementation of [JustAuth](https://github.com/justauth/Jus
 
 ## Installation
 
-The library is currently consumed from source:
-
 ```bash
-git clone https://github.com/geekoutnet/CollectiveOAuth.git
-dotnet add <YourProject>.csproj reference CollectiveOAuth/Come.CollectiveOAuth/Come.CollectiveOAuth.csproj
+dotnet add package Rthinking.CollectiveOAuth
 ```
 
 ## Quick start (ASP.NET Core, GitHub)

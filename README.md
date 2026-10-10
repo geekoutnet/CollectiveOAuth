@@ -8,6 +8,7 @@
 </p>
 
 <p align="center">
+  <a href="https://www.nuget.org/packages/Rthinking.CollectiveOAuth"><img src="https://img.shields.io/nuget/v/Rthinking.CollectiveOAuth" alt="NuGet"></a>
   <a href="https://geekoutnet.github.io/CollectiveOAuth/"><img src="https://img.shields.io/badge/文档-在线阅读-4b32c3" alt="文档"></a>
   <img src="https://img.shields.io/badge/.NET%20Framework-4.6.2+-512bd4" alt=".NET Framework 4.6.2+">
   <img src="https://img.shields.io/badge/.NET%20Standard-2.0-512bd4" alt=".NET Standard 2.0">
@@ -93,12 +94,11 @@ CollectiveOAuth 把各家平台五花八门的 OAuth 协议细节封装起来。
 
 ## 安装
 
-目前以源码方式引用：
-
 ```bash
-git clone https://github.com/geekoutnet/CollectiveOAuth.git
-dotnet add <你的项目>.csproj reference CollectiveOAuth/Come.CollectiveOAuth/Come.CollectiveOAuth.csproj
+dotnet add package Rthinking.CollectiveOAuth
 ```
+
+也可以克隆源码后以项目方式引用 `Come.CollectiveOAuth/Come.CollectiveOAuth.csproj`。
 
 ## 快速开始
 
@@ -193,7 +193,7 @@ dotnet test Come.CollectiveOAuth.Tests                          # 单元测试�
 - [x] 31 个已有平台对齐并通过差分测试
 - [x] 使用文档站
 - [ ] 新增 JustAuth 中的其余 20 个平台：飞书、京东、阿里云、喜马拉雅、Apple、Amazon、Slack、LINE、Okta、钉钉 V2 与钉钉账号登录、华为 V3、企业微信 V2 与第三方扫码、微软中国版、CSDN、程序员客栈、爱发电、微信小程序、QQ 小程序
-- [ ] 发布 NuGet 包
+- [x] 发布 NuGet 包 [Rthinking.CollectiveOAuth](https://www.nuget.org/packages/Rthinking.CollectiveOAuth)
 
 ## 贡献
 

@@ -177,10 +177,9 @@ footer { margin-top: 100px; padding-top: 28px; border-top: 1px solid var(--line)
 
       <section id="install">
         <h2>安装</h2>
-        <p>目前通过源码引用使用。克隆仓库后，在你的项目里引用类库项目：</p>
-        <div class="code"><span class="lang">bash</span><pre><code>git clone https://github.com/geekoutnet/CollectiveOAuth.git
-dotnet add 你的项目.csproj reference CollectiveOAuth/Come.CollectiveOAuth/Come.CollectiveOAuth.csproj</code></pre></div>
-        <p>类库同时编译三个目标框架，引用时会自动选择匹配的版本：</p>
+        <p>从 NuGet 安装：</p>
+        <div class="code"><span class="lang">bash</span><pre><code>dotnet add package Rthinking.CollectiveOAuth</code></pre></div>
+        <p>包内同时包含三个目标框架的版本，安装时会自动选择匹配的那个：</p>
         <div class="table-wrap"><table>
           <thead><tr><th>你的项目</th><th>使用的版本</th></tr></thead>
           <tbody>

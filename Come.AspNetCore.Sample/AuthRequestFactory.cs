@@ -49,6 +49,8 @@ namespace Come.AspNetCore.Sample
                         clientConfig.unionId = AppSettingUtils.GetStrValue($"{_defaultPrefix}{authSource}_UnionId");
                         clientConfig.stackOverflowKey = AppSettingUtils.GetStrValue($"{_defaultPrefix}{authSource}_StackOverflowKey");
                         clientConfig.agentId = AppSettingUtils.GetStrValue($"{_defaultPrefix}{authSource}_AgentId");
+                        clientConfig.domainPrefix = AppSettingUtils.GetStrValue($"{_defaultPrefix}{authSource}_DomainPrefix");
+                        clientConfig.tenantId = AppSettingUtils.GetStrValue($"{_defaultPrefix}{authSource}_TenantId");
                         clientConfig.scope = AppSettingUtils.GetStrValue($"{_defaultPrefix}{authSource}_Scope");
                         _clientConfigs.Add(authSource, clientConfig);
                     }

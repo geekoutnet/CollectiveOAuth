@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/logo.png" width="360" alt="CollectiveOAuth">
+  <img src="docs/images/logo.png" width="360" alt="CollectiveOAuth">
 </p>
 
 <p align="center">

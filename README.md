@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/logo.png" width="360" alt="CollectiveOAuth">
+  <img src="docs/images/logo.png" width="360" alt="CollectiveOAuth">
 </p>
 
 <p align="center">
@@ -49,37 +49,37 @@ CollectiveOAuth 把各家平台五花八门的 OAuth 协议细节封装起来。
 
 | | 平台 | 平台名（authSource） | 请求类 | 官方文档 |
 |:-:|---|---|---|:-:|
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/wechat.png" width="18"> | 微信公众号 | `WECHAT_MP` | [WeChatMpAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/WeChatMpAuthRequest.cs) | [文档](https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_authorization.html) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/wechat.png" width="18"> | 微信开放平台 | `WECHAT_OPEN` | [WeChatOpenAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/WeChatOpenAuthRequest.cs) | [文档](https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/wechat.png" width="18"> | 企业微信网页授权 | `WECHAT_ENTERPRISE` | [WeChatEnterpriseAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/WeChatEnterpriseAuthRequest.cs) | [文档](https://developer.work.weixin.qq.com/document/path/91022) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/wechat.png" width="18"> | 企业微信扫码 | `WECHAT_ENTERPRISE_SCAN` | [WeChatEnterpriseScanAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/WeChatEnterpriseScanAuthRequest.cs) | [文档](https://developer.work.weixin.qq.com/document/path/91019) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/alipay.png" width="18"> | 支付宝 | `ALIPAY_MP` | [AlipayMpAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/AlipayMpAuthRequest.cs) | [文档](https://opendocs.alipay.com/open/284/web) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/dingtalk.png" width="18"> | 钉钉扫码 | `DINGTALK_SCAN` | [DingTalkScanAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/DingTalkScanAuthRequest.cs) | [文档](https://open.dingtalk.com/document/orgapp/tutorial-obtaining-user-personal-information) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/qq.png" width="18"> | QQ | `QQ` | [QQAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/QQAuthRequest.cs) | [文档](https://wiki.connect.qq.com/%E4%BD%BF%E7%94%A8authorization_code%E8%8E%B7%E5%8F%96access_token) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/weibo.png" width="18"> | 微博 | `WEIBO` | [WeiboAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/WeiboAuthRequest.cs) | [文档](https://open.weibo.com/wiki/%E6%8E%88%E6%9D%83%E6%9C%BA%E5%88%B6%E8%AF%B4%E6%98%8E) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/baidu.png" width="18"> | 百度 | `BAIDU` | [BaiduAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/BaiduAuthRequest.cs) | [文档](http://developer.baidu.com/wiki/index.php?title=docs/oauth) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/gitee.png" width="18"> | 码云 Gitee | `GITEE` | [GiteeAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/GiteeAuthRequest.cs) | [文档](https://gitee.com/api/v5/oauth_doc) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/oschina.png" width="18"> | 开源中国 | `OSCHINA` | [OschinaAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/OschinaAuthRequest.cs) | [文档](https://www.oschina.net/openapi/docs/oauth2_authorize) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/coding.png" width="18"> | Coding | `CODING` | [CodingAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/CodingAuthRequest.cs) | [文档](https://coding.net/help/openapi) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/mi.png" width="18"> | 小米 | `XIAOMI` | [XiaoMiAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/XiaoMiAuthRequest.cs) | [文档](https://dev.mi.com/console/doc/detail?pId=711) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/huawei.png" width="18"> | 华为 | `HUAWEI` | [HuaweiAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/HuaweiAuthRequest.cs) | [文档](https://developer.huawei.com/consumer/cn/doc/development/HMSCore-Guides/open-platform-oauth-0000001050123437) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/douyin.png" width="18"> | 抖音 | `DOUYIN` | [DouyinAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/DouYinAuthRequest.cs) | [文档](https://developer.open-douyin.com/docs/resource/zh-CN/dop/develop/openapi/account-permission/get-permission-code) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/toutiao.png" width="18"> | 今日头条 | `TOUTIAO` | [ToutiaoAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/ToutiaoAuthRequest.cs) | [文档](https://open.mp.toutiao.com/) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/meituan.png" width="18"> | 美团 | `MEITUAN` | [MeituanAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/MeituanAuthRequest.cs) | [文档](http://open.waimai.meituan.com/openapi_docs/oauth/) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/eleme.png" width="18"> | 饿了么 | `ELEME` | [ElemeAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/ElemeAuthRequest.cs) | [文档](https://open.shop.ele.me/openapi/documents/khd001) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/taobao.png" width="18"> | 淘宝 | `TAOBAO` | [TaobaoAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/TaobaoAuthRequest.cs) | [文档](https://open.taobao.com/doc.htm?docId=105590&docType=1) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/kujiale.png" width="18"> | 酷家乐 | `KUJIALE` | [KujialeAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/KujialeAuthRequest.cs) | [文档](https://open.kujiale.com/open/apps/2/docs?doc_id=95) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/teambition.png" width="18"> | Teambition | `TEAMBITION` | [TeambitionAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/TeambitionAuthRequest.cs) | [文档](https://docs.teambition.com/) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/renren.png" width="18"> | 人人网 | `RENREN` | [RenrenAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/RenrenAuthRequest.cs) | [文档](http://open.renren.com/wiki/OAuth2.0) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/github.png" width="18"> | GitHub | `GITHUB` | [GithubAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/GithubAuthRequest.cs) | [文档](https://docs.github.com/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/gitlab.png" width="18"> | GitLab | `GITLAB` | [GitlabAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/GitlabAuthRequest.cs) | [文档](https://docs.gitlab.com/ee/api/oauth2.html) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/google.png" width="18"> | Google | `GOOGLE` | [GoogleAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/GoogleAuthRequest.cs) | [文档](https://developers.google.com/identity/protocols/oauth2/web-server) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/microsoft.png" width="18"> | Microsoft | `MICROSOFT` | [MicrosoftAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/MicrosoftAuthRequest.cs) | [文档](https://learn.microsoft.com/entra/identity-platform/v2-oauth2-auth-code-flow) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/facebook.png" width="18"> | Facebook | `FACEBOOK` | [FackbookAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/FackbookAuthRequest.cs) | [文档](https://developers.facebook.com/docs/facebook-login/guides/advanced/manual-flow) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/linkedin.png" width="18"> | LinkedIn | `LINKEDIN` | [LinkedInAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/LinkedinAuthRequest.cs) | [文档](https://learn.microsoft.com/linkedin/shared/authentication/authorization-code-flow) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/twitter.png" width="18"> | Twitter | `TWITTER` | [TwitteAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/TwitteAuthRequest.cs) | [文档](https://developer.x.com/en/docs/authentication/guides/log-in-with-twitter) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/pinterest.png" width="18"> | Pinterest | `PINTEREST` | [PinterestAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/PinterestAuthRequest.cs) | [文档](https://developers.pinterest.com/docs/getting-started/authentication/) |
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/stackoverflow.png" width="18"> | Stack Overflow | `STACK_OVERFLOW` | [StackOverflowAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/StackOverflowAuthRequest.cs) | [文档](https://api.stackexchange.com/docs/authentication) |
+| <img src="docs/images/platforms/wechat.png" width="18"> | 微信公众号 | `WECHAT_MP` | [WeChatMpAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/WeChatMpAuthRequest.cs) | [文档](https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_authorization.html) |
+| <img src="docs/images/platforms/wechat.png" width="18"> | 微信开放平台 | `WECHAT_OPEN` | [WeChatOpenAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/WeChatOpenAuthRequest.cs) | [文档](https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html) |
+| <img src="docs/images/platforms/wechat.png" width="18"> | 企业微信网页授权 | `WECHAT_ENTERPRISE` | [WeChatEnterpriseAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/WeChatEnterpriseAuthRequest.cs) | [文档](https://developer.work.weixin.qq.com/document/path/91022) |
+| <img src="docs/images/platforms/wechat.png" width="18"> | 企业微信扫码 | `WECHAT_ENTERPRISE_SCAN` | [WeChatEnterpriseScanAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/WeChatEnterpriseScanAuthRequest.cs) | [文档](https://developer.work.weixin.qq.com/document/path/91019) |
+| <img src="docs/images/platforms/alipay.png" width="18"> | 支付宝 | `ALIPAY_MP` | [AlipayMpAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/AlipayMpAuthRequest.cs) | [文档](https://opendocs.alipay.com/open/284/web) |
+| <img src="docs/images/platforms/dingtalk.png" width="18"> | 钉钉扫码 | `DINGTALK_SCAN` | [DingTalkScanAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/DingTalkScanAuthRequest.cs) | [文档](https://open.dingtalk.com/document/orgapp/tutorial-obtaining-user-personal-information) |
+| <img src="docs/images/platforms/qq.png" width="18"> | QQ | `QQ` | [QQAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/QQAuthRequest.cs) | [文档](https://wiki.connect.qq.com/%E4%BD%BF%E7%94%A8authorization_code%E8%8E%B7%E5%8F%96access_token) |
+| <img src="docs/images/platforms/weibo.png" width="18"> | 微博 | `WEIBO` | [WeiboAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/WeiboAuthRequest.cs) | [文档](https://open.weibo.com/wiki/%E6%8E%88%E6%9D%83%E6%9C%BA%E5%88%B6%E8%AF%B4%E6%98%8E) |
+| <img src="docs/images/platforms/baidu.png" width="18"> | 百度 | `BAIDU` | [BaiduAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/BaiduAuthRequest.cs) | [文档](http://developer.baidu.com/wiki/index.php?title=docs/oauth) |
+| <img src="docs/images/platforms/gitee.png" width="18"> | 码云 Gitee | `GITEE` | [GiteeAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/GiteeAuthRequest.cs) | [文档](https://gitee.com/api/v5/oauth_doc) |
+| <img src="docs/images/platforms/oschina.png" width="18"> | 开源中国 | `OSCHINA` | [OschinaAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/OschinaAuthRequest.cs) | [文档](https://www.oschina.net/openapi/docs/oauth2_authorize) |
+| <img src="docs/images/platforms/coding.png" width="18"> | Coding | `CODING` | [CodingAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/CodingAuthRequest.cs) | [文档](https://coding.net/help/openapi) |
+| <img src="docs/images/platforms/mi.png" width="18"> | 小米 | `XIAOMI` | [XiaoMiAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/XiaoMiAuthRequest.cs) | [文档](https://dev.mi.com/console/doc/detail?pId=711) |
+| <img src="docs/images/platforms/huawei.png" width="18"> | 华为 | `HUAWEI` | [HuaweiAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/HuaweiAuthRequest.cs) | [文档](https://developer.huawei.com/consumer/cn/doc/development/HMSCore-Guides/open-platform-oauth-0000001050123437) |
+| <img src="docs/images/platforms/douyin.png" width="18"> | 抖音 | `DOUYIN` | [DouyinAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/DouYinAuthRequest.cs) | [文档](https://developer.open-douyin.com/docs/resource/zh-CN/dop/develop/openapi/account-permission/get-permission-code) |
+| <img src="docs/images/platforms/toutiao.png" width="18"> | 今日头条 | `TOUTIAO` | [ToutiaoAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/ToutiaoAuthRequest.cs) | [文档](https://open.mp.toutiao.com/) |
+| <img src="docs/images/platforms/meituan.png" width="18"> | 美团 | `MEITUAN` | [MeituanAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/MeituanAuthRequest.cs) | [文档](http://open.waimai.meituan.com/openapi_docs/oauth/) |
+| <img src="docs/images/platforms/eleme.png" width="18"> | 饿了么 | `ELEME` | [ElemeAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/ElemeAuthRequest.cs) | [文档](https://open.shop.ele.me/openapi/documents/khd001) |
+| <img src="docs/images/platforms/taobao.png" width="18"> | 淘宝 | `TAOBAO` | [TaobaoAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/TaobaoAuthRequest.cs) | [文档](https://open.taobao.com/doc.htm?docId=105590&docType=1) |
+| <img src="docs/images/platforms/kujiale.png" width="18"> | 酷家乐 | `KUJIALE` | [KujialeAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/KujialeAuthRequest.cs) | [文档](https://open.kujiale.com/open/apps/2/docs?doc_id=95) |
+| <img src="docs/images/platforms/teambition.png" width="18"> | Teambition | `TEAMBITION` | [TeambitionAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/TeambitionAuthRequest.cs) | [文档](https://docs.teambition.com/) |
+| <img src="docs/images/platforms/renren.png" width="18"> | 人人网 | `RENREN` | [RenrenAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/RenrenAuthRequest.cs) | [文档](http://open.renren.com/wiki/OAuth2.0) |
+| <img src="docs/images/platforms/github.png" width="18"> | GitHub | `GITHUB` | [GithubAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/GithubAuthRequest.cs) | [文档](https://docs.github.com/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps) |
+| <img src="docs/images/platforms/gitlab.png" width="18"> | GitLab | `GITLAB` | [GitlabAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/GitlabAuthRequest.cs) | [文档](https://docs.gitlab.com/ee/api/oauth2.html) |
+| <img src="docs/images/platforms/google.png" width="18"> | Google | `GOOGLE` | [GoogleAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/GoogleAuthRequest.cs) | [文档](https://developers.google.com/identity/protocols/oauth2/web-server) |
+| <img src="docs/images/platforms/microsoft.png" width="18"> | Microsoft | `MICROSOFT` | [MicrosoftAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/MicrosoftAuthRequest.cs) | [文档](https://learn.microsoft.com/entra/identity-platform/v2-oauth2-auth-code-flow) |
+| <img src="docs/images/platforms/facebook.png" width="18"> | Facebook | `FACEBOOK` | [FackbookAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/FackbookAuthRequest.cs) | [文档](https://developers.facebook.com/docs/facebook-login/guides/advanced/manual-flow) |
+| <img src="docs/images/platforms/linkedin.png" width="18"> | LinkedIn | `LINKEDIN` | [LinkedInAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/LinkedinAuthRequest.cs) | [文档](https://learn.microsoft.com/linkedin/shared/authentication/authorization-code-flow) |
+| <img src="docs/images/platforms/twitter.png" width="18"> | Twitter | `TWITTER` | [TwitteAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/TwitteAuthRequest.cs) | [文档](https://developer.x.com/en/docs/authentication/guides/log-in-with-twitter) |
+| <img src="docs/images/platforms/pinterest.png" width="18"> | Pinterest | `PINTEREST` | [PinterestAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/PinterestAuthRequest.cs) | [文档](https://developers.pinterest.com/docs/getting-started/authentication/) |
+| <img src="docs/images/platforms/stackoverflow.png" width="18"> | Stack Overflow | `STACK_OVERFLOW` | [StackOverflowAuthRequest](Come.CollectiveOAuth/Request/AuthRequests/StackOverflowAuthRequest.cs) | [文档](https://api.stackexchange.com/docs/authentication) |
 
 各平台需要的额外配置、回调参数以及是否支持刷新和撤销授权，见[文档站的平台详情](https://geekoutnet.github.io/CollectiveOAuth/#platforms)。
 
@@ -209,12 +209,6 @@ dotnet test Come.CollectiveOAuth.Tests                          # 单元测试�
 - [JustAuth](https://github.com/justauth/JustAuth)：Java 第三方登录授权 SDK，本项目的设计与行为基准。
 - [iconfont](https://www.iconfont.cn)：文档中的平台图标大多来自该平台。
 - 感谢 JetBrains 提供的开源 License。
-
-## 关注与交流
-
-| 公众号 | QQ 群（836803890） |
-|:-:|:-:|
-| <img src="https://gitee.com/rthinking/auth_files/raw/master/wx/wechat_account.jpg" width="180"> | <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/qq-group.png" width="160"> |
 
 ## 许可证
 

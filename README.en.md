@@ -1,37 +1,98 @@
-# CollectiveOAuth
+<p align="center">
+  <img src="https://gitee.com/rthinking/auth_files/raw/master/CollectiveOAuth/logo.png" width="360" alt="CollectiveOAuth">
+</p>
 
-#### Description
-.Net平台 史上最全的整合第三方登录的开源库。目前已支持Github、Gitee、钉钉、百度、支付宝、微信、企业微信、等第三方平台的授权登录。
-以下平台正在接入中: 微博、Coding、腾讯云开发者平台、OSChina、QQ、淘宝、Google、Facebook、抖音、领英、小米、微软、今日头条、Teambition、StackOverflow、Pinterest、人人、华为、酷家乐、Gitlab、美团、饿了么和推特
+<p align="center">
+  <strong>Third-party OAuth login for .NET</strong><br>
+  One API for 31 providers, including WeChat, Alipay, DingTalk, QQ, GitHub, Google and Microsoft
+</p>
 
-#### Software Architecture
-Software architecture description
+<p align="center">
+  <a href="https://geekoutnet.github.io/CollectiveOAuth/"><img src="https://img.shields.io/badge/docs-online-4b32c3" alt="Docs"></a>
+  <img src="https://img.shields.io/badge/.NET%20Framework-4.6.2+-512bd4" alt=".NET Framework 4.6.2+">
+  <img src="https://img.shields.io/badge/.NET%20Standard-2.0-512bd4" alt=".NET Standard 2.0">
+  <img src="https://img.shields.io/badge/.NET-8.0-512bd4" alt=".NET 8">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="AGPL-3.0"></a>
+</p>
 
-#### Installation
+<p align="center">
+  <a href="https://geekoutnet.github.io/CollectiveOAuth/">Documentation (Chinese)</a> ·
+  <a href="README.md">中文</a>
+</p>
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+---
 
-#### Instructions
+## Overview
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+CollectiveOAuth hides the protocol differences between OAuth providers. Every provider is used the same way:
 
-#### Contribution
+```text
+your app ──authorize()──▶ provider consent page ──callback──▶ login() ──▶ AuthUser
+```
 
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
+The library is a C# implementation of [JustAuth](https://github.com/justauth/JustAuth) 1.16.7. For every provider, the authorization URL, the outgoing HTTP requests and the parsed user are verified against JustAuth by automated differential tests.
 
+## Features
 
-#### Gitee Feature
+- **31 providers**: WeChat (Official Account, Open Platform, WeCom), Alipay, DingTalk, QQ, Weibo, Douyin, Huawei, Taobao, GitHub, GitLab, Google, Microsoft, Facebook, Twitter, LinkedIn, Stack Overflow and more.
+- **One model for all providers**: `ClientConfig`, `AuthCallback`, `AuthResponse` and `AuthUser` are shared; switching providers means switching the request class.
+- **Secure defaults**: `state` is single-use (CSRF and replay protection), and query parameters are URL-encoded.
+- **Multi-instance ready**: `DistributedAuthStateCache` works with any `IDistributedCache`, such as Redis.
+- **Configurable networking**: per-provider timeout and proxy; HTTP errors include the status code and response body.
+- **Targets** .NET Framework 4.6.2+, .NET Standard 2.0 and .NET 8.
 
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+## Installation
+
+The library is currently consumed from source:
+
+```bash
+git clone https://github.com/geekoutnet/CollectiveOAuth.git
+dotnet add <YourProject>.csproj reference CollectiveOAuth/Come.CollectiveOAuth/Come.CollectiveOAuth.csproj
+```
+
+## Quick start (ASP.NET Core, GitHub)
+
+```csharp
+// Program.cs
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSingleton<IAuthStateCache, DistributedAuthStateCache>();
+```
+
+```csharp
+var config = new ClientConfig
+{
+    clientId = "<client id>",
+    clientSecret = "<client secret>",
+    redirectUri = "https://your.site/oauth2/callback/github"
+};
+
+// Redirect the user to the consent page
+var request = new GithubAuthRequest(config, authStateCache);
+return Redirect(request.authorize(AuthStateUtils.createState()));
+
+// In the callback action
+AuthResponse response = request.login(callback);
+if (response.ok())
+{
+    var user = (AuthUser)response.data;
+}
+```
+
+## Supported providers
+
+`WECHAT_MP`, `WECHAT_OPEN`, `WECHAT_ENTERPRISE`, `WECHAT_ENTERPRISE_SCAN`, `ALIPAY_MP`, `DINGTALK_SCAN`, `QQ`, `WEIBO`, `BAIDU`, `GITEE`, `OSCHINA`, `CODING`, `XIAOMI`, `HUAWEI`, `DOUYIN`, `TOUTIAO`, `MEITUAN`, `ELEME`, `TAOBAO`, `KUJIALE`, `TEAMBITION`, `RENREN`, `GITHUB`, `GITLAB`, `GOOGLE`, `MICROSOFT`, `FACEBOOK`, `LINKEDIN`, `TWITTER`, `PINTEREST`, `STACK_OVERFLOW`.
+
+See the [Chinese README](README.md#支持的平台) for request classes and links to each provider's documentation.
+
+## Development
+
+```bash
+dotnet build Come.CollectiveOAuth/Come.CollectiveOAuth.csproj
+dotnet test Come.CollectiveOAuth.Tests
+```
+
+Golden files in `Come.CollectiveOAuth.Tests/Golden` are produced by running JustAuth 1.16.7 through [tools/justauth-golden](tools/justauth-golden); the C# tests replay the same inputs and compare the results.
+
+## License
+
+[AGPL-3.0](LICENSE)

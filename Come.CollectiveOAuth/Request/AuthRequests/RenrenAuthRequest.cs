@@ -34,6 +34,10 @@ namespace Come.CollectiveOAuth.Request
         {
             string response = doGetUserInfo(authToken);
             var userObj = JsonExtensions.parseObject(response).getJSONObject("response");
+            if (userObj == null)
+            {
+                throw new AuthException("Failed to get user info from Renren: " + response);
+            }
 
             var authUser = new AuthUser();
             authUser.rawUserInfo = userObj;
@@ -53,8 +57,19 @@ namespace Come.CollectiveOAuth.Request
         {
             // token 以 urlEncode 后的形式保存（与 Java 一致），Java 原样拼入不编码的 url；
             // C# UrlBuilder 会再编码一次，这里先解码，保证服务端收到的值与 Java 相同
-            string refreshToken = authToken.refreshToken == null ? null : GlobalAuthUtil.urlDecode(authToken.refreshToken);
-            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(this.refreshTokenUrl(refreshToken)));
+            if (authToken == null)
+            {
+                throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
+            }
+            try
+            {
+                string refreshToken = authToken.refreshToken == null ? null : GlobalAuthUtil.urlDecode(authToken.refreshToken);
+                return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(this.refreshTokenUrl(refreshToken)));
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
 
         private AuthToken getToken(string url)

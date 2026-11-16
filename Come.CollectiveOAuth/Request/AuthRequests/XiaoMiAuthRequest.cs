@@ -65,6 +65,10 @@ namespace Come.CollectiveOAuth.Request
             }
 
             var obj = userProfile.getJSONObject("data");
+            if (obj == null)
+            {
+                throw new AuthException("Failed to get user info from XiaoMi: " + userResponse);
+            }
 
             var authUser = new AuthUser();
             authUser.rawUserInfo = obj;
@@ -102,7 +106,18 @@ namespace Come.CollectiveOAuth.Request
          */
         public override AuthResponse refresh(AuthToken authToken)
         {
-            return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), null, getToken(refreshTokenUrl(authToken.refreshToken)));
+            if (authToken == null)
+            {
+                throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
+            }
+            try
+            {
+                return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), null, getToken(refreshTokenUrl(authToken.refreshToken)));
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
 
         /**

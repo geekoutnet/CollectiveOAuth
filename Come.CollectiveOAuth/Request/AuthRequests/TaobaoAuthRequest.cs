@@ -80,10 +80,21 @@ namespace Come.CollectiveOAuth.Request
 
         public override AuthResponse refresh(AuthToken oldToken)
         {
-            string tokenUrl = refreshTokenUrl(oldToken.refreshToken);
-            string response = HttpUtils.RequestPost(tokenUrl, null, null, null, config.httpConfig);
-            var accessTokenObject = JsonExtensions.parseObject(response);
-            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, this.getAuthToken(accessTokenObject));
+            if (oldToken == null)
+            {
+                throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
+            }
+            try
+            {
+                string tokenUrl = refreshTokenUrl(oldToken.refreshToken);
+                string response = HttpUtils.RequestPost(tokenUrl, null, null, null, config.httpConfig);
+                var accessTokenObject = JsonExtensions.parseObject(response);
+                return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, this.getAuthToken(accessTokenObject));
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
 
         public override string authorize(string state)

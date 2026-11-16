@@ -45,6 +45,10 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(userProfile);
 
             var user = userProfile.getJSONObject("data");
+            if (user == null)
+            {
+                throw new AuthException("Failed to get user info from Toutiao: " + userResponse);
+            }
 
             bool isAnonymousUser = user.getIntValue("uid_type") == 14;
             string anonymousUserName = "匿名用户";

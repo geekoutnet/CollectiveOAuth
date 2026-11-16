@@ -81,23 +81,34 @@ namespace Come.CollectiveOAuth.Request
 
         public override AuthResponse refresh(AuthToken oldToken)
         {
-            string uid = oldToken.uid;
-            string refreshToken = oldToken.refreshToken;
-
-            var form = new Dictionary<string, string>
+            if (oldToken == null)
             {
-                { "_userId", uid },
-                { "refresh_token", refreshToken }
-            };
-            string response = HttpUtils.RequestFormPost(source.refresh(), GlobalAuthUtil.parseMapToString(form, true), null, null, config.httpConfig);
-            var refreshTokenObject = JsonExtensions.parseObject(response);
+                throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
+            }
+            try
+            {
+                string uid = oldToken.uid;
+                string refreshToken = oldToken.refreshToken;
 
-            this.checkResponse(refreshTokenObject);
+                var form = new Dictionary<string, string>
+                {
+                    { "_userId", uid },
+                    { "refresh_token", refreshToken }
+                };
+                string response = HttpUtils.RequestFormPost(source.refresh(), GlobalAuthUtil.parseMapToString(form, true), null, null, config.httpConfig);
+                var refreshTokenObject = JsonExtensions.parseObject(response);
 
-            var authToken = new AuthToken();
-            authToken.accessToken = refreshTokenObject.getString("access_token");
-            authToken.refreshToken = refreshTokenObject.getString("refresh_token");
-            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, authToken);
+                this.checkResponse(refreshTokenObject);
+
+                var authToken = new AuthToken();
+                authToken.accessToken = refreshTokenObject.getString("access_token");
+                authToken.refreshToken = refreshTokenObject.getString("refresh_token");
+                return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, authToken);
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
 
         /**

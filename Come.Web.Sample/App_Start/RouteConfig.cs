@@ -18,12 +18,6 @@ namespace Come.Web.Sample
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
-
-            routes.MapRoute(
-                name: "Come.Callback",
-                url: "Home/Callback/{authSource}",
-                defaults: new { controller = "Home", action = "Callback", authSource = UrlParameter.Optional }
-            );
         }
     }
 }

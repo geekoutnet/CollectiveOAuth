@@ -191,6 +191,7 @@ namespace Come.CollectiveOAuth.Utils
         }
 
         //json字符串转换为字典集合
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static List<Dictionary<string, object>> parseListObject(this string jsonStr)
         {
             var retDic = new List<Dictionary<string, object>>();
@@ -200,7 +201,7 @@ namespace Come.CollectiveOAuth.Utils
                 {
                     retDic = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(jsonStr);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                 }
             }
@@ -218,7 +219,7 @@ namespace Come.CollectiveOAuth.Utils
                 {
                     retDic = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonStr);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                 }
             }
@@ -233,6 +234,7 @@ namespace Come.CollectiveOAuth.Utils
 	     * @return 参数Map
 	     */
 
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static Dictionary<string, object> parseUrlObject(this string paramsStr)
         {
             Dictionary<string, object> res = new Dictionary<string, object>();
@@ -251,7 +253,7 @@ namespace Come.CollectiveOAuth.Utils
 
                 return parseStringObject(paramsStr);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return res;
             }
@@ -263,6 +265,7 @@ namespace Come.CollectiveOAuth.Utils
         * @param accessTokenStr 待转换的字符串
         * @return map
         */
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static Dictionary<string, object> parseStringObject(this string accessTokenStr)
         {
             Dictionary<string, object> res = new Dictionary<string, object>();
@@ -286,6 +289,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="dic"></param>
         /// <returns></returns>
         /// <param name="encode">是否对参数做URL编码，作为表单请求体时需要编码，用于签名时不编码</param>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static string spellParams(this Dictionary<string, object> dicParams, bool encode = false)
         {
             StringBuilder builder = new StringBuilder();
@@ -327,6 +331,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static int getInt32(this Dictionary<string, object> request, string paramName)
         {
             var paramValue = request.getString(paramName);
@@ -336,7 +341,7 @@ namespace Come.CollectiveOAuth.Utils
                 {
                     return Convert.ToInt32(paramValue);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return -1;
                 }
@@ -359,7 +364,7 @@ namespace Come.CollectiveOAuth.Utils
                 {
                     return Convert.ToInt64(paramValue);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return -1;
                 }
@@ -374,6 +379,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static bool getBool(this Dictionary<string, object> request, string paramName)
         {
             var paramValue = request.getString(paramName);
@@ -383,7 +389,7 @@ namespace Come.CollectiveOAuth.Utils
                 {
                     return Convert.ToBoolean(paramValue);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return false;
                 }
@@ -406,7 +412,7 @@ namespace Come.CollectiveOAuth.Utils
                 {
                     return paramValue.parseObject();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return new Dictionary<string, object>();
                 }
@@ -420,6 +426,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static List<Dictionary<string, object>> getJSONArray(this Dictionary<string, object> request, string paramName)
         {
             var paramValue = request.getString(paramName);
@@ -429,7 +436,7 @@ namespace Come.CollectiveOAuth.Utils
                 {
                     return paramValue.parseListObject();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return new List<Dictionary<string, object>>();
                 }
@@ -452,7 +459,7 @@ namespace Come.CollectiveOAuth.Utils
                 {
                     return Convert.ToString(paramValue);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return null;
                 }
@@ -466,6 +473,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static DateTime? GetParamDateTime(this Dictionary<string, object> request, string paramName)
         {
             var paramValue = request.getString(paramName);
@@ -475,7 +483,7 @@ namespace Come.CollectiveOAuth.Utils
                 {
                     return Convert.ToDateTime(paramValue);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return null;
                 }
@@ -490,6 +498,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static double? GetParamDouble(this Dictionary<string, object> request, string paramName)
         {
             var paramValue = request.getString(paramName);
@@ -499,7 +508,7 @@ namespace Come.CollectiveOAuth.Utils
                 {
                     return Convert.ToDouble(paramValue);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return null;
                 }
@@ -513,6 +522,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <returns></returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static Decimal? GetParamDecimal(this Dictionary<string, object> request, string paramName)
         {
             var paramValue = request.getString(paramName);
@@ -522,7 +532,7 @@ namespace Come.CollectiveOAuth.Utils
                 {
                     return Convert.ToDecimal(paramValue);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return null;
                 }
@@ -536,6 +546,7 @@ namespace Come.CollectiveOAuth.Utils
         /// </summary>
         /// <param name="dic">需排序的字典对象</param>
         /// <param name="isAsc">true=正序，反之倒序</param>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static Dictionary<string, object> Sort(this Dictionary<string, object> dic, bool isAsc = true)
         {
             Dictionary<string, object> rdic = new Dictionary<string, object>();
@@ -669,6 +680,7 @@ namespace Come.CollectiveOAuth.Utils
             return Convert.ToBase64String(hmacSha1(Encoding.UTF8.GetBytes(signKey), Encoding.UTF8.GetBytes(baseStr)));
         }
 
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static string generateXmlySignature(IDictionary<string, string> paramMap, string clientSecret)
         {
             var map = new SortedDictionary<string, string>(paramMap, StringComparer.Ordinal);

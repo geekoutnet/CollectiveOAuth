@@ -78,6 +78,7 @@ namespace Come.CollectiveOAuth.Enums
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static Dictionary<string, EnumModel> GetEnumList(this Type type)
         {
             Dictionary<string, EnumModel> list = new Dictionary<string, EnumModel>();
@@ -93,6 +94,7 @@ namespace Come.CollectiveOAuth.Enums
         ///</summary>  
         ///<param name="enumType">Type,该参数的格式为typeof(需要读的枚举类型)</param>  
         ///<returns>键值对</returns>  
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static Dictionary<string, string> GetEnumItemValueDesc(Type enumType)
         {
             Dictionary<string, string> dic = new Dictionary<string, string>();
@@ -129,6 +131,7 @@ namespace Come.CollectiveOAuth.Enums
         /// </summary>
         /// <param name="em"></param>
         /// <returns></returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static Dictionary<string, string> GetEunItemValueAndDesc(Type em)
         {
             return _concurrentDicDictionary.GetOrAdd(em, (key) =>
@@ -145,6 +148,7 @@ namespace Come.CollectiveOAuth.Enums
         ///</summary>  
         ///<param name="enumType">Type,该参数的格式为typeof(需要读的枚举类型)</param>  
         ///<returns>键值对</returns>  
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static Dictionary<string, string> GetEnumItemDesc(Type enumType)
         {
             Dictionary<string, string> dic = new Dictionary<string, string>();
@@ -164,6 +168,7 @@ namespace Come.CollectiveOAuth.Enums
         /// </summary>  
         /// <param name="en">枚举项 如Days.Sunday</param>  
         /// <returns></returns>  
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static string GetEnumDesc(this Enum en)
         {
             Type type = en.GetType();
@@ -183,6 +188,7 @@ namespace Come.CollectiveOAuth.Enums
         /// <param name="type"></param>
         /// <param name="strDescription"></param>
         /// <returns></returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static int? GetEnumValByDescription(this Type type, string strDescription)
         {
             int? enumVal = null;

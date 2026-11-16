@@ -24,6 +24,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="value">要搜索匹配项的字符串</param>
         /// <param name="pattern">要匹配的正则表达式模式</param>
         /// <returns>如果正则表达式找到匹配项，则为 true；否则，为 false</returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static bool IsMatch(this string value, string pattern)
         {
             if (value == null)
@@ -39,6 +40,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="value">要搜索匹配项的字符串</param>
         /// <param name="pattern">要匹配的正则表达式模式</param>
         /// <returns>一个对象，包含有关匹配项的信息</returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static string Match(this string value, string pattern)
         {
             if (value == null)
@@ -54,6 +56,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <param name="value"> 要搜索匹配项的字符串 </param>
         /// <param name="pattern"> 要匹配的正则表达式模式 </param>
         /// <returns> 一个集合，包含有关匹配项的字符串值 </returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static IEnumerable<string> Matches(this string value, string pattern)
         {
             if (value == null)
@@ -67,6 +70,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <summary>
         /// 是否电子邮件
         /// </summary>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static bool IsEmail(this string value)
         {
             const string pattern = @"^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$";
@@ -76,6 +80,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <summary>
         /// 是否是IP地址
         /// </summary>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static bool IsIpAddress(this string value)
         {
             const string pattern = @"^(\d(25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])\d\.){3}\d(25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])\d$";
@@ -85,6 +90,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <summary>
         /// 是否是整数
         /// </summary>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static bool IsNumeric(this string value)
         {
             const string pattern = @"^\-?[0-9]+$";
@@ -94,6 +100,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <summary>
         /// 是否是Unicode字符串
         /// </summary>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static bool IsUnicode(this string value)
         {
             const string pattern = @"^[\u4E00-\u9FA5\uE815-\uFA29]+$";
@@ -103,6 +110,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <summary>
         /// 是否Url字符串
         /// </summary>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static bool IsUrl(this string value)
         {
             const string pattern = @"^(http|https|ftp|rtsp|mms):(\/\/|\\\\)[A-Za-z0-9%\-_@]+\.[A-Za-z0-9%\-_@]+[A-Za-z0-9\.\/=\?%\-&_~`@:\+!;]*$";
@@ -115,6 +123,7 @@ namespace Come.CollectiveOAuth.Utils
         /// 2.身份证号码为18位数字；
         /// 3.身份证号码为17位数字+1个字母
         /// </summary>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static bool IsIdentityCard(this string value)
         {
             const string pattern = @"^(^\d{15}$|^\d{18}$|^\d{17}(\d|X|x))$";
@@ -126,6 +135,7 @@ namespace Come.CollectiveOAuth.Utils
         /// </summary>
         /// <param name="value"></param>
         /// <param name="isRestrict">是否按严格格式验证</param>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static bool IsMobileNumber(this string value, bool isRestrict = false)
         {
             string pattern = isRestrict ? @"^[1][3-8]\d{9}$" : @"^[1]\d{10}$";
@@ -156,6 +166,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <summary>
         /// 判断指定路径是否图片文件
         /// </summary>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static bool IsImageFile(this string filename)
         {
             if (!File.Exists(filename))
@@ -199,6 +210,7 @@ namespace Come.CollectiveOAuth.Utils
         /// </summary>
         /// <param name="value">参数字符串</param>
         /// <returns>当前字符串的长度，汉字长度为2</returns>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static int TextLength(this string value)
         {
             ASCIIEncoding ascii = new ASCIIEncoding();
@@ -221,6 +233,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <summary>
         /// 将字符串转换为<see cref="byte"/>[]数组，默认编码为<see cref="Encoding.UTF8"/>
         /// </summary>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static byte[] ToBytes(this string value, Encoding encoding = null)
         {
             if (encoding == null)
@@ -233,6 +246,7 @@ namespace Come.CollectiveOAuth.Utils
         /// <summary>
         /// 将<see cref="byte"/>[]数组转换为字符串，默认编码为<see cref="Encoding.UTF8"/>
         /// </summary>
+        [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
         public static string ToString(this byte[] bytes, Encoding encoding)
         {
             if (encoding == null)

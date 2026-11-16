@@ -2,6 +2,7 @@
 
 namespace Come.CollectiveOAuth.Enums
 {
+    [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
     public struct EnumModel
     {
         public EnumModel(Enum um)

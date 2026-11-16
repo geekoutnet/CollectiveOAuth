@@ -144,14 +144,7 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
             }
-            try
-            {
-                return doRefresh(authToken);
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            return wrapAuthException(() => doRefresh(authToken));
         }
 
         private AuthResponse doRefresh(AuthToken authToken)
@@ -210,10 +203,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.avatar = response.Avatar;
             authUser.location = location;
             authUser.gender = GlobalAuthUtil.getRealGender(response.Gender);
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = response;
-            authUser.originalUserStr = JsonConvert.SerializeObject(response);
+            fillAuthUser(authUser, authToken, response, JsonConvert.SerializeObject(response));
             return authUser;
         }
 

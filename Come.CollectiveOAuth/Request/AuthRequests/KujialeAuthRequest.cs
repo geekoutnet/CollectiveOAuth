@@ -90,10 +90,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.nickname = resultObject.getString("userName");
             authUser.avatar = resultObject.getString("avatar");
             authUser.uuid = resultObject.getString("openId");
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = resultObject;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, resultObject, response);
             return authUser;
         }
 
@@ -115,15 +112,11 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
             }
-            try
+            return wrapAuthException(() =>
             {
                 string response = HttpUtils.RequestPost(refreshTokenUrl(authToken.refreshToken), null, null, null, config.httpConfig);
                 return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getAuthToken(response));
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            });
         }
     }
 }

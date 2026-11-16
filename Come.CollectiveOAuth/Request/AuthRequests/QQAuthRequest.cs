@@ -35,15 +35,11 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
             }
-            try
+            return wrapAuthException(() =>
             {
                 string response = HttpUtils.RequestGet(refreshTokenUrl(authToken.refreshToken), null, config.httpConfig);
                 return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), null, getAuthToken(response));
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            });
         }
 
         protected override AuthUser getUserInfo(AuthToken authToken)
@@ -72,10 +68,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.location = location;
             authUser.uuid = openId;
             authUser.gender = GlobalAuthUtil.getRealGender(obj.getString("gender"));
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, obj, response);
             return authUser;
         }
 

@@ -67,10 +67,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.nickname = obj.getString("nickname");
             authUser.avatar = obj.getString("avatar");
             authUser.gender = AuthUserGender.UNKNOWN;
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, obj, response);
             return authUser;
         }
 
@@ -80,7 +77,7 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
             }
-            try
+            return wrapAuthException(() =>
             {
                 var form = new Dictionary<string, string>
                 {
@@ -100,11 +97,7 @@ namespace Come.CollectiveOAuth.Request
                 authToken.refreshToken = obj.getString("refresh_token");
                 authToken.expireIn = obj.getIntValue("expires_in");
                 return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, authToken);
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            });
         }
 
         private void checkResponse(JObject obj)

@@ -27,7 +27,7 @@ namespace Come.CollectiveOAuth.Request
         {
             string response = doPostAuthorizationCode(authCallback.code);
             var accessTokenObject = JsonExtensions.parseObject(response);
-            this.checkResponse(accessTokenObject);
+            checkErrorDescription(accessTokenObject);
 
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject.getString("access_token");
@@ -42,7 +42,7 @@ namespace Come.CollectiveOAuth.Request
         {
             string userInfo = doGetUserInfo(authToken);
             var obj = JsonExtensions.parseObject(userInfo);
-            this.checkResponse(obj);
+            checkErrorDescription(obj);
 
             var authUser = new AuthUser();
             authUser.rawUserInfo = obj;
@@ -56,24 +56,8 @@ namespace Come.CollectiveOAuth.Request
             authUser.email = obj.getString("email");
             authUser.remark = obj.getString("bio");
             authUser.gender = AuthUserGender.UNKNOWN;
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = userInfo;
+            fillAuthUser(authUser, authToken, obj, userInfo);
             return authUser;
-        }
-
-        /**
-         * 检查响应内容是否正确
-         *
-         * @param object 请求响应内容
-         */
-        private void checkResponse(JObject obj)
-        {
-            if (obj.containsKey("error"))
-            {
-                throw new AuthException(obj.getString("error_description"));
-            }
         }
 
         /**

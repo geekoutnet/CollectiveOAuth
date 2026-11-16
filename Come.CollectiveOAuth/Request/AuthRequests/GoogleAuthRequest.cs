@@ -55,10 +55,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.location = obj.getString("locale");
             authUser.email = obj.getString("email");
             authUser.gender = AuthUserGender.UNKNOWN;
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = userInfo;
+            fillAuthUser(authUser, authToken, obj, userInfo);
             return authUser;
         }
 

@@ -137,10 +137,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.blog = userInfo.getString("url");
             authUser.location = userInfo.getString("location");
             authUser.email = userInfo.getString("email");
-            authUser.source = source.getName();
-            authUser.token = authToken;
-            authUser.originalUser = userInfo;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, userInfo, response);
             return authUser;
         }
 

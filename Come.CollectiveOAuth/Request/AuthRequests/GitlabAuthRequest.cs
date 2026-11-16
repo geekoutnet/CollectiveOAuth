@@ -58,20 +58,14 @@ namespace Come.CollectiveOAuth.Request
             authUser.email = obj.getString("email");
             authUser.remark = obj.getString("bio");
             authUser.gender = AuthUserGender.UNKNOWN;
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, obj, response);
             return authUser;
         }
 
         private void checkResponse(JObject obj)
         {
             // oauth/token 验证异常
-            if (obj.containsKey("error"))
-            {
-                throw new AuthException(obj.getString("error_description"));
-            }
+            checkErrorDescription(obj);
             // user 验证异常
             if (obj.containsKey("message"))
             {

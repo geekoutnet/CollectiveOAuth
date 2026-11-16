@@ -32,7 +32,7 @@ namespace Come.CollectiveOAuth.Request
 
         private AuthToken getAuthToken(JObject obj)
         {
-            this.checkResponse(obj);
+            checkErrorDescription(obj);
 
             var authToken = new AuthToken();
             authToken.accessToken = obj.getString("access_token");
@@ -45,22 +45,11 @@ namespace Come.CollectiveOAuth.Request
             return authToken;
         }
 
-        private void checkResponse(JObject obj)
-        {
-            if (obj.containsKey("error"))
-            {
-                throw new AuthException(obj.getString("error_description"));
-            }
-        }
-
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
             string response = doPostAuthorizationCode(authToken.accessCode);
             var accessTokenObject = JsonExtensions.parseObject(response);
-            if (accessTokenObject.containsKey("error"))
-            {
-                throw new AuthException(accessTokenObject.getString("error_description"));
-            }
+            checkErrorDescription(accessTokenObject);
             authToken = this.getAuthToken(accessTokenObject);
 
             string nick = GlobalAuthUtil.urlDecode(accessTokenObject.getString("taobao_user_nick"));
@@ -71,10 +60,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.username = nick;
             authUser.nickname = nick;
             authUser.gender = AuthUserGender.UNKNOWN;
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = accessTokenObject;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, accessTokenObject, response);
             return authUser;
         }
 
@@ -84,17 +70,13 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
             }
-            try
+            return wrapAuthException(() =>
             {
                 string tokenUrl = refreshTokenUrl(oldToken.refreshToken);
                 string response = HttpUtils.RequestPost(tokenUrl, null, null, null, config.httpConfig);
                 var accessTokenObject = JsonExtensions.parseObject(response);
                 return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, this.getAuthToken(accessTokenObject));
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            });
         }
 
         public override string authorize(string state)

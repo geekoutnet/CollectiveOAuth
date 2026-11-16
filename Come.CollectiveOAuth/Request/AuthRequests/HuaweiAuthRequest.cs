@@ -65,10 +65,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.nickname = obj.getString("userName");
             authUser.gender = gender;
             authUser.avatar = obj.getString("headPictureURL");
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, obj, response);
             return authUser;
         }
 
@@ -78,14 +75,7 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
             }
-            try
-            {
-                return doRefresh(authToken);
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            return wrapAuthException(() => doRefresh(authToken));
         }
 
         private AuthResponse doRefresh(AuthToken authToken)

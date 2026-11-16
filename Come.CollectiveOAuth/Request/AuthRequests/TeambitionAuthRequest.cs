@@ -72,10 +72,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.location = obj.getString("location");
             authUser.email = obj.getString("email");
             authUser.gender = AuthUserGender.UNKNOWN;
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, obj, response);
             return authUser;
         }
 
@@ -85,7 +82,7 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
             }
-            try
+            return wrapAuthException(() =>
             {
                 string uid = oldToken.uid;
                 string refreshToken = oldToken.refreshToken;
@@ -104,11 +101,7 @@ namespace Come.CollectiveOAuth.Request
                 authToken.accessToken = refreshTokenObject.getString("access_token");
                 authToken.refreshToken = refreshTokenObject.getString("refresh_token");
                 return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, authToken);
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            });
         }
 
         /**

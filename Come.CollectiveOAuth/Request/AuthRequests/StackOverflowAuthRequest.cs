@@ -28,7 +28,7 @@ namespace Come.CollectiveOAuth.Request
         {
             string accessTokenUrl = this.accessTokenUrl(authCallback.code);
             // 对应 MapUtil.parseStringToMap(accessTokenUrl, false)
-            var form = parseQueryToMap(accessTokenUrl);
+            var form = GlobalAuthUtil.parseQueryToMap(accessTokenUrl);
             var httpHeader = new Dictionary<string, object> { { "Content-Type", "application/x-www-form-urlencoded" } };
             string response = HttpUtils.RequestFormPost(accessTokenUrl, GlobalAuthUtil.parseMapToString(form, true), httpHeader, null, config.httpConfig);
 
@@ -65,10 +65,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.nickname = userObj.getString("display_name");
             authUser.blog = userObj.getString("website_url");
             authUser.gender = AuthUserGender.UNKNOWN;
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = userObj;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, userObj, response);
             return authUser;
         }
 
@@ -93,43 +90,12 @@ namespace Come.CollectiveOAuth.Request
          */
         private void checkResponse(JObject obj)
         {
-            if (obj.containsKey("error"))
-            {
-                throw new AuthException(obj.getString("error_description"));
-            }
+            checkErrorDescription(obj);
             // StackExchange API 错误结构：{"error_id":401,"error_message":"...","error_name":"..."}
             if (obj.containsKey("error_id"))
             {
                 throw new AuthException(obj.getIntValue("error_id"), obj.getString("error_message") ?? obj.getString("error_name"));
             }
-        }
-
-        /**
-         * 对应 simple-http MapUtil.parseStringToMap(url, false)：取 ? 之后、# 之前的参数，同名参数以逗号拼接；
-         * C# 的 UrlBuilder 已对参数值编码，这里解码还原为原值
-         */
-        private static Dictionary<string, string> parseQueryToMap(string url)
-        {
-            var map = new Dictionary<string, string>();
-            int index = url.IndexOf('?');
-            string query = index > -1 ? url.Substring(index + 1) : url;
-            int hash = query.IndexOf('#');
-            if (hash > -1)
-            {
-                query = query.Substring(0, hash);
-            }
-            foreach (var part in query.Split('&'))
-            {
-                if (part.Length == 0)
-                {
-                    continue;
-                }
-                int eq = part.IndexOf('=');
-                string key = GlobalAuthUtil.urlDecode(eq < 0 ? part : part.Substring(0, eq));
-                string value = eq < 0 ? "" : GlobalAuthUtil.urlDecode(part.Substring(eq + 1));
-                map[key] = map.TryGetValue(key, out var old) ? old + "," + value : value;
-            }
-            return map;
         }
     }
 }

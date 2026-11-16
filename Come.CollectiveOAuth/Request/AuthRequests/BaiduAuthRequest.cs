@@ -50,10 +50,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.avatar = getAvatar(obj);
             authUser.remark = obj.getString("userdetail");
             authUser.gender = GlobalAuthUtil.getRealGender(obj.getString("sex"));
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = userInfo;
+            fillAuthUser(authUser, authToken, obj, userInfo);
             return authUser;
         }
 
@@ -69,7 +66,7 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
             }
-            try
+            return wrapAuthException(() =>
             {
                 string response = doGetRevoke(authToken);
                 var obj = JsonExtensions.parseObject(response);
@@ -77,11 +74,7 @@ namespace Come.CollectiveOAuth.Request
                 // 返回1表示取消授权成功，否则失败
                 AuthResponseStatus status = obj.getIntValue("result") == 1 ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
                 return new AuthResponse(status.GetCode(), status.GetDesc());
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            });
         }
 
         public override AuthResponse refresh(AuthToken authToken)
@@ -90,7 +83,7 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
             }
-            try
+            return wrapAuthException(() =>
             {
                 string refreshUrl = UrlBuilder.fromBaseUrl(this.source.refresh())
                     .queryParam("grant_type", "refresh_token")
@@ -100,11 +93,7 @@ namespace Come.CollectiveOAuth.Request
                     .build();
                 string response = HttpUtils.RequestGet(refreshUrl, null, config.httpConfig);
                 return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), null, this.getAuthToken(response));
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            });
         }
 
         /**

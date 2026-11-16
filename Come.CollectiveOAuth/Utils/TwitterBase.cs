@@ -6,6 +6,7 @@ using System.Web;
 
 namespace Come.CollectiveOAuth.Utils
 {
+    [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
     public class TwitterBase
     {
         /// <summary>

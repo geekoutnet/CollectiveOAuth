@@ -7,6 +7,7 @@ namespace Come.CollectiveOAuth.Enums
     /// <summary>
     /// 数组，队列对象的列表类
     /// </summary>
+    [Obsolete("该 API 未被库使用，将在下一个大版本移除")]
     public static class ArrayExtensions
     {
         /// <summary>

@@ -90,6 +90,11 @@ namespace Come.CollectiveOAuth.Request
 
                 AuthToken authToken = this.getAccessToken(authCallback);
                 AuthUser user = this.getUserInfo(authToken);
+                // 有意差异：平台返回错误或空数据时 JustAuth 可能返回成功 + 空用户，这里判为失败，防止调用方用空 uuid 绑定账号
+                if (user == null || string.IsNullOrEmpty(user.uuid))
+                {
+                    throw new AuthException("Failed to obtain user id from response", source);
+                }
                 return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, user);
             }
             catch (Exception e)

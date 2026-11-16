@@ -32,6 +32,13 @@
     {
       "name": "login_invalid_verifier",
       "action": "login",
+      "intentionalDiff": {
+        "reason": "JustAuth 在用户信息接口返回 errors 时仍返回成功 + 空用户；C# 判为失败，防止调用方用空 uuid 绑定账号",
+        "result": {
+          "code": 5000,
+          "msg": "Failed to obtain user id from response [TWITTER]"
+        }
+      },
       "callback": {
         "oauth_token": "NPcudxy0yU5T3tBzho7iCotZ3cnetKwcTIRlX0iwRl0",
         "oauth_verifier": "bad"

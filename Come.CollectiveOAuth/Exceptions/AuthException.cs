@@ -50,6 +50,8 @@ namespace Come.CollectiveOAuth.Exceptions
         public AuthException(string message, Exception cause) : base(message, cause)
         {
             this.message = message;
+            this.errorCode = Convert.ToInt32(AuthResponseStatus.FAILURE);
+            this.errorMsg = message;
         }
 
         /// <summary>
@@ -58,6 +60,8 @@ namespace Come.CollectiveOAuth.Exceptions
         public AuthException(Exception cause) : base($"{cause.GetType().FullName}: {cause.Message}", cause)
         {
             this.message = $"{cause.GetType().FullName}: {cause.Message}";
+            this.errorCode = Convert.ToInt32(AuthResponseStatus.FAILURE);
+            this.errorMsg = this.message;
         }
     }
 }

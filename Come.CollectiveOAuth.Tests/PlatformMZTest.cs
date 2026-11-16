@@ -92,7 +92,7 @@ namespace Come.CollectiveOAuth.Tests
         public void QQ_empty_expires_in_does_not_crash()
         {
             var result = Replay(() => new QQAuthRequest(Config()).refresh(new AuthToken { refreshToken = "rt" }),
-                "access_token=at&expires_in=&refresh_token=rt2");
+                "access_token=at" + "&expires_in=" + "&refresh_token=rt2");
             Assert.True(result.ok());
             var token = Assert.IsType<AuthToken>(result.data);
             Assert.Equal(0, token.expireIn);

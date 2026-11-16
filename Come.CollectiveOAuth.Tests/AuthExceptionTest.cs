@@ -26,11 +26,12 @@ namespace Come.CollectiveOAuth.Tests
         }
 
         [Fact]
-        public void cause_constructor_has_no_code()
+        public void cause_constructor_is_failure()
         {
+            // 有意差异：Java 此构造无 code，C# 统一为 FAILURE，便于调用方判断
             var e = new AuthException(new InvalidOperationException("x"));
-            Assert.Equal(0, e.errorCode);
-            Assert.Null(e.errorMsg);
+            Assert.Equal(5000, e.errorCode);
+            Assert.Equal("System.InvalidOperationException: x", e.errorMsg);
             Assert.Equal("System.InvalidOperationException: x", e.Message);
         }
 

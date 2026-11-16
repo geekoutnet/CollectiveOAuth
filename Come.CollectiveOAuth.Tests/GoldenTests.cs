@@ -109,8 +109,10 @@ namespace Come.CollectiveOAuth.Tests
             // 请求序列
             AssertRequests((JArray)goldenScenario["requests"], sender.requests, ignore, scenarioName);
 
-            // 结果或异常
-            var goldenError = goldenScenario["error"];
+            // 结果或异常；fixture 中的 intentionalDiff 记录与 JustAuth 的有意差异，覆盖 Java 的期望（请求序列仍与 Java 比对）
+            var intentionalDiff = fixtureScenario["intentionalDiff"];
+            var expected = intentionalDiff ?? goldenScenario;
+            var goldenError = expected["error"];
             if (goldenError != null && goldenError.Type != JTokenType.Null)
             {
                 var authException = Assert.IsType<AuthException>(error);
@@ -119,7 +121,7 @@ namespace Come.CollectiveOAuth.Tests
                 return;
             }
             Assert.Null(error);
-            AssertJson(GoldenNormalizer.Numbers(goldenScenario["result"].DeepClone()), GoldenNormalizer.Result(result), "result");
+            AssertJson(GoldenNormalizer.Numbers(expected["result"].DeepClone()), GoldenNormalizer.Result(result), "result");
         }
 
         private static void AssertRequests(JArray goldenRequests, List<HttpRequestRecord> actual, ISet<string> ignore, string what)

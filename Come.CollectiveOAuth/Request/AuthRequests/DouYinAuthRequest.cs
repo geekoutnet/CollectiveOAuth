@@ -50,10 +50,7 @@ namespace Come.CollectiveOAuth.Request
                 GlobalAuthUtil.javaValueOf(obj.getString("country")),
                 GlobalAuthUtil.javaValueOf(obj.getString("province")),
                 GlobalAuthUtil.javaValueOf(obj.getString("city")));
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, obj, response);
             return authUser;
         }
 
@@ -63,14 +60,7 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
             }
-            try
-            {
-                return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(refreshTokenUrl(oldToken.refreshToken)));
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            return wrapAuthException(() => new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(refreshTokenUrl(oldToken.refreshToken))));
         }
 
         /**

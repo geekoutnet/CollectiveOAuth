@@ -166,6 +166,34 @@ namespace Come.CollectiveOAuth.Utils
             }
         }
 
+        /**
+         * 对应 simple-http MapUtil.parseStringToMap(url, false)：取 ? 之后、# 之前的参数，同名参数以逗号拼接；
+         * C# 的 UrlBuilder 已对参数值编码，这里解码还原为原值
+         */
+        internal static Dictionary<string, string> parseQueryToMap(string url)
+        {
+            var map = new Dictionary<string, string>();
+            int index = url.IndexOf('?');
+            string query = index > -1 ? url.Substring(index + 1) : url;
+            int hash = query.IndexOf('#');
+            if (hash > -1)
+            {
+                query = query.Substring(0, hash);
+            }
+            foreach (var part in query.Split('&'))
+            {
+                if (part.Length == 0)
+                {
+                    continue;
+                }
+                int eq = part.IndexOf('=');
+                string key = urlDecode(eq < 0 ? part : part.Substring(0, eq));
+                string value = eq < 0 ? "" : urlDecode(part.Substring(eq + 1));
+                map[key] = map.TryGetValue(key, out var old) ? old + "," + value : value;
+            }
+            return map;
+        }
+
 
         /**
          * 字符串转换成枚举

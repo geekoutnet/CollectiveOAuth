@@ -36,10 +36,7 @@ namespace Come.CollectiveOAuth.Request
             string jsonStr = response.Replace(PREFIX, "");
             var accessTokenObject = JsonExtensions.parseObject(jsonStr);
 
-            if (accessTokenObject.containsKey("error"))
-            {
-                throw new AuthException(accessTokenObject.getString("error_description"));
-            }
+            checkErrorDescription(accessTokenObject);
 
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject.getString("access_token");
@@ -78,10 +75,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.avatar = obj.getString("miliaoIcon");
             authUser.email = obj.getString("mail");
             authUser.gender = AuthUserGender.UNKNOWN;
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = userResponse;
+            fillAuthUser(authUser, authToken, obj, userResponse);
 
             // 获取用户邮箱手机号等信息
             string emailPhoneUrl = string.Format("{0}?clientId={1}&token={2}", "https://open.account.xiaomi.com/user/phoneAndEmail", config.clientId, authToken.accessToken);
@@ -110,14 +104,7 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
             }
-            try
-            {
-                return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), null, getToken(refreshTokenUrl(authToken.refreshToken)));
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            return wrapAuthException(() => new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), null, getToken(refreshTokenUrl(authToken.refreshToken))));
         }
 
         /**

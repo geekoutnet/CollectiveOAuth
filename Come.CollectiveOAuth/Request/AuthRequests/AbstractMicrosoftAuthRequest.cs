@@ -41,12 +41,12 @@ namespace Come.CollectiveOAuth.Request
             var httpHeader = new Dictionary<string, object>();
 
             // 对应 MapUtil.parseStringToMap(accessTokenUrl, false)：把 url 上的参数同时作为表单提交
-            var form = parseQueryToMap(accessTokenUrl);
+            var form = GlobalAuthUtil.parseQueryToMap(accessTokenUrl);
 
             string response = HttpUtils.RequestFormPost(accessTokenUrl, GlobalAuthUtil.parseMapToString(form, true), httpHeader, null, config.httpConfig);
             var accessTokenObject = JsonExtensions.parseObject(response);
 
-            this.checkResponse(accessTokenObject);
+            checkErrorDescription(accessTokenObject);
 
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject.getString("access_token");
@@ -55,19 +55,6 @@ namespace Come.CollectiveOAuth.Request
             authToken.tokenType = accessTokenObject.getString("token_type");
             authToken.refreshToken = accessTokenObject.getString("refresh_token");
             return authToken;
-        }
-
-        /**
-         * 检查响应内容是否正确
-         *
-         * @param object 请求响应内容
-         */
-        private void checkResponse(JObject obj)
-        {
-            if (obj.containsKey("error"))
-            {
-                throw new AuthException(obj.getString("error_description"));
-            }
         }
 
         protected override AuthUser getUserInfo(AuthToken authToken)
@@ -81,7 +68,7 @@ namespace Come.CollectiveOAuth.Request
 
             string userInfo = HttpUtils.RequestGet(userInfoUrl(authToken), httpHeader, config.httpConfig);
             var obj = JsonExtensions.parseObject(userInfo);
-            this.checkResponse(obj);
+            checkErrorDescription(obj);
 
             var authUser = new AuthUser();
             authUser.rawUserInfo = obj;
@@ -91,10 +78,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.location = obj.getString("officeLocation");
             authUser.email = obj.getString("mail");
             authUser.gender = AuthUserGender.UNKNOWN;
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = userInfo;
+            fillAuthUser(authUser, authToken, obj, userInfo);
             return authUser;
         }
 
@@ -110,14 +94,7 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
             }
-            try
-            {
-                return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(refreshTokenUrl(authToken.refreshToken)));
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            return wrapAuthException(() => new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(refreshTokenUrl(authToken.refreshToken))));
         }
 
         /**
@@ -201,34 +178,6 @@ namespace Come.CollectiveOAuth.Request
         private static string formatUrl(string url, string tenantId)
         {
             return url.Replace("%s", tenantId);
-        }
-
-        /**
-         * 对应 simple-http MapUtil.parseStringToMap(url, false)：取 ? 之后、# 之前的参数，同名参数以逗号拼接；
-         * C# 的 UrlBuilder 已对参数值编码，这里解码还原为原值
-         */
-        private static Dictionary<string, string> parseQueryToMap(string url)
-        {
-            var map = new Dictionary<string, string>();
-            int index = url.IndexOf('?');
-            string query = index > -1 ? url.Substring(index + 1) : url;
-            int hash = query.IndexOf('#');
-            if (hash > -1)
-            {
-                query = query.Substring(0, hash);
-            }
-            foreach (var part in query.Split('&'))
-            {
-                if (part.Length == 0)
-                {
-                    continue;
-                }
-                int eq = part.IndexOf('=');
-                string key = GlobalAuthUtil.urlDecode(eq < 0 ? part : part.Substring(0, eq));
-                string value = eq < 0 ? "" : GlobalAuthUtil.urlDecode(part.Substring(eq + 1));
-                map[key] = map.TryGetValue(key, out var old) ? old + "," + value : value;
-            }
-            return map;
         }
     }
 }

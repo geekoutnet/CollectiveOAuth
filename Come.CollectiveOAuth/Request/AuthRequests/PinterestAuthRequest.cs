@@ -58,10 +58,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.nickname = (userObj.getString("first_name") ?? "null") + " " + (userObj.getString("last_name") ?? "null");
             authUser.gender = AuthUserGender.UNKNOWN;
             authUser.remark = userObj.getString("bio");
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = userObj;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, userObj, response);
             return authUser;
         }
 

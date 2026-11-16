@@ -44,7 +44,7 @@ namespace Come.CollectiveOAuth.Request
             string response = HttpUtils.RequestFormPost(source.accessToken(), GlobalAuthUtil.parseMapToString(form, true), httpHeader, null, config.httpConfig);
             var obj = JsonExtensions.parseObject(response);
 
-            this.checkResponse(obj);
+            checkErrorDescription(obj);
 
             var authToken = new AuthToken();
             authToken.accessToken = obj.getString("access_token");
@@ -114,10 +114,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.username = result.getString("userName");
             authUser.nickname = result.getString("userName");
             authUser.gender = AuthUserGender.UNKNOWN;
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = result;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, result, response);
             return authUser;
         }
 
@@ -127,14 +124,7 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
             }
-            try
-            {
-                return doRefresh(oldToken);
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            return wrapAuthException(() => doRefresh(oldToken));
         }
 
         private AuthResponse doRefresh(AuthToken oldToken)
@@ -150,7 +140,7 @@ namespace Come.CollectiveOAuth.Request
 
             var obj = JsonExtensions.parseObject(response);
 
-            this.checkResponse(obj);
+            checkErrorDescription(obj);
 
             var authToken = new AuthToken();
             authToken.accessToken = obj.getString("access_token");
@@ -191,14 +181,6 @@ namespace Come.CollectiveOAuth.Request
         private string getRequestId()
         {
             return (UuidUtils.getUUID() + "|" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()).ToUpper();
-        }
-
-        private void checkResponse(JObject obj)
-        {
-            if (obj.containsKey("error"))
-            {
-                throw new AuthException(obj.getString("error_description"));
-            }
         }
 
         /**

@@ -31,10 +31,7 @@ namespace Come.CollectiveOAuth.Request
         {
             string response = doPostAuthorizationCode(authCallback.code);
             var accessTokenObject = JsonExtensions.parseObject(response);
-            if (accessTokenObject.containsKey("error"))
-            {
-                throw new AuthException(accessTokenObject.getString("error_description"));
-            }
+            checkErrorDescription(accessTokenObject);
 
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject.getString("access_token");
@@ -74,10 +71,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.location = obj.getString("location");
             authUser.remark = obj.getString("description");
             authUser.gender = GlobalAuthUtil.getRealGender(obj.getString("gender"));
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = userInfo;
+            fillAuthUser(authUser, authToken, obj, userInfo);
             return authUser;
         }
 
@@ -125,7 +119,7 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.ILLEGAL_TOKEN, source);
             }
-            try
+            return wrapAuthException(() =>
             {
                 string response = doGetRevoke(authToken);
                 var obj = JsonExtensions.parseObject(response);
@@ -136,11 +130,7 @@ namespace Come.CollectiveOAuth.Request
                 // 返回 result = true 表示取消授权成功，否则失败
                 AuthResponseStatus status = obj.getBooleanValue("result") ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
                 return new AuthResponse(status.GetCode(), status.GetDesc());
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            });
         }
     }
 }

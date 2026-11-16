@@ -59,10 +59,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.gender = GlobalAuthUtil.getRealGender(obj.getString("sex"));
             authUser.email = obj.getString("email");
             authUser.remark = obj.getString("slogan");
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = obj;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, obj, response);
             return authUser;
         }
 

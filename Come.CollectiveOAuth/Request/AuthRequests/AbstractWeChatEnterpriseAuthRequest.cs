@@ -59,10 +59,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.email = userDetail.getString("email");
             authUser.uuid = userId;
             authUser.gender = GlobalAuthUtil.getWechatRealGender(userDetail.getString("gender"));
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = userDetail;
-            authUser.originalUserStr = userDetail.ToString(Formatting.None);
+            fillAuthUser(authUser, authToken, userDetail, userDetail.ToString(Formatting.None));
             return authUser;
         }
 

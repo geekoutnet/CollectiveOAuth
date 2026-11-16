@@ -46,10 +46,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.nickname = userObj.getString("name");
             authUser.company = getCompany(userObj);
             authUser.gender = getGender(userObj);
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = userObj;
-            authUser.originalUserStr = response;
+            fillAuthUser(authUser, authToken, userObj, response);
             return authUser;
         }
 
@@ -61,15 +58,11 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
             }
-            try
+            return wrapAuthException(() =>
             {
                 string refreshToken = authToken.refreshToken == null ? null : GlobalAuthUtil.urlDecode(authToken.refreshToken);
                 return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(this.refreshTokenUrl(refreshToken)));
-            }
-            catch (Exception e) when (!(e is AuthException))
-            {
-                throw new AuthException(e);
-            }
+            });
         }
 
         private AuthToken getToken(string url)

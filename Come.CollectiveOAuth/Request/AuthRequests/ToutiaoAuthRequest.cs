@@ -61,10 +61,7 @@ namespace Come.CollectiveOAuth.Request
             authUser.avatar = user.getString("avatar_url");
             authUser.remark = user.getString("description");
             authUser.gender = GlobalAuthUtil.getRealGender(user.getString("gender"));
-            authUser.token = authToken;
-            authUser.source = source.getName();
-            authUser.originalUser = user;
-            authUser.originalUserStr = userResponse;
+            fillAuthUser(authUser, authToken, user, userResponse);
             return authUser;
         }
 

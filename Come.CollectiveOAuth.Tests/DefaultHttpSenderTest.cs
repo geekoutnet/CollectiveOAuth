@@ -110,6 +110,16 @@ namespace Come.CollectiveOAuth.Tests
         }
 
         [Fact]
+        public void error_status_with_xiaomi_prefixed_json_returns_body()
+        {
+            const string body = "&&&START&&&{\"error\":96003,\"error_description\":\"invalid client\"}";
+            using (var server = new OneShotServer(401, "Unauthorized", "application/json", Encoding.UTF8.GetBytes(body)))
+            {
+                Assert.Equal(body, Get(server.Url));
+            }
+        }
+
+        [Fact]
         public void error_status_with_html_body_throws_status_only()
         {
             var html = "<html>" + new string('x', 1000) + "</html>";

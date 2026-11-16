@@ -268,6 +268,11 @@ namespace Come.CollectiveOAuth.Utils
         private static bool LooksLikeJson(string content)
         {
             var trimmed = content.Trim();
+            // 小米接口的 JSON 带 &&&START&&& 前缀
+            if (trimmed.StartsWith("&&&START&&&"))
+            {
+                trimmed = trimmed.Substring("&&&START&&&".Length).TrimStart();
+            }
             return trimmed.StartsWith("{") || trimmed.StartsWith("[");
         }
 

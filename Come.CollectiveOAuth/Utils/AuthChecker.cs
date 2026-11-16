@@ -100,5 +100,28 @@ namespace Come.CollectiveOAuth.Utils
                 throw new AuthException(AuthResponseStatus.ILLEGAL_STATUS, source);
             }
         }
+
+        /**
+         * 校验并消费 state（一次性使用，防止重放）。
+         * 缓存实现了 IAtomicAuthStateCache 时以原子 tryRemove 的结果作为校验结果，并发重放只有一次能通过；
+         * 否则退回 checkState + remove（非原子）。
+         */
+        public static void checkAndConsumeState(string state, IAuthSource source, IAuthStateCache authStateCache)
+        {
+            // 推特平台不支持回调 code 和 state：不校验，仅在带了 state 时顺手删除
+            if (!("TWITTER" == nameOf(source)) && authStateCache is IAtomicAuthStateCache atomicCache)
+            {
+                if (string.IsNullOrEmpty(state) || !atomicCache.tryRemove(state))
+                {
+                    throw new AuthException(AuthResponseStatus.ILLEGAL_STATUS, source);
+                }
+                return;
+            }
+            checkState(state, source, authStateCache);
+            if (!string.IsNullOrEmpty(state))
+            {
+                authStateCache.remove(state);
+            }
+        }
     }
 }

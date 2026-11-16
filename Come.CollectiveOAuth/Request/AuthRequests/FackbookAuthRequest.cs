@@ -108,7 +108,15 @@ namespace Come.CollectiveOAuth.Request
         {
             if (obj.containsKey("error"))
             {
-                throw new AuthException(obj.getJSONObject("error").getString("message"));
+                var error = obj["error"];
+                if (error.Type == JTokenType.Object)
+                {
+                    throw new AuthException(((JObject)error).getString("message"));
+                }
+                // error 为字符串（如 OAuth 标准错误格式）时直接使用，并附 error_description
+                string errorStr = obj.getString("error");
+                string description = obj.getString("error_description");
+                throw new AuthException(string.IsNullOrEmpty(description) ? errorStr : errorStr + ": " + description);
             }
         }
 

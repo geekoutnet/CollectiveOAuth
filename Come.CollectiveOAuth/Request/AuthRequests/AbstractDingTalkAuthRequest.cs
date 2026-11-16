@@ -43,6 +43,10 @@ namespace Come.CollectiveOAuth.Request
                 throw new AuthException(obj.getString("errmsg"));
             }
             obj = obj.getJSONObject("user_info");
+            if (obj == null)
+            {
+                throw new AuthException("Missing user_info in response", source);
+            }
 
             var token = new AuthToken();
             token.openId = obj.getString("openid");

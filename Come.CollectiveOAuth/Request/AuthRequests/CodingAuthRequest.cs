@@ -42,6 +42,10 @@ namespace Come.CollectiveOAuth.Request
             this.checkResponse(obj);
 
             obj = obj.getJSONObject("data");
+            if (obj == null)
+            {
+                throw new AuthException("Missing data in response", source);
+            }
             var authUser = new AuthUser();
             authUser.rawUserInfo = obj;
             authUser.uuid = obj.getString("id");

@@ -6,6 +6,7 @@ using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace Come.CollectiveOAuth.Request
 {
@@ -64,24 +65,46 @@ namespace Come.CollectiveOAuth.Request
 
         public override AuthResponse revoke(AuthToken authToken)
         {
-            string response = doGetRevoke(authToken);
-            var obj = JsonExtensions.parseObject(response);
-            this.checkResponse(obj);
-            // 返回1表示取消授权成功，否则失败
-            AuthResponseStatus status = obj.getIntValue("result") == 1 ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
-            return new AuthResponse(status.GetCode(), status.GetDesc());
+            if (authToken == null)
+            {
+                throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
+            }
+            try
+            {
+                string response = doGetRevoke(authToken);
+                var obj = JsonExtensions.parseObject(response);
+                this.checkResponse(obj);
+                // 返回1表示取消授权成功，否则失败
+                AuthResponseStatus status = obj.getIntValue("result") == 1 ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
+                return new AuthResponse(status.GetCode(), status.GetDesc());
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
 
         public override AuthResponse refresh(AuthToken authToken)
         {
-            string refreshUrl = UrlBuilder.fromBaseUrl(this.source.refresh())
-                .queryParam("grant_type", "refresh_token")
-                .queryParam("refresh_token", authToken.refreshToken)
-                .queryParam("client_id", this.config.clientId)
-                .queryParam("client_secret", this.config.clientSecret)
-                .build();
-            string response = HttpUtils.RequestGet(refreshUrl, null, config.httpConfig);
-            return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), null, this.getAuthToken(response));
+            if (authToken == null)
+            {
+                throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
+            }
+            try
+            {
+                string refreshUrl = UrlBuilder.fromBaseUrl(this.source.refresh())
+                    .queryParam("grant_type", "refresh_token")
+                    .queryParam("refresh_token", authToken.refreshToken)
+                    .queryParam("client_id", this.config.clientId)
+                    .queryParam("client_secret", this.config.clientSecret)
+                    .build();
+                string response = HttpUtils.RequestGet(refreshUrl, null, config.httpConfig);
+                return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), null, this.getAuthToken(response));
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
 
         /**

@@ -94,10 +94,19 @@ namespace Come.CollectiveOAuth.Request
             }
             if (obj.containsKey("error") && obj["error"].Type != JTokenType.Null)
             {
-                throw new AuthException(obj.getJSONObject("error").getString("message"));
+                var error = obj["error"];
+                if (error.Type == JTokenType.Object)
+                {
+                    throw new AuthException(((JObject)error).getString("message"));
+                }
+                throw new AuthException(errorWithDescription(obj));
             }
 
             var result = obj.getJSONObject("result");
+            if (result == null)
+            {
+                throw new AuthException("Missing result in response", source);
+            }
 
             var authUser = new AuthUser();
             authUser.rawUserInfo = result;
@@ -113,6 +122,22 @@ namespace Come.CollectiveOAuth.Request
         }
 
         public override AuthResponse refresh(AuthToken oldToken)
+        {
+            if (oldToken == null)
+            {
+                throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
+            }
+            try
+            {
+                return doRefresh(oldToken);
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
+        }
+
+        private AuthResponse doRefresh(AuthToken oldToken)
         {
             var form = new Dictionary<string, string>
             {
@@ -174,6 +199,16 @@ namespace Come.CollectiveOAuth.Request
             {
                 throw new AuthException(obj.getString("error_description"));
             }
+        }
+
+        /**
+         * error 为字符串时，拼上 error_description 作为错误信息
+         */
+        private static string errorWithDescription(JObject obj)
+        {
+            string error = obj.getString("error");
+            string description = obj.getString("error_description");
+            return string.IsNullOrEmpty(description) ? error : error + ": " + description;
         }
 
         ///编码（保留的公开方法）

@@ -103,7 +103,15 @@ namespace Come.AspNetCore.Sample
             ClientConfig clientConfig = GetClientConfig(authSource);
             IAuthStateCache authStateCache = _authStateCache;
 
-            DefaultAuthSourceEnum authSourceEnum = GlobalAuthUtil.enumFromString<DefaultAuthSourceEnum>(authSource);
+            DefaultAuthSourceEnum authSourceEnum;
+            try
+            {
+                authSourceEnum = GlobalAuthUtil.enumFromString<DefaultAuthSourceEnum>(authSource);
+            }
+            catch (Exception)
+            {
+                throw new NotSupportedException($"不支持的授权平台: {authSource}");
+            }
 
             switch (authSourceEnum)
             {

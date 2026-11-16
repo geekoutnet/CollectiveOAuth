@@ -20,9 +20,17 @@ namespace Come.CollectiveOAuth.Utils
         private static Stack<KeyValuePair<string, FileSystemWatcher>> FileListeners = new Stack<KeyValuePair<string, FileSystemWatcher>>();
 
         /// <summary>
-        /// 默认路径
+        /// 默认路径：优先程序目录（IIS / Windows 服务下当前目录不可靠），程序目录没有时兼容旧行为退回当前目录
         /// </summary>
-        private static string _defaultPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+        private static string _defaultPath = ResolveDefaultPath();
+
+        private static string ResolveDefaultPath()
+        {
+            string basePath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+            if (File.Exists(basePath)) return basePath;
+            string currentPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+            return File.Exists(currentPath) ? currentPath : basePath;
+        }
 
         /// <summary>
         /// 最终配置文件路径
@@ -50,9 +58,28 @@ namespace Come.CollectiveOAuth.Utils
         private static string _configUrlSection { get { return _configSection + "." + _configUrlPostfix; } }
 
 
-        static ConfigurationManager()
+        /// <summary>
+        /// 是否已加载过配置。改为首次访问 AppSettings 时才加载（而非静态构造），
+        /// 避免仅读取 ConfigSection 等属性就触发文件读取，且加载异常不会变成永久的 TypeInitializationException
+        /// </summary>
+        private static volatile bool _initialized = false;
+
+        private static void EnsureInitialized()
         {
-            ConfigFinder(_defaultPath);
+            if (_initialized) return;
+            lock (FileListeners)
+            {
+                if (_initialized) return;
+                _initialized = true;
+                try
+                {
+                    ConfigFinder(_defaultPath);
+                }
+                catch
+                {
+                    // 配置文件不可用时保持空配置
+                }
+            }
         }
 
         /// <summary>
@@ -62,14 +89,18 @@ namespace Come.CollectiveOAuth.Utils
         {
             _configPath = Path;
             JObject config_json = new JObject();
+            // 记录已访问的配置文件，防止 AppSettings.Url 互相指向形成环导致死循环
+            var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             while (config_json != null)
             {
                 config_json = null;
                 FileInfo config_info = new FileInfo(_configPath);
-                if (!config_info.Exists) break;
+                if (!config_info.Exists || !visited.Add(config_info.FullName)) break;
 
                 FileListeners.Push(CreateListener(config_info));
                 config_json = LoadJsonFile(_configPath);
+                // 解析失败时安全退出
+                if (config_json == null) break;
                 if (config_json[_configUrlSection] != null)
                     _configPath = config_json[_configUrlSection].ToString();
                 else break;
@@ -90,9 +121,9 @@ namespace Come.CollectiveOAuth.Utils
             JObject config_object = LoadJsonFile(_configPath);
             if (config_object == null || !(config_object is JObject)) return;
 
-            if (config_object[_configSection] != null)
+            if (config_object[_configSection] is JObject section)
             {
-                foreach (JProperty prop in config_object[_configSection])
+                foreach (JProperty prop in section.Properties())
                 {
                     configColltion[prop.Name] = prop.Value.ToString();
                 }
@@ -196,7 +227,7 @@ namespace Come.CollectiveOAuth.Utils
 
         public static NameValueCollection AppSettings
         {
-            get { return _configurationCollection; }
+            get { EnsureInitialized(); return _configurationCollection; }
         }
 
         /// <summary>
@@ -213,6 +244,7 @@ namespace Come.CollectiveOAuth.Utils
                 //释放掉全部监听响应链
                 while (FileListeners.Count > 0)
                     FileListeners.Pop().Value.Dispose();
+                _initialized = true;
                 ConfigFinder(_defaultPath);
             }
         }

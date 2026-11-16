@@ -84,12 +84,8 @@ namespace Come.CollectiveOAuth.Request
                 checkCode(authCallback);
                 if (!config.ignoreCheckState)
                 {
-                    AuthChecker.checkState(authCallback.state, source, authStateCache);
-                    // 有意差异：state 一次性使用，校验通过立即删除，防止重放
-                    if (!string.IsNullOrEmpty(authCallback.state))
-                    {
-                        authStateCache.remove(authCallback.state);
-                    }
+                    // 有意差异：state 一次性使用，校验与删除尽可能原子完成，防止并发重放
+                    AuthChecker.checkAndConsumeState(authCallback.state, source, authStateCache);
                 }
 
                 AuthToken authToken = this.getAccessToken(authCallback);

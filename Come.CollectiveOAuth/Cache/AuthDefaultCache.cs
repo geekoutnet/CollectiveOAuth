@@ -11,7 +11,14 @@ namespace Come.CollectiveOAuth.Cache
     {
         private static readonly ConcurrentDictionary<string, CacheState> stateCache = new ConcurrentDictionary<string, CacheState>();
 
-        private Timer pruneTimer;
+        /// <summary>
+        /// 存储是进程级共享的，定时清理器也只需一个：静态单例，避免每 new 一次泄漏一个 Timer
+        /// </summary>
+        private static Timer pruneTimer;
+
+        private static long pruneDelay;
+
+        private static readonly object pruneTimerLock = new object();
 
         public AuthDefaultCache()
         {
@@ -46,6 +53,14 @@ namespace Come.CollectiveOAuth.Cache
             stateCache.TryRemove(key, out _);
         }
 
+        /// <summary>
+        /// 原子删除：仅当本次调用删除了一个未过期的 key 时返回 true
+        /// </summary>
+        public bool tryRemove(string key)
+        {
+            return stateCache.TryRemove(key, out var cacheState) && !cacheState.isExpired();
+        }
+
         public void pruneCache()
         {
             foreach (var item in stateCache)
@@ -57,9 +72,30 @@ namespace Come.CollectiveOAuth.Cache
             }
         }
 
+        /// <summary>
+        /// 启动（或调整周期）进程内唯一的定时清理器；delay 非正数时忽略
+        /// </summary>
         public void schedulePrune(long delay)
         {
-            pruneTimer = new Timer(_ => pruneCache(), null, delay, delay);
+            if (delay <= 0)
+            {
+                return;
+            }
+            // Timer 允许的最大周期为 0xFFFFFFFE 毫秒
+            delay = Math.Min(delay, 0xFFFFFFFEL);
+            lock (pruneTimerLock)
+            {
+                if (pruneTimer == null)
+                {
+                    pruneTimer = new Timer(_ => pruneCache(), null, delay, delay);
+                }
+                else if (pruneDelay != delay)
+                {
+                    // 只在周期变化时调整，避免频繁 new 实例不断推迟清理
+                    pruneTimer.Change(delay, delay);
+                }
+                pruneDelay = delay;
+            }
         }
 
         private class CacheState

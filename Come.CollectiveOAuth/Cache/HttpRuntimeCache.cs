@@ -109,9 +109,19 @@ namespace Come.CollectiveOAuth.Cache
         public static void Remove(string CacheKey) => memoryCache.Remove(CacheKey);
 
         /// <summary>
-        /// 移除全部缓存
+        /// 移除全部缓存（清空条目，缓存实例继续可用；不能 Dispose，否则之后的读写会抛 ObjectDisposedException）
         /// </summary>
-        public static void RemoveAll() => memoryCache.Dispose();
+        public static void RemoveAll()
+        {
+            if (memoryCache is MemoryCache cache)
+            {
+                cache.Compact(1.0);
+            }
+            else
+            {
+                memoryCache = new MemoryCache(new MemoryCacheOptions());
+            }
+        }
     }
 }
 #endif

@@ -51,7 +51,11 @@ namespace Come.CollectiveOAuth.Request
             string response = HttpUtils.RequestGet(userInfoUrl, null, config.httpConfig);
             var obj = JsonExtensions.parseObject(response);
             this.checkResponse(obj);
-            var userObj = (JObject)obj.getJSONArray("items")[0];
+            var items = obj.getJSONArray("items");
+            if (items == null || items.Count == 0 || !(items[0] is JObject userObj))
+            {
+                throw new AuthException("Failed to get user info from Stack Overflow: items is empty");
+            }
 
             var authUser = new AuthUser();
             authUser.rawUserInfo = userObj;
@@ -92,6 +96,11 @@ namespace Come.CollectiveOAuth.Request
             if (obj.containsKey("error"))
             {
                 throw new AuthException(obj.getString("error_description"));
+            }
+            // StackExchange API 错误结构：{"error_id":401,"error_message":"...","error_name":"..."}
+            if (obj.containsKey("error_id"))
+            {
+                throw new AuthException(obj.getIntValue("error_id"), obj.getString("error_message") ?? obj.getString("error_name"));
             }
         }
 

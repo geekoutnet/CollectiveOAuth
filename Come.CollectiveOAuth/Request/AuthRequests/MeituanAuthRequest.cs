@@ -76,32 +76,43 @@ namespace Come.CollectiveOAuth.Request
 
         public override AuthResponse refresh(AuthToken oldToken)
         {
-            var form = new Dictionary<string, string>
+            if (oldToken == null)
             {
-                { "app_id", config.clientId },
-                { "secret", config.clientSecret },
-                { "refresh_token", oldToken.refreshToken },
-                { "grant_type", "refresh_token" }
-            };
+                throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
+            }
+            try
+            {
+                var form = new Dictionary<string, string>
+                {
+                    { "app_id", config.clientId },
+                    { "secret", config.clientSecret },
+                    { "refresh_token", oldToken.refreshToken },
+                    { "grant_type", "refresh_token" }
+                };
 
-            string response = HttpUtils.RequestFormPost(source.refresh(), GlobalAuthUtil.parseMapToString(form, true), null, null, config.httpConfig);
-            var obj = JsonExtensions.parseObject(response);
+                string response = HttpUtils.RequestFormPost(source.refresh(), GlobalAuthUtil.parseMapToString(form, true), null, null, config.httpConfig);
+                var obj = JsonExtensions.parseObject(response);
 
-            this.checkResponse(obj);
+                this.checkResponse(obj);
 
-            var authToken = new AuthToken();
-            authToken.accessToken = obj.getString("access_token");
-            authToken.refreshToken = obj.getString("refresh_token");
-            authToken.expireIn = obj.getIntValue("expires_in");
-            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, authToken);
+                var authToken = new AuthToken();
+                authToken.accessToken = obj.getString("access_token");
+                authToken.refreshToken = obj.getString("refresh_token");
+                authToken.expireIn = obj.getIntValue("expires_in");
+                return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, authToken);
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
 
         private void checkResponse(JObject obj)
         {
             if (obj.containsKey("error_code"))
             {
-                // 与 Java 保持一致：读取的键为 erroe_msg（JustAuth 原样拼写）
-                throw new AuthException(obj.getString("erroe_msg"));
+                // 优先读取规范键 error_msg；取不到再回退 JustAuth 的拼写 erroe_msg（保持与 Java 一致）
+                throw new AuthException(obj.getString("error_msg") ?? obj.getString("erroe_msg"));
             }
         }
 

@@ -44,6 +44,10 @@ namespace Come.CollectiveOAuth.Request
             var obj = JsonExtensions.parseObject(response);
             this.checkResponse(obj);
             var userObj = obj.getJSONObject("data");
+            if (userObj == null)
+            {
+                throw new AuthException(obj.getString("message") ?? "Failed to get user info from Pinterest: " + response);
+            }
 
             var authUser = new AuthUser();
             authUser.rawUserInfo = userObj;

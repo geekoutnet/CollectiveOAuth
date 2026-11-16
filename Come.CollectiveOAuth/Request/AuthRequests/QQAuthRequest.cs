@@ -5,6 +5,7 @@ using Come.CollectiveOAuth.Enums.Scope;
 using Come.CollectiveOAuth.Exceptions;
 using Come.CollectiveOAuth.Models;
 using Come.CollectiveOAuth.Utils;
+using System;
 
 namespace Come.CollectiveOAuth.Request
 {
@@ -30,8 +31,19 @@ namespace Come.CollectiveOAuth.Request
 
         public override AuthResponse refresh(AuthToken authToken)
         {
-            string response = HttpUtils.RequestGet(refreshTokenUrl(authToken.refreshToken), null, config.httpConfig);
-            return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), null, getAuthToken(response));
+            if (authToken == null)
+            {
+                throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
+            }
+            try
+            {
+                string response = HttpUtils.RequestGet(refreshTokenUrl(authToken.refreshToken), null, config.httpConfig);
+                return new AuthResponse(AuthResponseStatus.SUCCESS.GetCode(), null, getAuthToken(response));
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
 
         protected override AuthUser getUserInfo(AuthToken authToken)
@@ -113,6 +125,13 @@ namespace Come.CollectiveOAuth.Request
 
         private AuthToken getAuthToken(string response)
         {
+            // token 接口出错时返回 JSONP：callback( {"error":100019,"error_description":"..."} );
+            string trimmed = response?.Trim() ?? "";
+            if (trimmed.StartsWith("callback("))
+            {
+                var errorObj = JsonExtensions.parseObject(trimmed.Replace("callback(", "").Replace(");", "").Trim());
+                throw new AuthException(errorObj.getString("error_description") ?? errorObj.getString("error"));
+            }
             var accessTokenObject = GlobalAuthUtil.parseStringToMap(response);
             if (!accessTokenObject.ContainsKey("access_token") || accessTokenObject.ContainsKey("code"))
             {
@@ -120,7 +139,7 @@ namespace Come.CollectiveOAuth.Request
             }
             var authToken = new AuthToken();
             authToken.accessToken = accessTokenObject["access_token"];
-            authToken.expireIn = int.Parse(accessTokenObject.TryGetValue("expires_in", out var expiresIn) ? expiresIn : "0");
+            authToken.expireIn = accessTokenObject.TryGetValue("expires_in", out var expiresIn) && int.TryParse(expiresIn, out var expireIn) ? expireIn : 0;
             authToken.refreshToken = accessTokenObject.TryGetValue("refresh_token", out var refreshToken) ? refreshToken : null;
             return authToken;
         }

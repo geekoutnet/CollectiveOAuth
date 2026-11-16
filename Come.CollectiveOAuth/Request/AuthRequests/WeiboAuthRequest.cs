@@ -121,15 +121,26 @@ namespace Come.CollectiveOAuth.Request
 
         public override AuthResponse revoke(AuthToken authToken)
         {
-            string response = doGetRevoke(authToken);
-            var obj = JsonExtensions.parseObject(response);
-            if (obj.containsKey("error"))
+            if (authToken == null)
             {
-                return new AuthResponse(AuthResponseStatus.FAILURE.GetCode(), obj.getString("error"));
+                throw new AuthException(AuthResponseStatus.ILLEGAL_TOKEN, source);
             }
-            // 返回 result = true 表示取消授权成功，否则失败
-            AuthResponseStatus status = obj.getBooleanValue("result") ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
-            return new AuthResponse(status.GetCode(), status.GetDesc());
+            try
+            {
+                string response = doGetRevoke(authToken);
+                var obj = JsonExtensions.parseObject(response);
+                if (obj.containsKey("error"))
+                {
+                    return new AuthResponse(AuthResponseStatus.FAILURE.GetCode(), obj.getString("error"));
+                }
+                // 返回 result = true 表示取消授权成功，否则失败
+                AuthResponseStatus status = obj.getBooleanValue("result") ? AuthResponseStatus.SUCCESS : AuthResponseStatus.FAILURE;
+                return new AuthResponse(status.GetCode(), status.GetDesc());
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
     }
 }

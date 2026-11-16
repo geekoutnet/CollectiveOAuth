@@ -82,7 +82,18 @@ namespace Come.CollectiveOAuth.Request
 
         public override AuthResponse refresh(AuthToken oldToken)
         {
-            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, this.getToken(refreshTokenUrl(oldToken.refreshToken)));
+            if (oldToken == null)
+            {
+                throw new AuthException(AuthResponseStatus.REQUIRED_REFRESH_TOKEN, source);
+            }
+            try
+            {
+                return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, this.getToken(refreshTokenUrl(oldToken.refreshToken)));
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
 
         /**

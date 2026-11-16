@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using Come.CollectiveOAuth.Config;
+using Come.CollectiveOAuth.Exceptions;
 
 namespace Come.CollectiveOAuth.Utils
 {
@@ -141,9 +142,11 @@ namespace Come.CollectiveOAuth.Utils
         private static readonly HttpClient defaultClient;
 
         /// <summary>
-        /// 按代理复用 HttpClient
+        /// 按代理复用 HttpClient。WebProxy 按配置取值作键（调用方每次 new 也能复用），其它 IWebProxy 实现按引用作键
         /// </summary>
-        private static readonly ConcurrentDictionary<IWebProxy, HttpClient> proxyClients = new ConcurrentDictionary<IWebProxy, HttpClient>();
+        private static readonly ConcurrentDictionary<object, HttpClient> proxyClients = new ConcurrentDictionary<object, HttpClient>();
+
+        internal static int ProxyClientCount => proxyClients.Count;
 
         static DefaultHttpSender()
         {
@@ -161,6 +164,7 @@ namespace Come.CollectiveOAuth.Utils
                 UseCookies = false,
                 AllowAutoRedirect = true,
                 PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
                 Proxy = proxy,
                 UseProxy = proxy != null
             };
@@ -169,6 +173,7 @@ namespace Come.CollectiveOAuth.Utils
             {
                 UseCookies = false,
                 AllowAutoRedirect = true,
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
                 Proxy = proxy,
                 UseProxy = proxy != null
             };
@@ -177,9 +182,26 @@ namespace Come.CollectiveOAuth.Utils
             return new HttpClient(handler) { Timeout = Timeout.InfiniteTimeSpan };
         }
 
+        private static object ProxyKey(IWebProxy proxy)
+        {
+            if (proxy is WebProxy webProxy)
+            {
+                // Credentials 按引用比较；BypassList 拼成字符串比较
+                return Tuple.Create(webProxy.Address, webProxy.BypassProxyOnLocal, webProxy.UseDefaultCredentials,
+                    string.Join("\n", webProxy.BypassList ?? new string[0]), (object)webProxy.Credentials);
+            }
+            return proxy;
+        }
+
+        internal static HttpClient GetClient(HttpConfig httpConfig)
+        {
+            var proxy = httpConfig?.proxy;
+            return proxy == null ? defaultClient : proxyClients.GetOrAdd(ProxyKey(proxy), _ => CreateClient(proxy));
+        }
+
         public string Send(HttpRequestRecord record, HttpConfig httpConfig)
         {
-            var client = httpConfig?.proxy == null ? defaultClient : proxyClients.GetOrAdd(httpConfig.proxy, CreateClient);
+            var client = GetClient(httpConfig);
             int timeout = httpConfig == null ? HttpUtils.DEFAULT_TIMEOUT : httpConfig.timeout;
             var encoding = Encoding.GetEncoding(record.charset);
 
@@ -206,19 +228,48 @@ namespace Come.CollectiveOAuth.Utils
                     request.Headers.TryAddWithoutValidation(item.Key, item.Value);
                 }
 
-                using (var response = client.SendAsync(request, cts.Token).ConfigureAwait(false).GetAwaiter().GetResult())
+                HttpResponseMessage response;
+                byte[] bytes;
+                try
                 {
-                    var bytes = response.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                    response = client.SendAsync(request, cts.Token).ConfigureAwait(false).GetAwaiter().GetResult();
+                    bytes = response.Content.ReadAsByteArrayAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                }
+                catch (OperationCanceledException) when (cts.IsCancellationRequested)
+                {
+                    throw new AuthException($"HTTP request timeout after {timeout}ms: {StripQuery(record.url)}");
+                }
+                catch (HttpRequestException e)
+                {
+                    // 不用 AuthException(string, Exception)：该构造不设置 errorCode（为 0），会使 responseError 返回 code=0
+                    throw new AuthException($"HTTP request failed: {StripQuery(record.url)}: {e.GetBaseException().Message}");
+                }
+
+                using (response)
+                {
                     var content = encoding.GetString(bytes);
-                    if (!response.IsSuccessStatusCode)
+                    // 与 simple-http 一致不按状态码抛异常：非 2xx 的 JSON 错误体交给各平台 checkResponse 解析
+                    if (!response.IsSuccessStatusCode && !LooksLikeJson(content))
                     {
                         // 响应可能是整页 HTML，截断后再放入异常信息
                         var detail = content.Length > 500 ? content.Substring(0, 500) + "..." : content;
-                        throw new Exception($"HTTP {(int)response.StatusCode} {response.ReasonPhrase}: {detail}");
+                        throw new AuthException($"HTTP {(int)response.StatusCode} {response.ReasonPhrase}: {detail}");
                     }
                     return content;
                 }
             }
+        }
+
+        private static bool LooksLikeJson(string content)
+        {
+            var trimmed = content.Trim();
+            return trimmed.StartsWith("{") || trimmed.StartsWith("[");
+        }
+
+        private static string StripQuery(string url)
+        {
+            int index = url.IndexOf('?');
+            return index < 0 ? url : url.Substring(0, index);
         }
     }
 }

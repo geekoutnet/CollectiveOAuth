@@ -251,8 +251,13 @@ namespace Come.CollectiveOAuth.Utils
                     // 与 simple-http 一致不按状态码抛异常：非 2xx 的 JSON 错误体交给各平台 checkResponse 解析
                     if (!response.IsSuccessStatusCode && !LooksLikeJson(content))
                     {
-                        // 响应可能是整页 HTML，截断后再放入异常信息
-                        var detail = content.Length > 500 ? content.Substring(0, 500) + "..." : content;
+                        // HTML 错误页对调用方没有意义，只保留状态码；其他文本截断后放入异常信息
+                        var trimmed = content.Trim();
+                        if (trimmed.Length == 0 || trimmed.StartsWith("<"))
+                        {
+                            throw new AuthException($"HTTP {(int)response.StatusCode} {response.ReasonPhrase}");
+                        }
+                        var detail = trimmed.Length > 500 ? trimmed.Substring(0, 500) + "..." : trimmed;
                         throw new AuthException($"HTTP {(int)response.StatusCode} {response.ReasonPhrase}: {detail}");
                     }
                     return content;

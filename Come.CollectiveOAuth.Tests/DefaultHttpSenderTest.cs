@@ -110,14 +110,25 @@ namespace Come.CollectiveOAuth.Tests
         }
 
         [Fact]
-        public void error_status_with_html_body_throws_truncated_auth_exception()
+        public void error_status_with_html_body_throws_status_only()
         {
             var html = "<html>" + new string('x', 1000) + "</html>";
             using (var server = new OneShotServer(500, "Internal Server Error", "text/html", Encoding.UTF8.GetBytes(html)))
             {
                 var e = Assert.Throws<AuthException>(() => Get(server.Url));
-                Assert.Equal("HTTP 500 Internal Server Error: " + html.Substring(0, 500) + "...", e.Message);
+                Assert.Equal("HTTP 500 Internal Server Error", e.Message);
                 Assert.Equal(5000, e.errorCode);
+            }
+        }
+
+        [Fact]
+        public void error_status_with_text_body_throws_truncated_auth_exception()
+        {
+            var text = new string('x', 1000);
+            using (var server = new OneShotServer(502, "Bad Gateway", "text/plain", Encoding.UTF8.GetBytes(text)))
+            {
+                var e = Assert.Throws<AuthException>(() => Get(server.Url));
+                Assert.Equal("HTTP 502 Bad Gateway: " + text.Substring(0, 500) + "...", e.Message);
             }
         }
 

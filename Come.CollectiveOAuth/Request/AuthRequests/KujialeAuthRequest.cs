@@ -44,6 +44,10 @@ namespace Come.CollectiveOAuth.Request
         {
             var accessTokenObject = checkResponse(response);
             var resultObject = accessTokenObject.getJSONObject("d");
+            if (resultObject == null)
+            {
+                throw new AuthException("Missing d in response", source);
+            }
 
             var authToken = new AuthToken();
             authToken.accessToken = resultObject.getString("accessToken");
@@ -75,6 +79,10 @@ namespace Come.CollectiveOAuth.Request
                 throw new AuthException(obj.getString("m"));
             }
             var resultObject = obj.getJSONObject("d");
+            if (resultObject == null)
+            {
+                throw new AuthException("Missing d in response", source);
+            }
 
             var authUser = new AuthUser();
             authUser.rawUserInfo = resultObject;
@@ -103,8 +111,19 @@ namespace Come.CollectiveOAuth.Request
 
         public override AuthResponse refresh(AuthToken authToken)
         {
-            string response = HttpUtils.RequestPost(refreshTokenUrl(authToken.refreshToken), null, null, null, config.httpConfig);
-            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getAuthToken(response));
+            if (authToken == null)
+            {
+                throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
+            }
+            try
+            {
+                string response = HttpUtils.RequestPost(refreshTokenUrl(authToken.refreshToken), null, null, null, config.httpConfig);
+                return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getAuthToken(response));
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
     }
 }

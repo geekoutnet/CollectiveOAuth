@@ -74,6 +74,22 @@ namespace Come.CollectiveOAuth.Request
 
         public override AuthResponse refresh(AuthToken authToken)
         {
+            if (authToken == null)
+            {
+                throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
+            }
+            try
+            {
+                return doRefresh(authToken);
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
+        }
+
+        private AuthResponse doRefresh(AuthToken authToken)
+        {
             var form = new Dictionary<string, string>
             {
                 { "client_id", config.clientId },

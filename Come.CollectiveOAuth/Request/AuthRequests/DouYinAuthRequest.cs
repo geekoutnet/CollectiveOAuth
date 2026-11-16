@@ -59,7 +59,18 @@ namespace Come.CollectiveOAuth.Request
 
         public override AuthResponse refresh(AuthToken oldToken)
         {
-            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(refreshTokenUrl(oldToken.refreshToken)));
+            if (oldToken == null)
+            {
+                throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
+            }
+            try
+            {
+                return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(refreshTokenUrl(oldToken.refreshToken)));
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
 
         /**
@@ -67,8 +78,18 @@ namespace Come.CollectiveOAuth.Request
          */
         private void checkResponse(JObject obj)
         {
-            string message = obj.getString("message");
+            // 新版接口错误格式：{"err_no":..,"err_tips":..}
+            int errNo = obj.getIntValue("err_no");
+            if (errNo != 0)
+            {
+                throw new AuthException(errNo, obj.getString("err_tips"));
+            }
             var data = obj.getJSONObject("data");
+            if (data == null)
+            {
+                throw new AuthException("Missing data in response", source);
+            }
+            string message = obj.getString("message");
             int errorCode = data.getIntValue("error_code");
             if ("error".Equals(message) || errorCode != 0)
             {

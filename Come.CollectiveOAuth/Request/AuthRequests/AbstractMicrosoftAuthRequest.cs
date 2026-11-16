@@ -73,9 +73,9 @@ namespace Come.CollectiveOAuth.Request
         protected override AuthUser getUserInfo(AuthToken authToken)
         {
             string token = authToken.accessToken;
-            string tokenType = authToken.tokenType;
-            // 与 Java 字符串拼接一致：null 输出为 "null"
-            string jwt = (tokenType ?? "null") + " " + (token ?? "null");
+            string tokenType = string.IsNullOrEmpty(authToken.tokenType) ? "Bearer" : authToken.tokenType;
+            // 与 Java 字符串拼接一致：null 输出为 "null"；tokenType 缺失时默认 Bearer（有意差异，避免生成 "null xxx"）
+            string jwt = tokenType + " " + (token ?? "null");
 
             var httpHeader = new Dictionary<string, object> { { "Authorization", jwt } };
 
@@ -106,7 +106,18 @@ namespace Come.CollectiveOAuth.Request
          */
         public override AuthResponse refresh(AuthToken authToken)
         {
-            return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(refreshTokenUrl(authToken.refreshToken)));
+            if (authToken == null)
+            {
+                throw new AuthException(AuthResponseStatus.PARAMETER_INCOMPLETE, source);
+            }
+            try
+            {
+                return new AuthResponse(Convert.ToInt32(AuthResponseStatus.SUCCESS), null, getToken(refreshTokenUrl(authToken.refreshToken)));
+            }
+            catch (Exception e) when (!(e is AuthException))
+            {
+                throw new AuthException(e);
+            }
         }
 
         /**
